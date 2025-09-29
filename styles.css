@@ -44,7 +44,7 @@ nav a:hover {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
     color: white;
     padding: 80px 0;
     text-align: center;
@@ -180,11 +180,6 @@ nav a:hover {
     box-shadow: 0 8px 15px rgba(0,0,0,0.4);
 }
 
-.why-choose-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    display: block;
-}
 
 .why-choose-card h3 {
     font-size: 1.4rem;
@@ -427,10 +422,6 @@ footer a:hover {
         margin-bottom: 2rem;
     }
     
-    .why-choose-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
     
     .why-choose-card h3 {
         font-size: 1.2rem;
