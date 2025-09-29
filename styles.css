@@ -186,9 +186,18 @@ nav a:hover {
 }
 
 /* Pricing */
+.pricing-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+}
+
+.pricing-category {
+    margin-bottom: 4rem;
+}
+
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     margin: 2rem 0;
 }
@@ -200,16 +209,24 @@ nav a:hover {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     text-align: center;
     position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .pricing-card.featured {
     border: 3px solid #667eea;
     transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .pricing-card h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
+    color: #333;
 }
 
 .pricing-card .price {
@@ -217,6 +234,33 @@ nav a:hover {
     font-weight: bold;
     color: #667eea;
     margin-bottom: 1rem;
+}
+
+.pricing-card .price-period {
+    font-size: 1rem;
+    font-weight: normal;
+    color: #666;
+    margin-left: 0.5rem;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.pricing-features li {
+    padding: 0.5rem 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.pricing-features li:before {
+    content: "✓";
+    color: #28a745;
+    font-weight: bold;
+    margin-right: 0.5rem;
 }
 
 /* Footer */

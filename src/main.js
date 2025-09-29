@@ -48,3 +48,43 @@ function updateNavigationForGuest() {
     `;
   }
 }
+
+// Global checkout function for pricing buttons
+window.startCheckout = async function(plan) {
+  try {
+    // Check if user is logged in
+    const user = await getCurrentUser();
+    if (!user) {
+      alert('Please login to purchase a plan');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    // Show loading state
+    const button = event.target;
+    const originalText = button.textContent;
+    button.textContent = 'Processing...';
+    button.disabled = true;
+
+    const response = await fetch('/.netlify/functions/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: plan })
+    });
+    
+    const data = await response.json();
+    
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));
+      button.textContent = originalText;
+      button.disabled = false;
+    }
+  } catch (error) {
+    alert('Failed to start checkout: ' + error.message);
+    const button = event.target;
+    button.textContent = button.getAttribute('data-original-text') || 'Try Again';
+    button.disabled = false;
+  }
+};
