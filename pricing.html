@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - TaxLetterHelp</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav style="background:#fff; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between;">
+        <div><strong>TaxLetterHelp</strong></div>
+        <div>
+            <a href="/upload.html">Upload</a> |
+            <a href="/dashboard.html">Dashboard</a> |
+            <a href="/pricing.html">Pricing</a> |
+            <a href="/login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="text-align: center; margin: 2rem 0;">Choose Your Plan</h1>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter</h3>
+                <div class="price">$9.99<span style="font-size: 1rem;">/month</span></div>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
+                    <li>✓ 5 letters per month</li>
+                    <li>✓ AI analysis</li>
+                    <li>✓ Response generation</li>
+                    <li>✓ PDF download</li>
+                </ul>
+                <button class="btn" onclick="selectPlan('starter')">Choose Starter</button>
+            </div>
+            
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$19.99<span style="font-size: 1rem;">/month</span></div>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
+                    <li>✓ 20 letters per month</li>
+                    <li>✓ AI analysis</li>
+                    <li>✓ Response generation</li>
+                    <li>✓ PDF & DOCX download</li>
+                    <li>✓ Priority support</li>
+                </ul>
+                <button class="btn" onclick="selectPlan('pro')">Choose Pro</button>
+            </div>
+            
+            <div class="pricing-card">
+                <h3>Pro Plus</h3>
+                <div class="price">$39.99<span style="font-size: 1rem;">/month</span></div>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
+                    <li>✓ Unlimited letters</li>
+                    <li>✓ AI analysis</li>
+                    <li>✓ Response generation</li>
+                    <li>✓ PDF & DOCX download</li>
+                    <li>✓ Priority support</li>
+                    <li>✓ Phone consultation</li>
+                </ul>
+                <button class="btn" onclick="selectPlan('proplus')">Choose Pro Plus</button>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 3rem 0;">
+            <h2>All plans include:</h2>
+            <ul style="list-style: none; padding: 0; display: inline-block; text-align: left;">
+                <li>✓ Secure document storage</li>
+                <li>✓ Professional response templates</li>
+                <li>✓ 30-day money-back guarantee</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        async function selectPlan(plan) {
+            try {
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan: plan })
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to start checkout: ' + error.message);
+            }
+        }
+        
+        // Make selectPlan available globally
+        window.selectPlan = selectPlan;
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "taxletterhelp",
+  "version": "1.0.0",
+  "description": "AI-powered tax letter analysis and response generation",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "openai": "^4.20.0",
+    "stripe": "^14.0.0",
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

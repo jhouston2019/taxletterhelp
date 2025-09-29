@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - TaxLetterHelp</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav style="background:#fff; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between;">
+        <div><strong>TaxLetterHelp</strong></div>
+        <div>
+            <a href="/upload.html">Upload</a> |
+            <a href="/dashboard.html">Dashboard</a> |
+            <a href="/pricing.html">Pricing</a> |
+            <a href="/login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Create Your Account</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Already have an account? <a href="/login.html">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signUp } from './src/components/Auth.js';
+        
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                const { data, error } = await signUp(email, password);
+                
+                if (error) {
+                    alert('Sign up failed: ' + error.message);
+                } else {
+                    alert('Account created successfully! Please check your email to verify your account.');
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                alert('Sign up failed: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Letter - TaxLetterHelp</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav style="background:#fff; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between;">
+        <div><strong>TaxLetterHelp</strong></div>
+        <div>
+            <a href="/upload.html">Upload</a> |
+            <a href="/dashboard.html">Dashboard</a> |
+            <a href="/pricing.html">Pricing</a> |
+            <a href="/login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Upload Your IRS Letter</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Select File</label>
+                    <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <small>Supported formats: PDF, JPG, PNG (Max 10MB)</small>
+                </div>
+                <button type="submit" class="btn">Upload & Analyze</button>
+            </form>
+            
+            <div id="uploadStatus" style="margin-top: 1rem; display: none;">
+                <p id="statusText"></p>
+            </div>
+            
+            <div id="analysisResults" style="margin-top: 2rem; display: none;">
+                <h3>Letter Analysis</h3>
+                <div id="explanation" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;"></div>
+                
+                <h3>Generate Response</h3>
+                <div class="form-group">
+                    <label for="userData">Your Information (Optional)</label>
+                    <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..."></textarea>
+                </div>
+                <button id="generateResponse" class="btn">Generate Response Letter</button>
+                
+                <div id="responseResults" style="margin-top: 2rem; display: none;">
+                    <h3>Generated Response</h3>
+                    <div id="responseLetter" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0; white-space: pre-wrap;"></div>
+                    <div style="margin-top: 1rem;">
+                        <button id="downloadPDF" class="btn">Download as PDF</button>
+                        <button id="downloadDOCX" class="btn btn-secondary" style="margin-left: 1rem;">Download as DOCX</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js';
+        import { getCurrentUser } from './src/components/Auth.js';
+        
+        let currentUser = null;
+        let letterText = '';
+        
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = await getCurrentUser();
+            if (!currentUser) {
+                alert('Please login to upload letters');
+                window.location.href = '/login.html';
+            }
+        });
+        
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+            
+            try {
+                showStatus('Uploading file...');
+                
+                // Upload file to Supabase storage
+                const filePath = await uploadFile(file, currentUser.id);
+                
+                // Save document record to database
+                await saveDocumentToDatabase(currentUser.id, file.name, filePath);
+                
+                showStatus('File uploaded successfully! Analyzing letter...');
+                
+                // For demo purposes, we'll simulate text extraction
+                // In a real app, you'd use OCR or PDF parsing
+                letterText = `Sample IRS letter content for ${file.name}. This is a placeholder for the actual letter text that would be extracted from the uploaded file.`;
+                
+                // Analyze the letter
+                const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: letterText })
+                });
+                
+                const analysisData = await analysisResponse.json();
+                
+                if (analysisData.explanation) {
+                    document.getElementById('explanation').textContent = analysisData.explanation;
+                    document.getElementById('analysisResults').style.display = 'block';
+                    hideStatus();
+                } else {
+                    showStatus('Analysis failed: ' + (analysisData.error || 'Unknown error'));
+                }
+                
+            } catch (error) {
+                showStatus('Upload failed: ' + error.message);
+            }
+        });
+        
+        document.getElementById('generateResponse').addEventListener('click', async () => {
+            const userData = document.getElementById('userData').value;
+            
+            try {
+                showStatus('Generating response letter...');
+                
+                const response = await fetch('/.netlify/functions/generate-response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        letterText: letterText,
+                        userData: userData 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.responseLetter) {
+                    document.getElementById('responseLetter').textContent = data.responseLetter;
+                    document.getElementById('responseResults').style.display = 'block';
+                    hideStatus();
+                } else {
+                    showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
+                }
+                
+            } catch (error) {
+                showStatus('Response generation failed: ' + error.message);
+            }
+        });
+        
+        document.getElementById('downloadPDF').addEventListener('click', async () => {
+            const responseText = document.getElementById('responseLetter').textContent;
+            
+            try {
+                const response = await fetch('/.netlify/functions/generate-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text: responseText,
+                        fileName: 'response-letter.pdf'
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'response-letter.pdf';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('PDF generation failed');
+                }
+            } catch (error) {
+                alert('PDF generation failed: ' + error.message);
+            }
+        });
+        
+        function showStatus(message) {
+            const statusDiv = document.getElementById('uploadStatus');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+        
+        function hideStatus() {
+            document.getElementById('uploadStatus').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
