@@ -25,14 +25,13 @@ body {
 
 /* Navigation */
 nav {
-    background: #2d1b1b;
+    background: #1a0a0a;
     padding: 1.25rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #b91c1c;
-    backdrop-filter: blur(10px);
 }
 
 nav a {
