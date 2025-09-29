@@ -25,9 +25,9 @@ body {
 
 /* Navigation */
 nav {
-    background: #1a1a1a;
+    background: #2d1b1b;
     padding: 1.25rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
