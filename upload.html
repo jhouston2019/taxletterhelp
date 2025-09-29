@@ -147,6 +147,23 @@
         
         async function analyzeLetter() {
             try {
+                // Check usage limits before proceeding
+                const usageResponse = await fetch('/.netlify/functions/track-usage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        userId: currentUser.id,
+                        actionType: 'letter_analysis',
+                        documentId: null
+                    })
+                });
+                
+                if (!usageResponse.ok) {
+                    const usageData = await usageResponse.json();
+                    showStatus('Usage limit exceeded: ' + usageData.message);
+                    return;
+                }
+                
                 const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
