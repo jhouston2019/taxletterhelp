@@ -20,44 +20,79 @@
     <div class="container">
         <h1 style="text-align: center; margin: 2rem 0;">Choose Your Plan</h1>
         
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Starter</h3>
-                <div class="price">$9.99<span style="font-size: 1rem;">/month</span></div>
-                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-                    <li>✓ 5 letters per month</li>
-                    <li>✓ AI analysis</li>
-                    <li>✓ Response generation</li>
-                    <li>✓ PDF download</li>
-                </ul>
-                <button class="btn" onclick="selectPlan('starter')">Choose Starter</button>
+        <!-- One-Time Purchases -->
+        <div class="pricing-category">
+            <h3 style="text-align: center; color: #667eea; margin-bottom: 2rem;">One-Time Purchases</h3>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Standard Letter Response</h3>
+                    <div class="price">$49<span class="price-period">one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ Professional response letter</li>
+                        <li>✓ AI analysis & explanation</li>
+                        <li>✓ PDF & DOCX download</li>
+                        <li>✓ Standard IRS letters</li>
+                    </ul>
+                    <button class="btn" onclick="startCheckout('STANDARD')">Get Standard Response</button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>Complex Letter Response</h3>
+                    <div class="price">$99<span class="price-period">one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ Professional response letter</li>
+                        <li>✓ AI analysis & explanation</li>
+                        <li>✓ PDF & DOCX download</li>
+                        <li>✓ Audit & 1099-K letters</li>
+                        <li>✓ Priority processing</li>
+                    </ul>
+                    <button class="btn" onclick="startCheckout('COMPLEX')">Get Complex Response</button>
+                </div>
             </div>
-            
-            <div class="pricing-card featured">
-                <h3>Pro</h3>
-                <div class="price">$19.99<span style="font-size: 1rem;">/month</span></div>
-                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-                    <li>✓ 20 letters per month</li>
-                    <li>✓ AI analysis</li>
-                    <li>✓ Response generation</li>
-                    <li>✓ PDF & DOCX download</li>
-                    <li>✓ Priority support</li>
-                </ul>
-                <button class="btn" onclick="selectPlan('pro')">Choose Pro</button>
-            </div>
-            
-            <div class="pricing-card">
-                <h3>Pro Plus</h3>
-                <div class="price">$39.99<span style="font-size: 1rem;">/month</span></div>
-                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-                    <li>✓ Unlimited letters</li>
-                    <li>✓ AI analysis</li>
-                    <li>✓ Response generation</li>
-                    <li>✓ PDF & DOCX download</li>
-                    <li>✓ Priority support</li>
-                    <li>✓ Phone consultation</li>
-                </ul>
-                <button class="btn" onclick="selectPlan('proplus')">Choose Pro Plus</button>
+        </div>
+
+        <!-- Subscription Plans -->
+        <div class="pricing-category">
+            <h3 style="text-align: center; color: #667eea; margin: 3rem 0 2rem 0;">Monthly Subscriptions</h3>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$19<span class="price-period">/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ 1 IRS letter per month</li>
+                        <li>✓ AI explanations</li>
+                        <li>✓ Response generation</li>
+                        <li>✓ PDF download</li>
+                    </ul>
+                    <button class="btn" onclick="startCheckout('STARTER')">Start Starter Plan</button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>Pro</h3>
+                    <div class="price">$49<span class="price-period">/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ 3 IRS letters per month</li>
+                        <li>✓ Priority response generation</li>
+                        <li>✓ AI explanations</li>
+                        <li>✓ PDF & DOCX download</li>
+                        <li>✓ Email support</li>
+                    </ul>
+                    <button class="btn" onclick="startCheckout('PRO')">Start Pro Plan</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Pro+</h3>
+                    <div class="price">$99<span class="price-period">/month</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ Unlimited IRS letters</li>
+                        <li>✓ Priority response generation</li>
+                        <li>✓ AI explanations</li>
+                        <li>✓ PDF & DOCX download</li>
+                        <li>✓ Audit prep kit included</li>
+                        <li>✓ Phone support</li>
+                    </ul>
+                    <button class="btn" onclick="startCheckout('PROPLUS')">Start Pro+ Plan</button>
+                </div>
             </div>
         </div>
         
@@ -71,29 +106,6 @@
         </div>
     </div>
 
-    <script type="module">
-        async function selectPlan(plan) {
-            try {
-                const response = await fetch('/.netlify/functions/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ plan: plan })
-                });
-                
-                const data = await response.json();
-                
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));
-                }
-            } catch (error) {
-                alert('Failed to start checkout: ' + error.message);
-            }
-        }
-        
-        // Make selectPlan available globally
-        window.selectPlan = selectPlan;
-    </script>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>

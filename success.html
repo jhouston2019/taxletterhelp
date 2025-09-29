@@ -3,31 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - TaxLetterHelp</title>
+    <title>Payment Success - TaxLetterHelp</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav style="background:#fff; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between;">
-        <div><strong>TaxLetterHelp</strong></div>
+    <nav style="background:#1a1a1a; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #e11d48;">
+        <div style="color: #f5f5f5;"><strong>TaxLetterHelp</strong></div>
         <div>
-            <a href="/upload.html">Upload</a> |
-            <a href="/dashboard.html">Dashboard</a> |
-            <a href="/pricing.html">Pricing</a> |
-            <a href="/login.html">Login</a>
+            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Upload</a> |
+            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Dashboard</a> |
+            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Pricing</a>
         </div>
     </nav>
 
     <div class="container">
-        <div class="form-container" style="text-align: center;">
-            <h2>🎉 Payment Successful!</h2>
-            <p>Thank you for subscribing to TaxLetterHelp. Your account has been upgraded.</p>
-            <p>You can now start using all the features of your new plan.</p>
+        <div class="form-container" style="text-align: center; max-width: 600px; margin: 4rem auto;">
+            <div style="background: #d4edda; color: #155724; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h1 style="color: #155724; margin-bottom: 1rem;">✅ Payment Successful!</h1>
+                <p style="font-size: 1.1rem; margin-bottom: 1rem;">Thank you for your purchase! Your subscription is now active.</p>
+                <p>You can now access all the features included in your plan.</p>
+            </div>
             
-            <div style="margin: 2rem 0;">
-                <a href="/dashboard.html" class="btn">Go to Dashboard</a>
-                <a href="/upload.html" class="btn btn-secondary" style="margin-left: 1rem;">Upload Your First Letter</a>
+            <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem;">What's Next?</h3>
+                <ul style="text-align: left; list-style: none; padding: 0;">
+                    <li style="margin: 0.5rem 0;">📄 <strong>Upload your first IRS letter</strong> to get started</li>
+                    <li style="margin: 0.5rem 0;">🤖 <strong>Get AI analysis</strong> explaining what the letter means</li>
+                    <li style="margin: 0.5rem 0;">✍️ <strong>Generate professional responses</strong> in minutes</li>
+                    <li style="margin: 0.5rem 0;">📥 <strong>Download responses</strong> as PDF or DOCX</li>
+                </ul>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/upload.html" class="btn" style="flex: 1; min-width: 200px;">Upload Your First Letter</a>
+                <a href="/dashboard.html" class="btn btn-secondary" style="flex: 1; min-width: 200px;">Go to Dashboard</a>
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px;">
+                <p style="margin: 0; color: #1565c0;">
+                    <strong>Need help?</strong> Check out our <a href="/pricing.html" style="color: #1565c0;">pricing page</a> for plan details, 
+                    or contact support if you have any questions.
+                </p>
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 TaxLetterHelp. <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms</a> | <a href="/disclaimer.html">Disclaimer</a></p>
+        </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
+

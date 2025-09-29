@@ -97,13 +97,56 @@
                 // Save document record to database
                 await saveDocumentToDatabase(currentUser.id, file.name, filePath);
                 
-                showStatus('File uploaded successfully! Analyzing letter...');
+                showStatus('File uploaded successfully! Extracting text...');
                 
-                // For demo purposes, we'll simulate text extraction
-                // In a real app, you'd use OCR or PDF parsing
-                letterText = `Sample IRS letter content for ${file.name}. This is a placeholder for the actual letter text that would be extracted from the uploaded file.`;
+                // Extract text based on file type
+                if (file.type.startsWith('image/')) {
+                    // Use OCR for images
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const base64Data = e.target.result.split(',')[1];
+                        try {
+                            const ocrResponse = await fetch('/.netlify/functions/extract-text', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    imageData: base64Data,
+                                    mimeType: file.type
+                                })
+                            });
+                            
+                            const ocrData = await ocrResponse.json();
+                            
+                            if (ocrData.text) {
+                                letterText = ocrData.text;
+                                showStatus('Text extracted successfully! Analyzing letter...');
+                                await analyzeLetter();
+                            } else {
+                                showStatus('Failed to extract text from image: ' + (ocrData.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            showStatus('OCR failed: ' + error.message);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    return; // Exit early for images
+                } else if (file.type === 'application/pdf') {
+                    // For PDFs, we'll use a placeholder for now
+                    // In production, you'd use a PDF parsing library
+                    letterText = `PDF content for ${file.name}. This is a placeholder for PDF text extraction.`;
+                } else {
+                    letterText = `Document content for ${file.name}. This is a placeholder for document text extraction.`;
+                }
                 
-                // Analyze the letter
+                await analyzeLetter();
+                
+            } catch (error) {
+                showStatus('Upload failed: ' + error.message);
+            }
+        });
+        
+        async function analyzeLetter() {
+            try {
                 const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -119,11 +162,10 @@
                 } else {
                     showStatus('Analysis failed: ' + (analysisData.error || 'Unknown error'));
                 }
-                
             } catch (error) {
-                showStatus('Upload failed: ' + error.message);
+                showStatus('Analysis failed: ' + error.message);
             }
-        });
+        }
         
         document.getElementById('generateResponse').addEventListener('click', async () => {
             const userData = document.getElementById('userData').value;
@@ -181,6 +223,35 @@
                 }
             } catch (error) {
                 alert('PDF generation failed: ' + error.message);
+            }
+        });
+        
+        document.getElementById('downloadDOCX').addEventListener('click', async () => {
+            const responseText = document.getElementById('responseLetter').textContent;
+            
+            try {
+                const response = await fetch('/.netlify/functions/generate-docx', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text: responseText,
+                        fileName: 'response-letter.docx'
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'response-letter.docx';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('DOCX generation failed');
+                }
+            } catch (error) {
+                alert('DOCX generation failed: ' + error.message);
             }
         });
         
