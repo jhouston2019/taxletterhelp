@@ -25,13 +25,13 @@ body {
 
 /* Navigation */
 nav {
-    background: #8b0000;
+    background: #1e3a5f;
     padding: 1.25rem 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #b91c1c;
+    border-bottom: 2px solid #3b82f6;
 }
 
 nav a {
@@ -47,12 +47,12 @@ nav a {
 }
 
 nav a:hover {
-    background-color: #b91c1c;
+    background-color: #3b82f6;
     color: white;
 }
 
 nav a:focus {
-    outline: 2px solid #b91c1c;
+    outline: 2px solid #3b82f6;
     outline-offset: 2px;
 }
 
@@ -73,7 +73,7 @@ nav a:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(185, 28, 28, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -98,7 +98,7 @@ nav a:focus {
 
 .cta-button {
     display: inline-block;
-    background: #b91c1c;
+    background: #3b82f6;
     color: white;
     padding: 18px 36px;
     text-decoration: none;
@@ -115,8 +115,8 @@ nav a:focus {
 
 .cta-button:hover {
     transform: translateY(-3px);
-    background: #5f1a1a;
-    box-shadow: 0 15px 35px rgba(185, 28, 28, 0.4);
+    background: #1d4ed8;
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
 }
 
 /* Features */
@@ -144,7 +144,7 @@ nav a:focus {
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: #b91c1c;
+    background: #3b82f6;
     border-radius: 2px;
 }
 
@@ -168,7 +168,7 @@ nav a:focus {
 .feature-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-    border-color: rgba(185, 28, 28, 0.3);
+    border-color: rgba(59, 130, 246, 0.3);
 }
 
 .feature-card h3 {
@@ -206,7 +206,7 @@ nav a:focus {
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: #b91c1c;
+    background: #3b82f6;
     border-radius: 2px;
 }
 
@@ -284,13 +284,13 @@ nav a:focus {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #b91c1c;
-    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     transform: translateY(-1px);
 }
 
 .btn {
-    background: #b91c1c;
+    background: #3b82f6;
     color: white;
     padding: 14px 28px;
     border: none;
@@ -305,13 +305,13 @@ nav a:focus {
 }
 
 .btn:hover {
-    background: #5f1a1a;
+    background: #1d4ed8;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(185, 28, 28, 0.3);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
 .btn:focus {
-    outline: 2px solid #b91c1c;
+    outline: 2px solid #3b82f6;
     outline-offset: 2px;
 }
 
@@ -360,7 +360,7 @@ nav a:focus {
 }
 
 .pricing-category h3 {
-    color: #b91c1c !important;
+    color: #3b82f6 !important;
     position: relative;
 }
 
@@ -372,7 +372,7 @@ nav a:focus {
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: #b91c1c;
+    background: #3b82f6;
     border-radius: 2px;
 }
 
@@ -400,9 +400,9 @@ nav a:focus {
 }
 
 .pricing-card.featured {
-    border: 3px solid #b91c1c;
+    border: 3px solid #3b82f6;
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(185, 28, 28, 0.3);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
 .pricing-card h3 {
@@ -414,7 +414,7 @@ nav a:focus {
 .pricing-card .price {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #b91c1c;
+    color: #3b82f6;
     margin-bottom: 1rem;
 }
 
@@ -440,7 +440,7 @@ nav a:focus {
 
 .pricing-features li:before {
     content: "✓";
-    color: #b91c1c;
+    color: #3b82f6;
     font-weight: bold;
     margin-right: 0.5rem;
 }
@@ -451,7 +451,7 @@ footer {
     color: #f5f5f5;
     text-align: center;
     padding: 2rem 0;
-    border-top: 2px solid #b91c1c;
+    border-top: 2px solid #3b82f6;
 }
 
 footer a {
@@ -461,7 +461,7 @@ footer a {
 }
 
 footer a:hover {
-    color: #b91c1c;
+    color: #3b82f6;
 }
 
 /* Responsive */
@@ -562,7 +562,7 @@ footer a:hover {
 
 .problem-item:hover {
     transform: translateY(-5px);
-    border-color: #b91c1c;
+    border-color: #3b82f6;
 }
 
 .problem-icon {
@@ -571,7 +571,7 @@ footer a:hover {
 }
 
 .problem-item h3 {
-    color: #b91c1c;
+    color: #3b82f6;
     margin-bottom: 1rem;
     font-size: 1.3rem;
 }
@@ -617,7 +617,7 @@ footer a:hover {
 .step-number {
     width: 60px;
     height: 60px;
-    background: #b91c1c;
+    background: #3b82f6;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -645,7 +645,7 @@ footer a:hover {
     padding: 2rem;
     background: #0f0f0f;
     border-radius: 8px;
-    border-left: 4px solid #b91c1c;
+    border-left: 4px solid #3b82f6;
 }
 
 .disclaimer p {
@@ -685,8 +685,8 @@ footer a:hover {
 
 .trust-card:hover {
     transform: translateY(-5px);
-    border-color: #b91c1c;
-    box-shadow: 0 10px 30px rgba(185, 28, 28, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
 }
 
 .trust-icon {
@@ -709,7 +709,7 @@ footer a:hover {
 /* Urgency Section */
 .urgency-section {
     padding: 80px 0;
-    background: linear-gradient(135deg, #b91c1c 0%, #5f1a1a 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
     text-align: center;
 }
@@ -731,7 +731,7 @@ footer a:hover {
 
 .urgency-section .cta-button {
     background: white;
-    color: #b91c1c;
+    color: #3b82f6;
     font-weight: 700;
 }
 
@@ -758,7 +758,7 @@ footer a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(185, 28, 28, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -782,7 +782,7 @@ footer a:hover {
 
 .cta-button {
     display: inline-block;
-    background: #b91c1c;
+    background: #3b82f6;
     color: white;
     padding: 18px 36px;
     text-decoration: none;
@@ -797,9 +797,9 @@ footer a:hover {
 }
 
 .cta-button:hover {
-    background: #5f1a1a;
+    background: #1d4ed8;
     transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(185, 28, 28, 0.4);
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
 }
 
 /* Enhanced Pricing Styles */
@@ -813,7 +813,7 @@ footer a:hover {
 
 .pricing-category h3 {
     text-align: center;
-    color: #b91c1c;
+    color: #3b82f6;
     margin-bottom: 2rem;
     font-size: 1.8rem;
 }
