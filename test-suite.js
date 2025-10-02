@@ -1,6 +1,13 @@
 // Test suite for TaxLetterHelp application
 // Run with: node test-suite.js
 
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const testResults = {
   passed: 0,
   failed: 0,
@@ -38,7 +45,6 @@ test('Environment variables are configured', () => {
 
 // Test 2: File Structure
 test('Required files exist', () => {
-  const fs = require('fs');
   const requiredFiles = [
     'package.json',
     'index.html',
@@ -84,7 +90,7 @@ test('Required files exist', () => {
 
 // Test 3: Package.json Dependencies
 test('Package.json has required dependencies', () => {
-  const packageJson = require('./package.json');
+  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   const requiredDeps = [
     '@supabase/supabase-js',
     'openai',
@@ -101,7 +107,6 @@ test('Package.json has required dependencies', () => {
 
 // Test 4: HTML Structure
 test('HTML files have proper structure', () => {
-  const fs = require('fs');
   const htmlFiles = [
     'index.html',
     'upload.html',
@@ -130,7 +135,6 @@ test('HTML files have proper structure', () => {
 
 // Test 5: Netlify Functions
 test('Netlify functions have proper structure', () => {
-  const fs = require('fs');
   const functionFiles = [
     'netlify/functions/analyze-letter.js',
     'netlify/functions/generate-response.js',
@@ -160,7 +164,6 @@ test('Netlify functions have proper structure', () => {
 
 // Test 6: Database Migrations
 test('Database migrations have proper SQL', () => {
-  const fs = require('fs');
   const migrationFiles = [
     'supabase/migrations/20251001_create_users_table.sql',
     'supabase/migrations/20251001_create_documents_table.sql',
@@ -178,7 +181,6 @@ test('Database migrations have proper SQL', () => {
 
 // Test 7: Security Features
 test('Security features are implemented', () => {
-  const fs = require('fs');
   
   // Check for input validation
   const validateInput = fs.readFileSync('netlify/functions/validate-input.js', 'utf8');
@@ -200,7 +202,6 @@ test('Security features are implemented', () => {
 
 // Test 8: Documentation
 test('Documentation is complete', () => {
-  const fs = require('fs');
   
   const setupGuide = fs.readFileSync('SETUP.md', 'utf8');
   if (!setupGuide.includes('Environment Setup')) {
