@@ -772,12 +772,23 @@ footer a:hover {
 
 .hero-subtitle {
     font-size: 2.3rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem;
     opacity: 0.9;
     color: #f5f5f5;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.hero-savings {
+    font-size: 4.3rem;
+    font-weight: bold;
+    margin-bottom: 2.5rem;
+    color: #f5f5f5;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 .cta-button {
@@ -826,6 +837,10 @@ footer a:hover {
     
     .hero-subtitle {
         font-size: 2.1rem;
+    }
+    
+    .hero-savings {
+        font-size: 3.1rem;
     }
     
     .problem-grid,
