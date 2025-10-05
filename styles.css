@@ -9,8 +9,8 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #f5f5f5;
-    background: #0f0f0f;
+    color: #2d3748;
+    background: #faf9f7;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -58,8 +58,8 @@ nav a:focus {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-    color: white;
+    background: linear-gradient(135deg, #f8f6f0 0%, #f0ede5 100%);
+    color: #2d3748;
     padding: 100px 0;
     text-align: center;
     position: relative;
@@ -84,16 +84,18 @@ nav a:focus {
     margin-bottom: 1.5rem;
     line-height: 1.2;
     letter-spacing: -0.02em;
+    color: #2d3748;
 }
 
 .hero p {
     font-size: 1.25rem;
     margin-bottom: 2.5rem;
-    opacity: 0.9;
+    opacity: 0.8;
     font-weight: 400;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+    color: #4a5568;
 }
 
 .cta-button {
@@ -122,7 +124,7 @@ nav a:focus {
 /* Features */
 .features {
     padding: 80px 0;
-    background: #0f0f0f;
+    background: #ffffff;
 }
 
 .features h2 {
@@ -131,7 +133,7 @@ nav a:focus {
     margin-bottom: 3rem;
     font-size: 2.75rem;
     font-weight: 700;
-    color: #f5f5f5;
+    color: #2d3748;
     position: relative;
     letter-spacing: -0.01em;
 }
@@ -155,14 +157,14 @@ nav a:focus {
 }
 
 .feature-card {
-    background: #1f1f1f;
+    background: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     text-align: center;
     transition: all 0.3s ease;
-    color: #f5f5f5;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
 }
 
 .feature-card:hover {
@@ -176,25 +178,25 @@ nav a:focus {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: #f5f5f5;
+    color: #2d3748;
     letter-spacing: -0.01em;
 }
 
 .feature-card p {
-    color: #d1d5db;
+    color: #4a5568;
 }
 
 /* Why Choose Section */
 .why-choose {
     padding: 80px 0;
-    background: #0f0f0f;
+    background: #f8f6f0;
 }
 
 .why-choose h2 {
     text-align: center;
     margin-bottom: 3rem;
     font-size: 2.5rem;
-    color: #f5f5f5;
+    color: #2d3748;
     position: relative;
 }
 
@@ -217,13 +219,13 @@ nav a:focus {
 }
 
 .why-choose-card {
-    background: #1f1f1f;
+    background: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #333;
+    border: 1px solid #e2e8f0;
 }
 
 .why-choose-card:hover {
@@ -235,12 +237,12 @@ nav a:focus {
 .why-choose-card h3 {
     font-size: 1.4rem;
     margin-bottom: 1rem;
-    color: #f5f5f5;
+    color: #2d3748;
     font-weight: 600;
 }
 
 .why-choose-card p {
-    color: #d1d5db;
+    color: #4a5568;
     line-height: 1.6;
     font-size: 1rem;
 }
@@ -250,10 +252,11 @@ nav a:focus {
     max-width: 500px;
     margin: 2rem auto;
     padding: 2rem;
-    background: #1f1f1f;
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    color: #f5f5f5;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
 }
 
 .form-group {
@@ -264,20 +267,20 @@ nav a:focus {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: bold;
-    color: #f5f5f5;
+    color: #2d3748;
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #333;
+    border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: #0f0f0f;
-    color: #f5f5f5;
+    background: #ffffff;
+    color: #2d3748;
     font-weight: 400;
 }
 
@@ -332,17 +335,18 @@ nav a:focus {
 }
 
 .dashboard-card {
-    background: #1f1f1f;
+    background: #ffffff;
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    color: #f5f5f5;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
 }
 
 /* Pricing */
 .pricing-section {
     padding: 80px 0;
-    background: #0f0f0f;
+    background: #f8f6f0;
 }
 
 .pricing-section h2 {
@@ -350,7 +354,7 @@ nav a:focus {
     font-family: 'Poppins', sans-serif;
     font-size: 2.75rem;
     font-weight: 700;
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 1.5rem;
     letter-spacing: -0.01em;
 }
@@ -360,7 +364,7 @@ nav a:focus {
 }
 
 .pricing-category h3 {
-    color: #f5f5f5 !important;
+    color: #2d3748 !important;
     position: relative;
 }
 
@@ -384,14 +388,15 @@ nav a:focus {
 }
 
 .pricing-card {
-    background: #1f1f1f;
+    background: #ffffff;
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     text-align: center;
     position: relative;
     transition: transform 0.2s, box-shadow 0.2s;
-    color: #f5f5f5;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
 }
 
 .pricing-card:hover {
@@ -408,20 +413,20 @@ nav a:focus {
 .pricing-card h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #f5f5f5;
+    color: #2d3748;
 }
 
 .pricing-card .price {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 1rem;
 }
 
 .pricing-card .price-period {
     font-size: 1rem;
     font-weight: normal;
-    color: #f5f5f5;
+    color: #4a5568;
     margin-left: 0.5rem;
 }
 
@@ -434,28 +439,28 @@ nav a:focus {
 
 .pricing-features li {
     padding: 0.5rem 0;
-    color: #f5f5f5;
+    color: #2d3748;
     font-size: 0.95rem;
 }
 
 .pricing-features li:before {
     content: "✓";
-    color: #f5f5f5;
+    color: #2d3748;
     font-weight: bold;
     margin-right: 0.5rem;
 }
 
 /* Footer */
 footer {
-    background: #1a1a1a;
-    color: #f5f5f5;
+    background: #f8f6f0;
+    color: #2d3748;
     text-align: center;
     padding: 2rem 0;
-    border-top: 2px solid #334155;
+    border-top: 2px solid #e2e8f0;
 }
 
 footer a {
-    color: #d1d5db;
+    color: #4a5568;
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -533,15 +538,15 @@ footer a:hover {
 /* Problem Section */
 .problem-section {
     padding: 20px 0;
-    background: #0f0f0f;
-    color: #f5f5f5;
+    background: #ffffff;
+    color: #2d3748;
 }
 
 .problem-section h2 {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #f5f5f5;
+    color: #2d3748;
 }
 
 .problem-grid {
@@ -554,9 +559,9 @@ footer a:hover {
 .problem-item {
     text-align: center;
     padding: 2rem;
-    background: #1e293b;
+    background: #f8f6f0;
     border-radius: 12px;
-    border: 1px solid #334155;
+    border: 1px solid #e2e8f0;
     transition: transform 0.3s ease;
 }
 
@@ -571,35 +576,35 @@ footer a:hover {
 }
 
 .problem-item h3 {
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 1rem;
     font-size: 1.3rem;
 }
 
 .problem-item p {
-    color: #f5f5f5;
+    color: #4a5568;
     opacity: 0.8;
 }
 
 .problem-closing {
     text-align: center;
     font-size: 1.2rem;
-    color: #f5f5f5;
+    color: #2d3748;
     font-weight: 600;
 }
 
 /* Solution Section */
 .solution-section {
     padding: 80px 0;
-    background: #1a1a1a;
-    color: #f5f5f5;
+    background: #f8f6f0;
+    color: #2d3748;
 }
 
 .solution-section h2 {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #f5f5f5;
+    color: #2d3748;
 }
 
 .solution-steps {
@@ -629,13 +634,13 @@ footer a:hover {
 }
 
 .step h3 {
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 1rem;
     font-size: 1.4rem;
 }
 
 .step p {
-    color: #f5f5f5;
+    color: #4a5568;
     opacity: 0.8;
     line-height: 1.6;
 }
@@ -643,13 +648,13 @@ footer a:hover {
 .disclaimer {
     text-align: center;
     padding: 2rem;
-    background: #0f0f0f;
+    background: #ffffff;
     border-radius: 8px;
     border-left: 4px solid #334155;
 }
 
 .disclaimer p {
-    color: #f5f5f5;
+    color: #2d3748;
     margin: 0;
     font-size: 0.9rem;
 }
@@ -657,15 +662,15 @@ footer a:hover {
 /* Trust Section */
 .trust-section {
     padding: 80px 0;
-    background: #0f0f0f;
-    color: #f5f5f5;
+    background: #ffffff;
+    color: #2d3748;
 }
 
 .trust-section h2 {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #f5f5f5;
+    color: #2d3748;
 }
 
 .trust-grid {
@@ -677,9 +682,9 @@ footer a:hover {
 .trust-card {
     text-align: center;
     padding: 2rem;
-    background: #1a1a1a;
+    background: #f8f6f0;
     border-radius: 12px;
-    border: 1px solid #333;
+    border: 1px solid #e2e8f0;
     transition: all 0.3s ease;
 }
 
@@ -695,13 +700,13 @@ footer a:hover {
 }
 
 .trust-card h3 {
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 1rem;
     font-size: 1.3rem;
 }
 
 .trust-card p {
-    color: #f5f5f5;
+    color: #4a5568;
     opacity: 0.8;
     line-height: 1.6;
 }
@@ -743,8 +748,8 @@ footer a:hover {
 
 /* Enhanced Hero Styles */
 .hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-    color: #f5f5f5;
+    background: linear-gradient(135deg, #f8f6f0 0%, #f0ede5 100%);
+    color: #2d3748;
     padding: 100px 0;
     text-align: center;
     position: relative;
@@ -766,15 +771,15 @@ footer a:hover {
     font-size: 3.5rem;
     margin: 1rem 0;
     font-weight: 700;
-    color: #f5f5f5;
+    color: #2d3748;
     line-height: 1.2;
 }
 
 .hero-subtitle {
     font-size: 2.3rem;
     margin: 1rem 0;
-    opacity: 0.9;
-    color: #f5f5f5;
+    opacity: 0.8;
+    color: #4a5568;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -784,7 +789,7 @@ footer a:hover {
     font-size: 3.5rem !important;
     font-weight: bold !important;
     margin: 1rem 0 5rem 0 !important;
-    color: #f5f5f5;
+    color: #2d3748;
     text-align: center !important;
     white-space: nowrap !important;
     width: 100%;
@@ -817,14 +822,14 @@ footer a:hover {
 .pricing-anchor {
     text-align: center;
     font-size: 1.2rem;
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 3rem;
     font-weight: 600;
 }
 
 .pricing-category h3 {
     text-align: center;
-    color: #f5f5f5;
+    color: #2d3748;
     margin-bottom: 2rem;
     font-size: 1.8rem;
 }
