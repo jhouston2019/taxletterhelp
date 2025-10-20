@@ -58,7 +58,7 @@ nav a:focus {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, rgba(248, 246, 240, 0.9) 0%, rgba(240, 237, 229, 0.9) 100%), url('./images/taxhelp.jpg');
+    background: linear-gradient(135deg, rgba(248, 246, 240, 0.9) 0%, rgba(240, 237, 229, 0.9) 100%), url('./assets/taxhelp-6Trd0X_3.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
