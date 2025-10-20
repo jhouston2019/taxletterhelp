@@ -5,17 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run copy-html",
+    "copy-html": "copyfiles *.html dist/ && copyfiles styles.css dist/",
     "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
+    "docx": "^8.5.0",
     "openai": "^4.20.0",
-    "stripe": "^14.0.0",
     "pdf-lib": "^1.17.1",
-    "docx": "^8.5.0"
+    "stripe": "^14.0.0"
   },
   "devDependencies": {
+    "copyfiles": "^2.4.1",
     "vite": "^5.0.0"
   }
 }
