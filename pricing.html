@@ -17,94 +17,29 @@
         </div>
     </nav>
 
-    <div class="container">
-        <h1 style="text-align: center; margin: 2rem 0; color: #f5f5f5;">Choose Your Plan</h1>
-        
-        <!-- One-Time Purchases -->
-        <div class="pricing-category">
-            <h3 style="text-align: center; color: #f5f5f5; margin-bottom: 2rem;">One-Time Purchases</h3>
-            <div class="pricing-grid">
-                <div class="pricing-card" style="color: #f5f5f5; background: #1e293b; border: 1px solid #334155;">
-                    <h3 style="color: #f5f5f5;">Standard Letter Response</h3>
-                    <div class="price" style="color: #f5f5f5;">$49<span class="price-period" style="color: #f5f5f5;">one-time</span></div>
-                    <ul class="pricing-features" style="color: #f5f5f5;">
-                        <li style="color: #f5f5f5;">✓ Professional response letter</li>
-                        <li style="color: #f5f5f5;">✓ AI analysis & explanation</li>
-                        <li style="color: #f5f5f5;">✓ PDF & DOCX download</li>
-                        <li style="color: #f5f5f5;">✓ Standard IRS letters</li>
-                    </ul>
-                    <button class="btn" onclick="startCheckout('STANDARD')">Get Standard Response</button>
-                </div>
-                
-                <div class="pricing-card featured" style="color: #f5f5f5; background: #1e293b; border: 3px solid #334155;">
-                    <h3 style="color: #f5f5f5;">Complex Letter Response</h3>
-                    <div class="price" style="color: #f5f5f5;">$99<span class="price-period" style="color: #f5f5f5;">one-time</span></div>
-                    <ul class="pricing-features" style="color: #f5f5f5;">
-                        <li style="color: #f5f5f5;">✓ Professional response letter</li>
-                        <li style="color: #f5f5f5;">✓ AI analysis & explanation</li>
-                        <li style="color: #f5f5f5;">✓ PDF & DOCX download</li>
-                        <li style="color: #f5f5f5;">✓ Audit & 1099-K letters</li>
-                        <li style="color: #f5f5f5;">✓ Priority processing</li>
-                    </ul>
-                    <button class="btn" onclick="startCheckout('COMPLEX')">Get Complex Response</button>
-                </div>
-            </div>
+    <section class="pricing" id="pricing">
+        <h2>Choose Your Plan</h2>
+        <p class="tagline">
+            Most CPAs charge $300–$600 per letter. Our AI-powered system handles your IRS letter for just <strong>$49</strong>.
+        </p>
+
+        <div class="pricing-card single-plan">
+            <h3>IRS Letter Response Package</h3>
+            <p class="price">$49 <span class="price-term">one-time</span></p>
+            <ul class="features">
+                <li>✓ Professional IRS response letter</li>
+                <li>✓ AI-powered analysis & plain-English explanation</li>
+                <li>✓ PDF & DOCX downloads</li>
+                <li>✓ Covers CP2000, 1099-K, and common IRS notices</li>
+                <li>✓ Delivered securely within minutes</li>
+            </ul>
+            <a href="/checkout.html" class="btn-primary">Get Your Response for $49</a>
         </div>
 
-        <!-- Subscription Plans -->
-        <div class="pricing-category">
-            <h3 style="text-align: center; color: #f5f5f5; margin: 3rem 0 2rem 0;">Monthly Subscriptions</h3>
-            <div class="pricing-grid">
-                <div class="pricing-card" style="color: #f5f5f5; background: #1e293b; border: 1px solid #334155;">
-                    <h3 style="color: #f5f5f5;">Starter</h3>
-                    <div class="price" style="color: #f5f5f5;">$19<span class="price-period" style="color: #f5f5f5;">/month</span></div>
-                    <ul class="pricing-features" style="color: #f5f5f5;">
-                        <li style="color: #f5f5f5;">✓ 1 IRS letter per month</li>
-                        <li style="color: #f5f5f5;">✓ AI explanations</li>
-                        <li style="color: #f5f5f5;">✓ Response generation</li>
-                        <li style="color: #f5f5f5;">✓ PDF download</li>
-                    </ul>
-                    <button class="btn" onclick="startCheckout('STARTER')">Start Starter Plan</button>
-                </div>
-                
-                <div class="pricing-card featured" style="color: #f5f5f5; background: #1e293b; border: 3px solid #334155;">
-                    <h3 style="color: #f5f5f5;">Pro</h3>
-                    <div class="price" style="color: #f5f5f5;">$49<span class="price-period" style="color: #f5f5f5;">/month</span></div>
-                    <ul class="pricing-features" style="color: #f5f5f5;">
-                        <li style="color: #f5f5f5;">✓ 3 IRS letters per month</li>
-                        <li style="color: #f5f5f5;">✓ Priority response generation</li>
-                        <li style="color: #f5f5f5;">✓ AI explanations</li>
-                        <li style="color: #f5f5f5;">✓ PDF & DOCX download</li>
-                        <li style="color: #f5f5f5;">✓ Email support</li>
-                    </ul>
-                    <button class="btn" onclick="startCheckout('PRO')">Start Pro Plan</button>
-                </div>
-                
-                <div class="pricing-card" style="color: #f5f5f5; background: #1e293b; border: 1px solid #334155;">
-                    <h3 style="color: #f5f5f5;">Pro+</h3>
-                    <div class="price" style="color: #f5f5f5;">$99<span class="price-period" style="color: #f5f5f5;">/month</span></div>
-                    <ul class="pricing-features" style="color: #f5f5f5;">
-                        <li style="color: #f5f5f5;">✓ Unlimited IRS letters</li>
-                        <li style="color: #f5f5f5;">✓ Priority response generation</li>
-                        <li style="color: #f5f5f5;">✓ AI explanations</li>
-                        <li style="color: #f5f5f5;">✓ PDF & DOCX download</li>
-                        <li style="color: #f5f5f5;">✓ Audit prep kit included</li>
-                        <li style="color: #f5f5f5;">✓ Phone support</li>
-                    </ul>
-                    <button class="btn" onclick="startCheckout('PROPLUS')">Start Pro+ Plan</button>
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin: 3rem 0;">
-            <h2 style="color: #f5f5f5;">All plans include:</h2>
-            <ul style="list-style: none; padding: 0; display: inline-block; text-align: left; color: #f5f5f5;">
-                <li>✓ Secure document storage</li>
-                <li>✓ Professional response templates</li>
-                <li>✓ 30-day money-back guarantee</li>
-            </ul>
-        </div>
-    </div>
+        <p class="disclaimer">
+            One-time payment. No subscriptions or hidden fees.
+        </p>
+    </section>
 
     <script type="module" src="/src/main.js"></script>
 </body>

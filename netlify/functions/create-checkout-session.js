@@ -4,19 +4,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function handler(event) {
   try {
-    const { plan } = JSON.parse(event.body);
-    const priceId = process.env[`STRIPE_PRICE_${plan.toUpperCase()}`];
-
-    if (!priceId) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ error: 'Invalid plan selected' })
-      };
-    }
+    const priceId = "price_49USD_single";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -24,11 +12,11 @@ export async function handler(event) {
         price: priceId, 
         quantity: 1 
       }],
-      mode: 'subscription',
+      mode: 'payment',
       success_url: `${process.env.SITE_URL}/success`,
       cancel_url: `${process.env.SITE_URL}/cancel`,
       metadata: {
-        plan: plan
+        plan: 'single'
       }
     });
 
