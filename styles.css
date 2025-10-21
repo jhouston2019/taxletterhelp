@@ -1,4 +1,58 @@
+/* =======================================
+   TAXLETTERHELP GLOBAL TYPOGRAPHY SYSTEM
+   ======================================= */
+
+:root {
+  --font-family-main: 'Inter', 'Roboto', sans-serif;
+
+  --font-color-main: #f5f5f5;     /* default light text */
+  --font-color-muted: #cbd5e1;    /* subtext */
+  --font-color-link: #93c5fd;     /* links */
+  --font-color-accent: #38bdf8;   /* highlight */
+  --background-main: #1e293b;     /* dark blue background */
+}
+
+/* Base layout */
+body.taxletterhelp {
+  font-family: var(--font-family-main);
+  color: var(--font-color-main);
+  background-color: var(--background-main);
+  margin: 0;
+  padding: 0;
+}
+
+/* Text hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--font-color-main);
+}
+
+p, li, span {
+  color: var(--font-color-muted);
+}
+
+a {
+  color: var(--font-color-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--font-color-accent);
+}
+
+/* Light variant for bright pages */
+body.light-page {
+  --font-color-main: #111827;
+  --font-color-muted: #374151;
+  --font-color-link: #1d4ed8;
+  --background-main: #f9fafb;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Universal inheritance */
+* {
+  color: inherit !important;
+}
 
 * {
     margin: 0;
