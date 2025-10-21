@@ -65,10 +65,7 @@ body.light-page {
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* Universal inheritance */
-* {
-  color: inherit !important;
-}
+/* Universal inheritance removed - was preventing text color changes */
 
 * {
     margin: 0;
