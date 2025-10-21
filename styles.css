@@ -46,11 +46,20 @@ body.light-page {
   --font-color-muted: #374151;
   --font-color-link: #1d4ed8;
   --background-main: #f9fafb;
+  color: #111827 !important;
 }
 
 /* Pricing card features in light theme */
 .light-page .pricing-card.single-plan .features li {
   color: #1e293b !important;
+}
+
+/* Force black text in pricing card for light theme */
+body.light-page .pricing-card.single-plan h3,
+body.light-page .pricing-card.single-plan .price,
+body.light-page .pricing-card.single-plan .price-term,
+body.light-page .pricing-card.single-plan .features li {
+  color: #000000 !important;
 }
 
 /* Force black text in pricing card */
