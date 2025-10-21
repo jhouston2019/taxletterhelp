@@ -49,7 +49,7 @@ body.light-page {
 
 /* Pricing card features in light theme */
 .light-page .pricing-card.single-plan .features li {
-  color: var(--font-color-main);
+  color: #1e293b !important;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
