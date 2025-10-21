@@ -62,6 +62,14 @@ body.light-page .pricing-card.single-plan .features li {
   color: #000000 !important;
 }
 
+/* Nuclear option - force black text on ALL pricing card elements */
+.pricing-card.single-plan h3,
+.pricing-card.single-plan .price,
+.pricing-card.single-plan .price-term,
+.pricing-card.single-plan .features li {
+  color: #000000 !important;
+}
+
 /* Force black text in pricing card */
 .pricing-card.single-plan.black-text,
 .pricing-card.single-plan.black-text *,
