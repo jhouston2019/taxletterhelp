@@ -26,13 +26,13 @@
                 <div id="recentLetters">
                     <p>Loading your letters...</p>
                 </div>
-                <a href="/upload.html" class="btn" style="margin-top: 1rem;">Upload New Letter</a>
+                <a href="/payment.html" class="btn" style="margin-top: 1rem;">Upload New Letter</a>
             </div>
             
             <div class="dashboard-card">
                 <h3>Quick Actions</h3>
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <a href="/upload.html" class="btn">Analyze New Letter</a>
+                    <a href="/payment.html" class="btn">Analyze New Letter</a>
                     <a href="/pricing.html" class="btn btn-secondary">Upgrade Plan</a>
                 </div>
             </div>
@@ -53,6 +53,14 @@
         let currentUser = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user has paid
+            const hasPaid = localStorage.getItem('paid') === 'true';
+            if (!hasPaid) {
+                alert('Payment required to access dashboard features. Redirecting to payment page...');
+                window.location.href = '/payment.html';
+                return;
+            }
+            
             currentUser = await getCurrentUser();
             
             if (!currentUser) {
@@ -83,7 +91,7 @@
             const container = document.getElementById('recentLetters');
             
             if (documents.length === 0) {
-                container.innerHTML = '<p>No letters uploaded yet. <a href="/upload.html">Upload your first letter</a></p>';
+                container.innerHTML = '<p>No letters uploaded yet. <a href="/payment.html">Upload your first letter</a></p>';
                 return;
             }
             

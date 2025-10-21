@@ -1,0 +1,28 @@
+/* Pricing page specific styles - force black text */
+.pricing-card.single-plan {
+    color: black !important;
+}
+
+.pricing-card.single-plan * {
+    color: black !important;
+}
+
+.pricing-card.single-plan h3 {
+    color: black !important;
+}
+
+.pricing-card.single-plan .price {
+    color: black !important;
+}
+
+.pricing-card.single-plan .price-term {
+    color: black !important;
+}
+
+.pricing-card.single-plan .features li {
+    color: black !important;
+}
+
+.pricing-card.single-plan .features li::before {
+    color: #10b981 !important;
+}

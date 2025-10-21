@@ -3,58 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success - TaxLetterHelp</title>
+    <title>Payment Successful - TaxLetterHelp</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        :root {
+            --bg: #0b1220;
+            --ink: #0f172a;
+            --ink-2: #334155;
+            --muted: #64748b;
+            --white: #ffffff;
+            --brand: #1e40af;
+            --brand-2: #3b82f6;
+            --card: #0f172a;
+            --border: #1f2937;
+            --shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            color: var(--ink);
+            margin: 0;
+            background: #f8fafc;
+            line-height: 1.5;
+        }
+
+        nav {
+            background: #1e293b;
+            padding: 1rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #334155;
+            align-items: center;
+        }
+
+        nav a {
+            color: #f5f5f5;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        nav a:hover {
+            background: #334155;
+        }
+
+        .container {
+            width: min(1120px, 92%);
+            margin-inline: auto;
+            padding: 2rem 0;
+        }
+
+        .success-hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            margin-bottom: 3rem;
+            border-radius: 12px;
+        }
+
+        .success-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .success-hero .checkmark {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .success-hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .success-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #2d3748;
+            margin-bottom: 2rem;
+        }
+
+        .success-message h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .success-message p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .next-steps {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 4px solid #10b981;
+        }
+
+        .next-steps h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .next-steps ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .next-steps li {
+            padding: 0.5rem 0;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+
+        .next-steps li::before {
+            content: '→';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .access-unlocked {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .access-unlocked h3 {
+            color: #065f46;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .access-unlocked p {
+            color: #047857;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        footer {
+            padding: 28px 0;
+            background: #0b1220;
+            color: #cbd5e1;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .success-hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .success-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body class="taxletterhelp">
-    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
-        <div style="color: #f5f5f5;"><strong>TaxLetterHelp</strong></div>
+    <nav>
+        <div><strong>TaxLetterHelp</strong></div>
         <div>
-            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Upload</a> |
-            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Dashboard</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Pricing</a>
+            <a href="/upload.html">Upload</a> |
+            <a href="/dashboard.html">Dashboard</a> |
+            <a href="/pricing.html">Pricing</a> |
+            <a href="/login.html">Login</a>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="form-container" style="text-align: center; max-width: 600px; margin: 4rem auto;">
-            <div style="background: #d4edda; color: #155724; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h1 style="color: #155724; margin-bottom: 1rem;">✅ Payment Successful!</h1>
-                <p style="font-size: 1.1rem; margin-bottom: 1rem;">Thank you for your purchase! Your subscription is now active.</p>
-                <p>You can now access all the features included in your plan.</p>
+    <main>
+        <div class="container">
+            <div class="success-hero">
+                <span class="checkmark">✅</span>
+                <h1>Payment Successful!</h1>
+                <p>Your access to the AI Tax Response Center is now unlocked.</p>
             </div>
-            
-            <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h3 style="margin-bottom: 1rem;">What's Next?</h3>
-                <ul style="text-align: left; list-style: none; padding: 0;">
-                    <li style="margin: 0.5rem 0;">📄 <strong>Upload your first IRS letter</strong> to get started</li>
-                    <li style="margin: 0.5rem 0;">🤖 <strong>Get AI analysis</strong> explaining what the letter means</li>
-                    <li style="margin: 0.5rem 0;">✍️ <strong>Generate professional responses</strong> in minutes</li>
-                    <li style="margin: 0.5rem 0;">📥 <strong>Download responses</strong> as PDF or DOCX</li>
-                </ul>
-            </div>
-            
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="/upload.html" class="btn" style="flex: 1; min-width: 200px;">Upload Your First Letter</a>
-                <a href="/dashboard.html" class="btn btn-secondary" style="flex: 1; min-width: 200px;">Go to Dashboard</a>
-            </div>
-            
-            <div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px;">
-                <p style="margin: 0; color: #1565c0;">
-                    <strong>Need help?</strong> Check out our <a href="/pricing.html" style="color: #1565c0;">pricing page</a> for plan details, 
-                    or contact support if you have any questions.
-                </p>
+
+            <div class="success-container">
+                <div class="success-message">
+                    <h2>🎉 Welcome to TaxLetterHelp Premium!</h2>
+                    <p>Thank you for your payment. You now have full access to our AI-powered tax letter analysis system.</p>
+                </div>
+
+                <div class="access-unlocked">
+                    <h3>🔓 Access Unlocked</h3>
+                    <p>You can now upload IRS letters and get AI-powered responses</p>
+                </div>
+
+                <div class="next-steps">
+                    <h3>What's Next?</h3>
+                    <ul>
+                        <li>Upload your IRS letter using our secure system</li>
+                        <li>Get instant AI analysis and explanation</li>
+                        <li>Download your professional response letter</li>
+                        <li>Mail your response to the IRS</li>
+                    </ul>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/upload.html" class="btn-primary">Upload My IRS Letter</a>
+                    <a href="/dashboard.html" class="btn-secondary">Go to Dashboard</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 TaxLetterHelp. <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms</a> | <a href="/disclaimer.html">Disclaimer</a></p>
+            <p>&copy; 2025 TaxLetterHelp. <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms</a> | <a href="/disclaimer.html">Disclaimer</a></p>
         </div>
     </footer>
 
-    <script type="module" src="/src/main.js"></script>
+    <script>
+        // Set the payment flag in localStorage
+        localStorage.setItem("paid", "true");
+        
+        // Optional: Track successful payment
+        console.log('Payment successful - access granted');
+        
+        // Optional: Redirect to upload page after 5 seconds if user doesn't click
+        setTimeout(() => {
+            if (confirm('Ready to upload your IRS letter? Click OK to continue to the upload page.')) {
+                window.location.href = '/upload.html';
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
-

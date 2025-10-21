@@ -53,6 +53,16 @@ body.light-page {
   color: #1e293b !important;
 }
 
+/* Force black text in pricing card */
+.pricing-card.single-plan.black-text,
+.pricing-card.single-plan.black-text *,
+.pricing-card.single-plan.black-text h3,
+.pricing-card.single-plan.black-text .price,
+.pricing-card.single-plan.black-text .price-term,
+.pricing-card.single-plan.black-text .features li {
+  color: #000000 !important;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 /* Universal inheritance */
@@ -471,6 +481,7 @@ nav a:focus {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    color: #000000 !important;
 }
 
 .pricing-card.single-plan::before {

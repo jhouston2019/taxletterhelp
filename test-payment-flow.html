@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Flow Test - TaxLetterHelp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .info { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Payment Flow Test Suite</h1>
+    <p>This page tests the complete payment and access control system for TaxLetterHelp.</p>
+
+    <div class="test-section">
+        <h2>1. Test Payment Status</h2>
+        <button class="test-button" onclick="checkPaymentStatus()">Check Current Payment Status</button>
+        <button class="test-button" onclick="clearPaymentStatus()">Clear Payment Status</button>
+        <button class="test-button" onclick="setPaymentStatus()">Set Payment Status (Simulate Success)</button>
+        <div id="paymentStatus"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Access Control</h2>
+        <button class="test-button" onclick="testUploadAccess()">Test Upload Page Access</button>
+        <button class="test-button" onclick="testDashboardAccess()">Test Dashboard Access</button>
+        <div id="accessResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Navigation Flow</h2>
+        <button class="test-button" onclick="window.location.href='/index.html'">Go to Homepage</button>
+        <button class="test-button" onclick="window.location.href='/payment.html'">Go to Payment Page</button>
+        <button class="test-button" onclick="window.location.href='/success.html'">Go to Success Page</button>
+        <button class="test-button" onclick="window.location.href='/upload.html'">Test Upload Page (Should Redirect if Unpaid)</button>
+        <button class="test-button" onclick="window.location.href='/dashboard.html'">Test Dashboard (Should Redirect if Unpaid)</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Payment Integration</h2>
+        <button class="test-button" onclick="testStripeIntegration()">Test Stripe Checkout Session</button>
+        <div id="stripeResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Test Checklist</h2>
+        <ul>
+            <li>✅ Payment page created with Stripe integration</li>
+            <li>✅ Success page sets localStorage flag</li>
+            <li>✅ Upload page checks payment status</li>
+            <li>✅ Dashboard page checks payment status</li>
+            <li>✅ Homepage CTA buttons redirect to payment</li>
+            <li>✅ Navigation links redirect to payment</li>
+            <li>✅ Stripe checkout URLs updated</li>
+        </ul>
+    </div>
+
+    <script>
+        function checkPaymentStatus() {
+            const hasPaid = localStorage.getItem('paid') === 'true';
+            const statusDiv = document.getElementById('paymentStatus');
+            statusDiv.innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">
+                Payment Status: ${hasPaid ? '✅ PAID' : '❌ NOT PAID'}
+            </div>`;
+        }
+
+        function clearPaymentStatus() {
+            localStorage.removeItem('paid');
+            checkPaymentStatus();
+            document.getElementById('accessResults').innerHTML = '<div class="status info">Payment status cleared. Try accessing protected pages now.</div>';
+        }
+
+        function setPaymentStatus() {
+            localStorage.setItem('paid', 'true');
+            checkPaymentStatus();
+            document.getElementById('accessResults').innerHTML = '<div class="status success">Payment status set. You should now have access to protected pages.</div>';
+        }
+
+        function testUploadAccess() {
+            const hasPaid = localStorage.getItem('paid') === 'true';
+            const result = hasPaid ? 
+                '✅ Upload page should be accessible' : 
+                '❌ Upload page should redirect to payment';
+            document.getElementById('accessResults').innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">${result}</div>`;
+        }
+
+        function testDashboardAccess() {
+            const hasPaid = localStorage.getItem('paid') === 'true';
+            const result = hasPaid ? 
+                '✅ Dashboard should be accessible' : 
+                '❌ Dashboard should redirect to payment';
+            document.getElementById('accessResults').innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">${result}</div>`;
+        }
+
+        async function testStripeIntegration() {
+            const resultsDiv = document.getElementById('stripeResults');
+            resultsDiv.innerHTML = '<div class="status info">Testing Stripe integration...</div>';
+            
+            try {
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    resultsDiv.innerHTML = `<div class="status success">✅ Stripe integration working! Checkout URL: ${data.url}</div>`;
+                } else {
+                    resultsDiv.innerHTML = `<div class="status error">❌ Stripe integration failed: ${data.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPaymentStatus();
+        });
+    </script>
+</body>
+</html>

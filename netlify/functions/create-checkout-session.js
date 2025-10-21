@@ -13,8 +13,8 @@ export async function handler(event) {
         quantity: 1 
       }],
       mode: 'payment',
-      success_url: `${process.env.SITE_URL}/success`,
-      cancel_url: `${process.env.SITE_URL}/cancel`,
+      success_url: `${process.env.SITE_URL}/success.html`,
+      cancel_url: `${process.env.SITE_URL}/cancel.html`,
       metadata: {
         plan: 'single'
       }

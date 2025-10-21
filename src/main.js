@@ -20,7 +20,7 @@ function updateNavigationForLoggedInUser(user) {
   const nav = document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/upload.html">Upload</a> |
+      <a href="/payment.html">Upload</a> |
       <a href="/dashboard.html">Dashboard</a> |
       <a href="/pricing.html">Pricing</a> |
       <span>Welcome, ${user.email}</span> |
@@ -41,7 +41,7 @@ function updateNavigationForGuest() {
   const nav = document.querySelector('nav div:last-child');
   if (nav) {
     nav.innerHTML = `
-      <a href="/upload.html">Upload</a> |
+      <a href="/payment.html">Upload</a> |
       <a href="/dashboard.html">Dashboard</a> |
       <a href="/pricing.html">Pricing</a> |
       <a href="/login.html">Login</a>

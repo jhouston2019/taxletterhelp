@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment – Unlock AI Tax Letter Analysis</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        :root {
+            --bg: #0b1220;
+            --ink: #0f172a;
+            --ink-2: #334155;
+            --muted: #64748b;
+            --white: #ffffff;
+            --brand: #1e40af;
+            --brand-2: #3b82f6;
+            --card: #0f172a;
+            --border: #1f2937;
+            --shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+            color: var(--ink);
+            margin: 0;
+            background: #f8fafc;
+            line-height: 1.5;
+        }
+
+        nav {
+            background: #1e293b;
+            padding: 1rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #334155;
+            align-items: center;
+        }
+
+        nav a {
+            color: #f5f5f5;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        nav a:hover {
+            background: #334155;
+        }
+
+        .container {
+            width: min(1120px, 92%);
+            margin-inline: auto;
+            padding: 2rem 0;
+        }
+
+        .payment-hero {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            margin-bottom: 3rem;
+            border-radius: 12px;
+        }
+
+        .payment-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .payment-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .product-description {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+
+        .product-description h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .product-description p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .pricing-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .pricing-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e40af;
+            margin: 0.5rem 0;
+        }
+
+        .price-term {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            padding: 0.75rem 0;
+            color: #2d3748;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .pay-button {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+
+        .pay-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            padding: 28px 0;
+            background: #0b1220;
+            color: #cbd5e1;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .payment-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .payment-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .security-badges {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="taxletterhelp">
+    <nav>
+        <div><strong>TaxLetterHelp</strong></div>
+        <div>
+            <a href="/upload.html">Upload</a> |
+            <a href="/dashboard.html">Dashboard</a> |
+            <a href="/pricing.html">Pricing</a> |
+            <a href="/login.html">Login</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="payment-hero">
+                <h1>🔒 Secure Payment Required</h1>
+                <p>Unlock AI-powered tax letter analysis and get your professional response letter in minutes</p>
+            </div>
+
+            <div class="payment-container">
+                <div class="product-description">
+                    <h2>AI Tax Letter Analysis Package</h2>
+                    <p>Get instant, professional analysis of your IRS letter with a ready-to-mail response letter. Save hundreds compared to hiring a CPA.</p>
+                </div>
+
+                <div class="pricing-box">
+                    <h3>One-Time Payment</h3>
+                    <div class="price">$49 <span class="price-term">single use</span></div>
+                    
+                    <ul class="features-list">
+                        <li>Professional IRS response letter</li>
+                        <li>AI-powered analysis & plain-English explanation</li>
+                        <li>PDF & DOCX downloads</li>
+                        <li>Covers CP2000, 1099-K, and common IRS notices</li>
+                        <li>Delivered securely within minutes</li>
+                        <li>No subscriptions or hidden fees</li>
+                    </ul>
+                </div>
+
+                <button id="payButton" class="pay-button">
+                    Pay & Unlock My AI Letter Analysis
+                </button>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Redirecting to secure payment...</p>
+                </div>
+
+                <div class="security-badges">
+                    <div class="security-badge">
+                        <span>🔒</span>
+                        <span>SSL Encrypted</span>
+                    </div>
+                    <div class="security-badge">
+                        <span>💳</span>
+                        <span>Stripe Secure</span>
+                    </div>
+                    <div class="security-badge">
+                        <span>🛡️</span>
+                        <span>PCI Compliant</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TaxLetterHelp. <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms</a> | <a href="/disclaimer.html">Disclaimer</a></p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('payButton').addEventListener('click', async function() {
+            const button = this;
+            const loading = document.getElementById('loading');
+            
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            loading.style.display = 'block';
+            
+            try {
+                // Call Netlify function to create checkout session
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Payment setup failed. Please try again or contact support.');
+                
+                // Reset button state
+                button.disabled = false;
+                button.textContent = 'Pay & Unlock My AI Letter Analysis';
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
