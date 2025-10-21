@@ -1,0 +1,4 @@
+DO NOT USE INLINE OR PAGE-LEVEL CSS.
+All color, font, and background rules come from /styles.css only.
+Font colors use CSS variables: --font-color-main, --font-color-muted, etc.
+No new <style> tags allowed.
