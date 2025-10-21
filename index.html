@@ -19,8 +19,10 @@
 
     <main>
     <!-- HERO -->
-        <section style="position:relative; min-height:280px; display:grid; place-items:center; text-align:center; color:#ffffff; padding:48px 0; background:radial-gradient(1200px 600px at 80% 0%, rgba(59, 130, 246, 0.22), transparent 60%), linear-gradient(180deg, rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)), url('images/taxhelp.jpg') center/cover no-repeat;">
-            <div style="width:min(1120px, 92%); margin-inline:auto;">
+        <section style="position:relative; min-height:280px; display:grid; place-items:center; text-align:center; color:#ffffff; padding:48px 0; overflow:hidden;">
+            <img src="images/taxhelp.jpg" alt="Tax Help Background" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-2;">
+            <div style="position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(1200px 600px at 80% 0%, rgba(59, 130, 246, 0.22), transparent 60%), linear-gradient(180deg, rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)); z-index:-1;"></div>
+            <div style="width:min(1120px, 92%); margin-inline:auto; position:relative; z-index:1;">
                 <h1 style="font-size:clamp(2rem, 3.8vw, 3rem); margin:0.25rem 0; text-shadow:0 2px 24px rgba(0,0,0,0.5); color:#ffffff; text-align:center;">Got an IRS Letter? Don't Panic.</h1>
                 <h1 style="font-size:clamp(2rem, 3.8vw, 3rem); margin:0.25rem 0; text-shadow:0 2px 24px rgba(0,0,0,0.5); color:#ffffff; text-align:center;">We can help.</h1>
                 <p style="font-size:clamp(1.125rem, 1.5vw, 1.25rem); color:#ffffff; margin:14px auto 22px auto; text-align:center; display:block; width:100%;">Upload it now. Get an AI-powered response in minutes.</p>
