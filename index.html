@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TaxLetterHelp - AI-Powered Tax Letter Analysis</title>
+    <title>TaxLetterHelp - AI-Powered Tax Letter Analysis</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     :root {
@@ -124,7 +124,23 @@
     }
 
     .problem-grid {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
+      justify-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .problem-grid .problem-item:nth-child(4),
+    .problem-grid .problem-item:nth-child(5) {
+      grid-column: span 1;
+    }
+
+    .problem-grid .problem-item:nth-child(4) {
+      justify-self: end;
+    }
+
+    .problem-grid .problem-item:nth-child(5) {
+      justify-self: start;
     }
 
     .problem-item,
@@ -279,71 +295,71 @@
 <body class="taxletterhelp">
   <nav>
     <div><strong>TaxLetterHelp</strong></div>
-    <div>
+        <div>
       <a href="/upload.html">Upload</a> |
       <a href="/dashboard.html">Dashboard</a> |
       <a href="/pricing.html">Pricing</a> |
       <a href="/login.html">Login</a>
-    </div>
-  </nav>
+        </div>
+    </nav>
 
-  <main>
+    <main>
     <!-- HERO -->
-    <section class="hero">
-      <div class="container">
-        <h1>Got an IRS Letter? Don't Panic.</h1>
-        <h1>We can help.</h1>
-        <p class="hero-subtitle">Upload it now. Get an AI-powered response in minutes.</p>
-        <h1 class="hero-savings">Save $300–$600 vs. hiring a CPA</h1>
-        <a href="/upload.html" class="cta-button">Upload My IRS Letter</a>
-      </div>
-    </section>
+        <section class="hero">
+            <div class="container">
+                <h1>Got an IRS Letter? Don't Panic.</h1>
+                <h1>We can help.</h1>
+                <p class="hero-subtitle">Upload it now. Get an AI-powered response in minutes.</p>
+                <h1 class="hero-savings">Save $300–$600 vs. hiring a CPA</h1>
+                <a href="/upload.html" class="cta-button">Upload My IRS Letter</a>
+            </div>
+        </section>
 
     <!-- PROBLEM -->
-    <section class="problem-section">
-      <div class="container">
+        <section class="problem-section">
+            <div class="container">
         <h2>IRS letters are stressful, confusing, and expensive to resolve.</h2>
-        <div class="problem-grid">
+                <div class="problem-grid">
           <div class="problem-item"><div class="problem-icon">📧</div><h3>CP2000 Notices</h3><p>Income discrepancies that can cost thousands</p></div>
           <div class="problem-item"><div class="problem-icon">💳</div><h3>1099-K Letters</h3><p>Cryptocurrency and payment app reporting issues</p></div>
           <div class="problem-item"><div class="problem-icon">🔍</div><h3>Audit Notices</h3><p>Full-scale examinations that take months</p></div>
           <div class="problem-item"><div class="problem-icon">💰</div><h3>CPA Costs</h3><p>$300–$600 per letter, plus weeks of waiting</p></div>
           <div class="problem-item"><div class="problem-icon">⚠️</div><h3>Penalties</h3><p>Interest and fees that compound daily</p></div>
-        </div>
+                    </div>
         <p class="problem-closing" style="text-align:center;margin-top:24px;">You don't need to overpay or waste weeks waiting.</p>
-      </div>
-    </section>
+            </div>
+        </section>
 
     <!-- SOLUTION -->
-    <section class="solution-section">
-      <div class="container">
-        <h2>How It Works</h2>
-        <div class="solution-steps">
+        <section class="solution-section">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="solution-steps">
           <div class="step"><div class="step-number">1</div><h3>Upload Your Letter</h3><p>Take a photo or upload your IRS letter. We support PDFs and images.</p></div>
           <div class="step"><div class="step-number">2</div><h3>AI Explains Everything</h3><p>Our AI reads your letter and explains what it means in plain English.</p></div>
           <div class="step"><div class="step-number">3</div><h3>Download Your Response</h3><p>Get a professional response letter ready to mail to the IRS.</p></div>
-        </div>
+                    </div>
         <p style="font-size:.9rem;margin-top:1.5rem;"><strong>Disclaimer:</strong> This is not legal or tax advice. For complex matters, consult a qualified tax professional.</p>
-      </div>
-    </section>
+            </div>
+        </section>
 
     <!-- TRUST -->
-    <section class="trust-section">
-      <div class="container">
-        <h2>Why Choose TaxLetterHelp?</h2>
-        <div class="trust-grid">
+        <section class="trust-section">
+            <div class="container">
+                <h2>Why Choose TaxLetterHelp?</h2>
+                <div class="trust-grid">
           <div class="trust-card"><div class="trust-icon">💰</div><h3>Save Money</h3><p>Professional responses without the huge bill.</p></div>
           <div class="trust-card"><div class="trust-icon">⚡</div><h3>Instant Results</h3><p>Upload your IRS letter, get your response in minutes.</p></div>
           <div class="trust-card"><div class="trust-icon">📖</div><h3>Human-Readable</h3><p>Plain English explanations you can actually understand.</p></div>
           <div class="trust-card"><div class="trust-icon">🔒</div><h3>Secure & Private</h3><p>Your tax data is encrypted, never shared.</p></div>
-        </div>
-      </div>
-    </section>
+                </div>
+            </div>
+        </section>
 
     <!-- PRICING -->
-    <section class="pricing-section">
+        <section class="pricing-section">
       <div class="container light-page">
-        <h2>Choose Your Plan</h2>
+                <h2>Choose Your Plan</h2>
         <p>Most CPAs charge $300–$600 per letter. Our AI-powered system handles your IRS letter for just <strong>$49</strong>.</p>
 
         <div class="pricing-card single-plan">
@@ -355,30 +371,30 @@
             <li>✓ PDF & DOCX downloads</li>
             <li>✓ Covers CP2000, 1099-K, and common IRS notices</li>
             <li>✓ Delivered securely within minutes</li>
-          </ul>
+                            </ul>
           <a href="/checkout.html" class="btn-primary">Get Your Response for $49</a>
-        </div>
+                </div>
 
         <p class="disclaimer">One-time payment. No subscriptions or hidden fees.</p>
-      </div>
-    </section>
+            </div>
+        </section>
 
     <!-- URGENCY -->
-    <section class="urgency-section">
-      <div class="container">
-        <h2>Don't miss your IRS deadline.</h2>
-        <p>Most IRS letters give you only 30 days to respond. Every day you wait adds stress, penalties, and risk.</p>
-        <a href="/upload.html" class="cta-button">Get My Response Letter Now</a>
-      </div>
-    </section>
-  </main>
+        <section class="urgency-section">
+            <div class="container">
+                <h2>Don't miss your IRS deadline.</h2>
+                <p>Most IRS letters give you only 30 days to respond. Every day you wait adds stress, penalties, and risk.</p>
+                <a href="/upload.html" class="cta-button">Get My Response Letter Now</a>
+            </div>
+        </section>
+    </main>
 
-  <footer>
-    <div class="container">
+    <footer>
+        <div class="container">
       <p>&copy; 2025 TaxLetterHelp. <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">Terms</a> | <a href="/disclaimer.html">Disclaimer</a></p>
-    </div>
-  </footer>
+        </div>
+    </footer>
 
-  <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
