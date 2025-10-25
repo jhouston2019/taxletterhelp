@@ -1,77 +1,22 @@
 import OpenAI from "openai";
-import { sanitizeText, rateLimitCheck } from './validate-input.js';
-import { addSecurityHeaders, validateOrigin } from './security-headers.js';
-
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function handler(event) {
   try {
-    // Validate origin
-    validateOrigin(event);
-    
-    const { text, userId } = JSON.parse(event.body);
-    
-    // Rate limiting
-    if (userId) {
-      rateLimitCheck(userId, 'letter_analysis', 5, 60000); // 5 requests per minute
-    }
-    
-    // Sanitize input
-    const sanitizedText = sanitizeText(text);
-    
-    if (!sanitizedText || sanitizedText.length < 10) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ 
-          error: 'Invalid or empty text provided' 
-        })
-      };
-    }
-    
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    const { fileContent } = JSON.parse(event.body);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      temperature: 0.4,
       messages: [
-        { 
-          role: "system", 
-          content: "You are a tax letter explainer. Analyze IRS letters and provide clear, helpful explanations of what they mean and what actions the recipient should take. Be professional and accurate." 
-        },
-        { 
-          role: "user", 
-          content: `Explain this IRS letter in simple terms: ${sanitizedText}` 
-        }
+        { role: "system", content: "You are a certified tax correspondence expert specializing in IRS letters. Summarize and classify each notice clearly and concisely." },
+        { role: "user", content: `Analyze this IRS letter and provide:\n1. Type of letter (CP, audit, etc.)\n2. Reason for issue\n3. Next steps required\n\nLetter:\n${fileContent}` }
       ],
-      max_tokens: 1000
     });
-
-    const response = {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({ 
-        explanation: completion.choices[0].message.content 
-      })
-    };
-    
-    return addSecurityHeaders(response);
-  } catch (error) {
     return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to analyze letter',
-        details: error.message 
-      })
+      statusCode: 200,
+      body: JSON.stringify({ summary: response.choices[0].message.content }),
     };
+  } catch (error) {
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 }

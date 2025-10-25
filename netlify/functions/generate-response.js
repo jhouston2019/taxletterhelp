@@ -1,49 +1,22 @@
 import OpenAI from "openai";
-
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function handler(event) {
   try {
-    const { letterText, userData } = JSON.parse(event.body);
-
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    const { summary } = JSON.parse(event.body);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      temperature: 0.5,
       messages: [
-        { 
-          role: "system", 
-          content: "You are an IRS response letter generator. Create professional, well-structured response letters that address the specific issues mentioned in the original IRS letter. Use proper business letter format and maintain a respectful, professional tone." 
-        },
-        { 
-          role: "user", 
-          content: `Draft a professional response to this IRS letter:\n\n${letterText}\n\nUser data: ${JSON.stringify(userData)}` 
-        }
+        { role: "system", content: "You are a tax correspondence expert. Write a respectful, professional, IRS-compliant response letter for taxpayers." },
+        { role: "user", content: `Write a full response letter based on this summary:\n${summary}\nInclude greeting, subject line referencing the IRS notice, clear explanation, and courteous closing.` }
       ],
-      max_tokens: 1500
     });
-
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({ 
-        responseLetter: completion.choices[0].message.content 
-      })
+      body: JSON.stringify({ letter: response.choices[0].message.content }),
     };
   } catch (error) {
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to generate response',
-        details: error.message 
-      })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 }

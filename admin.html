@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - TaxLetterHelp</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body style="background:#0f172a; color:#fff; font-family:'Inter',sans-serif; padding:20px;">
+  <h1>Admin Dashboard</h1>
+  <p>Enter your admin key to access records.</p>
+  <input type="password" id="adminKey" placeholder="Enter admin key" style="padding:10px; width:300px; border-radius:6px;">
+  <button id="accessBtn" style="margin-left:10px;">Access Dashboard</button>
+
+  <div id="results" style="margin-top:30px;"></div>
+
+  <script>
+    const btn = document.getElementById('accessBtn');
+    const results = document.getElementById('results');
+    btn.onclick = async () => {
+      const key = document.getElementById('adminKey').value.trim();
+      if (!key) return alert('Enter your admin key.');
+      results.innerHTML = '<p>Loading records...</p>';
+      const res = await fetch('/.netlify/functions/admin', {
+        headers: { Authorization: `Bearer ${key}` }
+      });
+      const data = await res.json();
+      if (data.error) {
+        results.innerHTML = `<p style="color:red;">${data.error}</p>`;
+        return;
+      }
+      const list = data.records.map(r => `
+        <tr>
+          <td>${r.id}</td>
+          <td>${r.letterType}</td>
+          <td>${r.status}</td>
+          <td>${new Date(r.created).toLocaleString()}</td>
+        </tr>
+      `).join('');
+      results.innerHTML = `
+        <h2>System Logs</h2>
+        <table border="1" cellpadding="8" style="border-collapse:collapse; width:100%; color:#fff;">
+          <thead>
+            <tr style="background:#1e293b;">
+              <th>ID</th><th>Letter Type</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>${list}</tbody>
+        </table>
+      `;
+    };
+  </script>
+</body>
+</html>
