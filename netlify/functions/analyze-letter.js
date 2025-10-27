@@ -222,7 +222,13 @@ exports.handler = async (event) => {
     console.log('OpenAI API call completed');
     console.log('Completion usage:', completion.usage);
     
-    const aiResponse = completion.choices?.[0]?.message?.content || "No response generated.";
+    let aiResponse = completion.choices?.[0]?.message?.content || "No response generated.";
+    
+    // Clean up markdown code blocks if present
+    if (aiResponse.includes('```json')) {
+      aiResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    }
+    
     console.log('AI response length:', aiResponse.length);
     
     // Calculate confidence score based on token usage
