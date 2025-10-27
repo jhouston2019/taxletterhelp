@@ -6,10 +6,14 @@ const Tesseract = require("tesseract.js");
 const { getSupabaseAdmin } = require("./_supabase.js");
 
 exports.handler = async (event) => {
-  console.log('Analyze letter function called');
+  console.log('=== ANALYZE LETTER FUNCTION START ===');
+  console.log('HTTP Method:', event.httpMethod);
+  console.log('Event body type:', typeof event.body);
+  console.log('Event body length:', event.body ? event.body.length : 0);
   
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
+    console.log('Handling OPTIONS request');
     return {
       statusCode: 200,
       headers: {
@@ -22,11 +26,16 @@ exports.handler = async (event) => {
   }
 
   try {
-    console.log('Event body:', event.body);
-    const { text, fileUrl, imageUrl, userEmail = null, priceId = process.env.STRIPE_PRICE_RESPONSE, stripeSessionId = null } = JSON.parse(event.body || "{}");
+    console.log('Parsing event body...');
+    const parsedBody = JSON.parse(event.body || "{}");
+    console.log('Parsed body keys:', Object.keys(parsedBody));
+    
+    const { text, fileUrl, imageUrl, userEmail = null, priceId = process.env.STRIPE_PRICE_RESPONSE, stripeSessionId = null } = parsedBody;
     let letterText = text || "";
     
     console.log('Letter text length:', letterText.length);
+    console.log('File URL provided:', !!fileUrl);
+    console.log('Image URL provided:', !!imageUrl);
 
     // --- STEP 1: Extract text from file if provided ---
     if (fileUrl) {
@@ -114,10 +123,12 @@ exports.handler = async (event) => {
 
     // --- STEP 3: Analyze the letter using OpenAI ---
     console.log('Starting OpenAI analysis...');
+    console.log('Environment variables available:', Object.keys(process.env).filter(key => key.includes('OPENAI')));
     
     // Check if OpenAI API key is available
     if (!process.env.OPENAI_API_KEY) {
       console.error('OpenAI API key not found');
+      console.error('Available env vars:', Object.keys(process.env).slice(0, 10));
       return {
         statusCode: 500,
         headers: {
@@ -128,8 +139,10 @@ exports.handler = async (event) => {
       };
     }
 
+    console.log('OpenAI API key found, initializing client...');
     // Initialize OpenAI client
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    console.log('OpenAI client initialized successfully');
 
     const systemPrompt = `
       You are a senior IRS Taxpayer Advocate with 25+ years of experience specializing in:
@@ -177,6 +190,9 @@ exports.handler = async (event) => {
       Provide actionable, expert-level advice that helps the taxpayer understand their situation clearly and take appropriate action.
     `;
 
+    console.log('Making OpenAI API call...');
+    console.log('Letter text length for API:', letterText.length);
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -186,7 +202,11 @@ exports.handler = async (event) => {
       temperature: 0.4,
     });
 
+    console.log('OpenAI API call completed');
+    console.log('Completion usage:', completion.usage);
+    
     const aiResponse = completion.choices?.[0]?.message?.content || "No response generated.";
+    console.log('AI response length:', aiResponse.length);
     
     // Calculate confidence score based on token usage
     const confidenceScore = Math.round(Math.max(60, Math.min(95, (1 - (completion.usage?.completion_tokens || 0) / 2048) * 100)));
