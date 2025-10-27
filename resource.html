@@ -118,6 +118,9 @@
   <script>
     const analyzeBtn = document.getElementById('analyzeBtn');
     const generateBtn = document.getElementById('generateBtn');
+    
+    console.log('Analyze button found:', !!analyzeBtn);
+    console.log('Generate button found:', !!generateBtn);
     const summaryOutput = document.getElementById('summaryOutput');
     const responseOutput = document.getElementById('responseOutput');
     const confidence = document.getElementById('confidence');
@@ -135,7 +138,6 @@
     const analysisContainer = document.getElementById('analysisContainer');
     const analysisDetails = document.getElementById('analysisDetails');
     const responseSection = document.getElementById('responseSection');
-    const responseStatus = document.getElementById('responseStatus');
     const downloadSection = document.getElementById('downloadSection');
     const userInfo = document.getElementById('userInfo');
 
@@ -241,6 +243,7 @@
     };
 
     analyzeBtn.onclick = async () => {
+      console.log('Analyze button clicked');
       const text = document.getElementById('letterInput').value.trim();
       if (!text && !uploadedFileUrl && !uploadedImageUrl) {
         return alert('Please upload a file, image, or paste your letter text.');
@@ -315,6 +318,7 @@
     };
 
     generateBtn.onclick = async () => {
+      console.log('Generate button clicked');
       if (!currentRecordId) {
         if (!confirm('No recordId present. Continue anyway?')) return;
       }
