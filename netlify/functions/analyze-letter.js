@@ -180,7 +180,7 @@ exports.handler = async (event) => {
       - Identity verification can be done online
       - Most correspondence can be handled without visiting an office
       
-      Analyze this IRS letter with expert-level knowledge and provide a comprehensive response in the following JSON format:
+      Analyze this IRS letter with expert-level knowledge and provide a comprehensive response in the following JSON format. Vary your writing style and approach while maintaining accuracy:
       
       {
         "letterType": "Specific notice type (e.g., CP2000, CP2001, 1099-K, Audit Notice, etc.)",
@@ -204,7 +204,7 @@ exports.handler = async (event) => {
       - Penalty implications and abatement possibilities
       - Payment plan options and requirements
       
-      Provide actionable, expert-level advice that helps the taxpayer understand their situation clearly and take appropriate action.
+      Provide actionable, expert-level advice that helps the taxpayer understand their situation clearly and take appropriate action. Vary your explanation style and tone to make each analysis unique while being equally helpful.
     `;
 
     console.log('Making OpenAI API call...');
@@ -216,7 +216,8 @@ exports.handler = async (event) => {
         { role: "system", content: systemPrompt },
         { role: "user", content: letterText },
       ],
-      temperature: 0.4,
+      temperature: 0.7,
+      top_p: 0.9,
     });
 
     console.log('OpenAI API call completed');

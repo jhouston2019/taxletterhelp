@@ -1,27 +1,41 @@
-import OpenAI from "openai";
-import { getSupabaseAdmin } from "./_supabase.js";
+const OpenAI = require("openai");
+const { getSupabaseAdmin } = require("./_supabase.js");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
 
-export async function handler(event) {
+  // Initialize OpenAI client
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
     const { summary, recordId = null } = JSON.parse(event.body || "{}");
     if (!summary) return { statusCode: 400, body: JSON.stringify({ error: "Missing summary" }) };
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
-      temperature: 0.3,
+      model: "gpt-4o-mini",
+      temperature: 0.8,
+      top_p: 0.9,
       messages: [
         { 
           role: "system", 
           content: `You are a senior tax attorney with 20+ years of experience specializing in IRS correspondence and tax controversy matters. 
 
-Write a professional, IRS-compliant response letter that:
+Write a professional, IRS-compliant response letter that varies in approach and tone while maintaining professionalism:
 
 1. **Format & Structure:**
    - Use proper business letter format with date, recipient, and subject line
    - Reference the specific IRS notice number, date, and taxpayer ID
-   - Use formal, respectful tone throughout
+   - Vary your tone between formal and conversational while remaining respectful
    - Include proper salutation and closing
 
 2. **Content Requirements:**
@@ -30,12 +44,13 @@ Write a professional, IRS-compliant response letter that:
    - Include relevant tax law references when appropriate
    - Request specific actions or clarifications as needed
    - Offer to provide additional documentation if required
+   - Vary your approach: sometimes be more assertive, sometimes more conciliatory
 
 3. **Professional Standards:**
    - Use precise IRS terminology and form references
    - Include appropriate legal disclaimers
    - Follow current IRS response guidelines
-   - Maintain professional courtesy while being assertive
+   - Maintain professional courtesy while adapting your assertiveness level
    - Ensure all statements are accurate and verifiable
 
 4. **Response Elements:**
@@ -46,7 +61,7 @@ Write a professional, IRS-compliant response letter that:
    - Include contact information for follow-up
    - Set reasonable expectations for response time
 
-Write a comprehensive response that protects the taxpayer's rights while maintaining professional standards.` 
+Write a comprehensive response that protects the taxpayer's rights while maintaining professional standards. Vary your writing style and approach to make each response unique while being equally effective.` 
         },
         { 
           role: "user", 
