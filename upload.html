@@ -79,6 +79,16 @@
                 currentUser = { id: 'test-user-123', email: 'test@example.com' };
                 console.log('Using mock user for testing');
             }
+            
+            // Verify all required elements exist
+            const requiredElements = ['uploadForm', 'explanation', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            
+            if (missingElements.length > 0) {
+                console.error('Missing required elements:', missingElements);
+                alert('Error: Some required page elements are missing. Please refresh the page.');
+                return;
+            }
         });
         
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -186,9 +196,14 @@
                 const analysisData = await analysisResponse.json();
                 
                 if (analysisData.summary || analysisData.explanation) {
-                    document.getElementById('explanation').textContent = analysisData.summary || analysisData.explanation;
-                    document.getElementById('analysisResults').style.display = 'block';
-                    hideStatus();
+                    const explanationElement = document.getElementById('explanation');
+                    if (explanationElement) {
+                        explanationElement.textContent = analysisData.summary || analysisData.explanation;
+                        document.getElementById('analysisResults').style.display = 'block';
+                        hideStatus();
+                    } else {
+                        showStatus('Error: Could not find explanation element');
+                    }
                 } else {
                     showStatus('Analysis failed: ' + (analysisData.error || 'Unknown error'));
                 }
@@ -215,9 +230,14 @@
                 const data = await response.json();
                 
                 if (data.responseLetter) {
-                    document.getElementById('responseLetter').textContent = data.responseLetter;
-                    document.getElementById('responseResults').style.display = 'block';
-                    hideStatus();
+                    const responseElement = document.getElementById('responseLetter');
+                    if (responseElement) {
+                        responseElement.textContent = data.responseLetter;
+                        document.getElementById('responseResults').style.display = 'block';
+                        hideStatus();
+                    } else {
+                        showStatus('Error: Could not find response letter element');
+                    }
                 } else {
                     showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
                 }
@@ -228,7 +248,12 @@
         });
         
         document.getElementById('downloadPDF').addEventListener('click', async () => {
-            const responseText = document.getElementById('responseLetter').textContent;
+            const responseElement = document.getElementById('responseLetter');
+            if (!responseElement) {
+                alert('Error: Could not find response letter element');
+                return;
+            }
+            const responseText = responseElement.textContent;
             
             try {
                 const response = await fetch('/.netlify/functions/generate-pdf', {
@@ -257,7 +282,12 @@
         });
         
         document.getElementById('downloadDOCX').addEventListener('click', async () => {
-            const responseText = document.getElementById('responseLetter').textContent;
+            const responseElement = document.getElementById('responseLetter');
+            if (!responseElement) {
+                alert('Error: Could not find response letter element');
+                return;
+            }
+            const responseText = responseElement.textContent;
             
             try {
                 const response = await fetch('/.netlify/functions/generate-docx', {
