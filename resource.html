@@ -37,10 +37,7 @@
     <textarea id="letterInput" rows="10" style="width:100%; padding:10px; border-radius:6px;"></textarea>
   </div>
   
-  <div style="display:flex; gap:10px; margin-bottom:20px;">
-    <button id="analyzeBtn" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">Analyze Letter</button>
-    <button id="testBtn" style="background:#f59e0b; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">Test Function</button>
-  </div>
+  <button id="analyzeBtn" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold; margin-bottom:20px;">Analyze Letter</button>
   
   <!-- Analysis Status -->
   <div id="summaryOutput" style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px; color:#fff; display:none;"></div>
@@ -78,7 +75,6 @@
 
   <script>
     const analyzeBtn = document.getElementById('analyzeBtn');
-    const testBtn = document.getElementById('testBtn');
     const generateBtn = document.getElementById('generateBtn');
     const summaryOutput = document.getElementById('summaryOutput');
     const responseOutput = document.getElementById('responseOutput');
@@ -395,39 +391,6 @@
         }
       } catch (error) {
         alert('Error generating DOCX: ' + error.message);
-      }
-    };
-
-    // Test function
-    testBtn.onclick = async () => {
-      const resultDiv = document.getElementById('summaryOutput');
-      if (resultDiv) {
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = 'Testing function...';
-      }
-      
-      try {
-        const response = await fetch('/.netlify/functions/analyze-letter', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            text: "This is a test CP2000 notice from the IRS regarding unreported income of $5,000.",
-            fileUrl: null,
-            imageUrl: null,
-            userEmail: "test@example.com"
-          })
-        });
-        
-        const data = await response.json();
-        if (resultDiv) {
-          resultDiv.innerHTML = `<pre style="color:#22c55e;">SUCCESS! Function is working:</pre><pre>${JSON.stringify(data, null, 2)}</pre>`;
-        }
-      } catch (error) {
-        if (resultDiv) {
-          resultDiv.innerHTML = `<pre style="color:#ef4444;">ERROR: ${error.message}</pre>`;
-        }
       }
     };
   </script>
