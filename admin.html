@@ -29,23 +29,27 @@
         results.innerHTML = `<p style="color:red;">${data.error}</p>`;
         return;
       }
-      const list = data.records.map(r => `
+      const rows = (data.records || []).map(r => `
         <tr>
           <td>${r.id}</td>
-          <td>${r.letterType}</td>
+          <td>${r.user_email || ''}</td>
+          <td>${r.price_id || ''}</td>
+          <td>${r.stripe_payment_status || ''}</td>
           <td>${r.status}</td>
-          <td>${new Date(r.created).toLocaleString()}</td>
+          <td>${(r.summary || '').slice(0,120).replace(/</g,'&lt;')}...</td>
+          <td>${new Date(r.created_at).toLocaleString()}</td>
         </tr>
       `).join('');
+
       results.innerHTML = `
-        <h2>System Logs</h2>
+        <h2>AI Records (latest)</h2>
         <table border="1" cellpadding="8" style="border-collapse:collapse; width:100%; color:#fff;">
           <thead>
             <tr style="background:#1e293b;">
-              <th>ID</th><th>Letter Type</th><th>Status</th><th>Date</th>
+              <th>ID</th><th>Email</th><th>Price</th><th>Pay</th><th>Status</th><th>Summary</th><th>Date</th>
             </tr>
           </thead>
-          <tbody>${list}</tbody>
+          <tbody>${rows}</tbody>
         </table>
       `;
     };

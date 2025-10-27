@@ -23,28 +23,40 @@
     const summaryOutput = document.getElementById('summaryOutput');
     const responseOutput = document.getElementById('responseOutput');
 
+    let currentRecordId = null;
+
     analyzeBtn.onclick = async () => {
       const text = document.getElementById('letterInput').value.trim();
       if (!text) return alert('Please paste your letter text.');
       summaryOutput.textContent = 'Analyzing...';
+
       const res = await fetch('/.netlify/functions/analyze-letter', {
         method: 'POST',
         body: JSON.stringify({ fileContent: text })
       });
       const data = await res.json();
+      if (data.error) {
+        summaryOutput.textContent = `Error: ${data.error}`;
+        return;
+      }
       summaryOutput.textContent = data.summary || 'No summary generated.';
+      currentRecordId = data.recordId || null;
       generateBtn.style.display = 'inline-block';
     };
 
     generateBtn.onclick = async () => {
+      if (!currentRecordId) {
+        if (!confirm('No recordId present. Continue anyway?')) return;
+      }
       responseOutput.textContent = 'Generating response letter...';
+
       const summary = summaryOutput.textContent;
       const res = await fetch('/.netlify/functions/generate-response', {
         method: 'POST',
-        body: JSON.stringify({ summary })
+        body: JSON.stringify({ summary, recordId: currentRecordId })
       });
       const data = await res.json();
-      responseOutput.textContent = data.letter || 'No response generated.';
+      responseOutput.textContent = data.letter || `Error: ${data.error || 'No response generated.'}`;
     };
   </script>
 </body>

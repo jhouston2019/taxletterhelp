@@ -4,7 +4,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function handler(event) {
   try {
-    const priceId = "price_49USD_single";
+    const { recordId = null } = JSON.parse(event.body || "{}"); // send from client if available
+    const priceId = process.env.STRIPE_PRICE_RESPONSE || "price_49USD_single";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -13,11 +14,9 @@ export async function handler(event) {
         quantity: 1 
       }],
       mode: 'payment',
-      success_url: `${process.env.SITE_URL}/success.html`,
-      cancel_url: `${process.env.SITE_URL}/cancel.html`,
-      metadata: {
-        plan: 'single'
-      }
+      success_url: `${process.env.SITE_URL}/thank-you.html`,
+      cancel_url: `${process.env.SITE_URL}/pricing.html`,
+      metadata: recordId ? { recordId } : { plan: 'single' }
     });
 
     return {
