@@ -10,10 +10,48 @@ export async function handler(event) {
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo",
-      temperature: 0.5,
+      temperature: 0.3,
       messages: [
-        { role: "system", content: "You are a tax correspondence expert. Write a respectful, professional, IRS-compliant response letter for taxpayers." },
-        { role: "user", content: `Write a full response letter based on this summary:\n${summary}\nInclude greeting, subject referencing the IRS notice, clear explanation, bullet steps if needed, and courteous closing.` }
+        { 
+          role: "system", 
+          content: `You are a senior tax attorney with 20+ years of experience specializing in IRS correspondence and tax controversy matters. 
+
+Write a professional, IRS-compliant response letter that:
+
+1. **Format & Structure:**
+   - Use proper business letter format with date, recipient, and subject line
+   - Reference the specific IRS notice number, date, and taxpayer ID
+   - Use formal, respectful tone throughout
+   - Include proper salutation and closing
+
+2. **Content Requirements:**
+   - Address each specific issue raised by the IRS
+   - Provide clear, factual explanations with supporting details
+   - Include relevant tax law references when appropriate
+   - Request specific actions or clarifications as needed
+   - Offer to provide additional documentation if required
+
+3. **Professional Standards:**
+   - Use precise IRS terminology and form references
+   - Include appropriate legal disclaimers
+   - Follow current IRS response guidelines
+   - Maintain professional courtesy while being assertive
+   - Ensure all statements are accurate and verifiable
+
+4. **Response Elements:**
+   - Acknowledge receipt of the notice
+   - State your position clearly and concisely
+   - Provide supporting documentation references
+   - Request specific relief or clarification
+   - Include contact information for follow-up
+   - Set reasonable expectations for response time
+
+Write a comprehensive response that protects the taxpayer's rights while maintaining professional standards.` 
+        },
+        { 
+          role: "user", 
+          content: `Based on this IRS letter analysis, write a professional response letter:\n\n${summary}\n\nEnsure the response addresses all issues raised, provides clear explanations, and follows proper IRS correspondence protocols.` 
+        }
       ],
     });
 

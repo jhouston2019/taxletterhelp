@@ -61,22 +61,49 @@ export const handler = async (event) => {
 
     // --- STEP 3: Analyze the letter using OpenAI ---
     const systemPrompt = `
-      You are a professional IRS correspondence analyst with 20+ years of experience.
-      Analyze this IRS letter and provide a comprehensive response in the following JSON format:
+      You are a senior IRS Taxpayer Advocate with 25+ years of experience specializing in:
+      - CP2000, CP2001, CP2002, CP2003 notices (Proposed Assessments)
+      - 1099-K, 1099-MISC, 1099-NEC discrepancies
+      - Audit notices (CP75, CP2001, Letter 2205)
+      - Underpayment penalties (CP14, CP15, CP16)
+      - Identity verification (5071C, 5747C, 4883C)
+      - Math error notices (CP2002, CP2003)
+      - Balance due notices (CP14, CP15, CP16, CP161)
+      - Refund holds and offsets (CP53, CP54, CP55)
+      
+      Current IRS procedures as of 2024:
+      - Most notices have 30-day response deadlines
+      - Online response options available at irs.gov
+      - Payment plans available for most balances
+      - Penalty abatement possible for reasonable cause
+      - Identity verification can be done online
+      - Most correspondence can be handled without visiting an office
+      
+      Analyze this IRS letter with expert-level knowledge and provide a comprehensive response in the following JSON format:
       
       {
-        "letterType": "Type of notice (e.g., CP2000, CP2001, 1099-K, Audit Notice, etc.)",
-        "summary": "Plain English explanation of what this letter means",
-        "reason": "Why the taxpayer received this letter",
-        "requiredActions": "What the taxpayer needs to do and by when",
-        "nextSteps": "Recommended response actions",
+        "letterType": "Specific notice type (e.g., CP2000, CP2001, 1099-K, Audit Notice, etc.)",
+        "summary": "Plain English explanation of what this letter means and its implications",
+        "reason": "Detailed explanation of why the taxpayer received this letter",
+        "requiredActions": "Specific actions needed, deadlines, and required documentation",
+        "nextSteps": "Step-by-step recommended response actions with priorities",
         "confidence": 85,
-        "urgency": "High/Medium/Low",
-        "estimatedResolution": "Timeframe for resolution"
+        "urgency": "High/Medium/Low based on deadlines and amounts",
+        "estimatedResolution": "Realistic timeframe for resolution",
+        "penaltyRisk": "Potential penalties if not addressed",
+        "paymentOptions": "Available payment methods and plans",
+        "appealRights": "Information about appeal rights and procedures"
       }
       
-      Be specific about deadlines, amounts, and required documentation. 
-      Provide actionable advice that helps the taxpayer understand their situation clearly.
+      Be extremely specific about:
+      - Exact deadlines and response requirements
+      - Dollar amounts and calculations
+      - Required supporting documentation
+      - Online vs. mail response options
+      - Penalty implications and abatement possibilities
+      - Payment plan options and requirements
+      
+      Provide actionable, expert-level advice that helps the taxpayer understand their situation clearly and take appropriate action.
     `;
 
     const completion = await openai.chat.completions.create({
@@ -93,21 +120,73 @@ export const handler = async (event) => {
     // Calculate confidence score based on token usage
     const confidenceScore = Math.round(Math.max(60, Math.min(95, (1 - (completion.usage?.completion_tokens || 0) / 2048) * 100)));
     
+    // Notice type recognition patterns
+    const noticeTypePatterns = {
+      'CP2000': /CP2000|Proposed Assessment.*Income/i,
+      'CP2001': /CP2001|Proposed Assessment.*Additional Tax/i,
+      'CP2002': /CP2002|Math Error/i,
+      'CP2003': /CP2003|Math Error.*Additional/i,
+      'CP14': /CP14|Balance Due/i,
+      'CP15': /CP15|Balance Due.*Final/i,
+      'CP16': /CP16|Balance Due.*Notice/i,
+      'CP75': /CP75|Audit|Examination/i,
+      'CP161': /CP161|Balance Due.*Final/i,
+      '1099-K': /1099-K|Payment Card|Third Party Network/i,
+      '1099-MISC': /1099-MISC|Miscellaneous Income/i,
+      '1099-NEC': /1099-NEC|Nonemployee Compensation/i,
+      '5071C': /5071C|Identity Verification/i,
+      '5747C': /5747C|Identity Verification/i,
+      '4883C': /4883C|Identity Verification/i,
+      'CP53': /CP53|Refund Hold/i,
+      'CP54': /CP54|Refund Offset/i,
+      'CP55': /CP55|Refund Offset/i
+    };
+
+    // Detect notice type from letter text
+    let detectedNoticeType = "Unknown";
+    for (const [type, pattern] of Object.entries(noticeTypePatterns)) {
+      if (pattern.test(letterText)) {
+        detectedNoticeType = type;
+        break;
+      }
+    }
+
     // Try to parse the AI response as JSON, fallback to plain text
     let structuredAnalysis;
     try {
       structuredAnalysis = JSON.parse(aiResponse);
       structuredAnalysis.confidence = confidenceScore;
-    } catch {
+      
+      // Override with detected notice type if more specific
+      if (detectedNoticeType !== "Unknown" && structuredAnalysis.letterType === "Unknown") {
+        structuredAnalysis.letterType = detectedNoticeType;
+      }
+      
+      // Add additional fields if missing
+      if (!structuredAnalysis.penaltyRisk) {
+        structuredAnalysis.penaltyRisk = "Review notice for specific penalty information";
+      }
+      if (!structuredAnalysis.paymentOptions) {
+        structuredAnalysis.paymentOptions = "Contact IRS for payment plan options";
+      }
+      if (!structuredAnalysis.appealRights) {
+        structuredAnalysis.appealRights = "You have the right to appeal within 30 days";
+      }
+      
+    } catch (parseError) {
+      console.error("Failed to parse AI response as JSON:", parseError);
       structuredAnalysis = {
-        letterType: "Unknown",
+        letterType: detectedNoticeType,
         summary: aiResponse,
         reason: "Unable to parse structured response",
         requiredActions: "Review the summary for details",
         nextSteps: "Consider consulting a tax professional",
-        confidence: confidenceScore,
+        confidence: Math.max(60, confidenceScore - 10), // Lower confidence for parse errors
         urgency: "Medium",
-        estimatedResolution: "Varies"
+        estimatedResolution: "Varies",
+        penaltyRisk: "Review notice for specific penalty information",
+        paymentOptions: "Contact IRS for payment plan options",
+        appealRights: "You have the right to appeal within 30 days"
       };
     }
 
