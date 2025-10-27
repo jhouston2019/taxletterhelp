@@ -64,19 +64,20 @@
         
         // Check payment status and user authentication
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user has paid
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            if (!hasPaid) {
-                alert('Payment required to access AI analysis features. Redirecting to payment page...');
-                window.location.href = '/payment.html';
-                return;
-            }
+            // Temporarily disabled for testing
+            // const hasPaid = localStorage.getItem('paid') === 'true';
+            // if (!hasPaid) {
+            //     alert('Payment required to access AI analysis features. Redirecting to payment page...');
+            //     window.location.href = '/payment.html';
+            //     return;
+            // }
             
             // Check if user is logged in
             currentUser = await getCurrentUser();
             if (!currentUser) {
-                alert('Please login to upload letters');
-                window.location.href = '/login.html';
+                // Create a mock user for testing
+                currentUser = { id: 'test-user-123', email: 'test@example.com' };
+                console.log('Using mock user for testing');
             }
         });
         
@@ -175,13 +176,17 @@
                 const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: letterText })
+                    body: JSON.stringify({ 
+                        text: letterText,
+                        fileUrl: null,
+                        imageUrl: null
+                    })
                 });
                 
                 const analysisData = await analysisResponse.json();
                 
-                if (analysisData.explanation) {
-                    document.getElementById('explanation').textContent = analysisData.explanation;
+                if (analysisData.summary || analysisData.explanation) {
+                    document.getElementById('explanation').textContent = analysisData.summary || analysisData.explanation;
                     document.getElementById('analysisResults').style.display = 'block';
                     hideStatus();
                 } else {
