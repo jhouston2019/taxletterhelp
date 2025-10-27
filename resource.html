@@ -50,10 +50,28 @@
     </div>
   </div>
 
-  <button id="generateBtn" style="display:none; margin-top:20px; background:#3b82f6; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">Generate Response Letter</button>
+  <!-- Response Generation Section -->
+  <div id="responseSection" style="display:none; margin-top:20px; padding:20px; background:#1e293b; border-radius:8px;">
+    <h3 style="color:#22c55e; margin-bottom:15px;">📝 Generate Response Letter</h3>
+    
+    <div style="margin-bottom:15px;">
+      <label for="userInfo" style="display:block; margin-bottom:5px; color:#fff;">Your Information (Optional)</label>
+      <textarea id="userInfo" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #374151; background:#0f172a; color:#fff; min-height:80px; resize:vertical;"></textarea>
+    </div>
+    
+    <button id="generateBtn" style="background:#3b82f6; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold; margin-bottom:15px;">Generate Response Letter</button>
+    
+    <div id="responseStatus" style="margin-bottom:15px; padding:10px; background:#0f172a; border-radius:6px; color:#fff; display:none;"></div>
+    
+    <div id="responseOutput" style="margin-top:20px; padding:15px; background:#0f172a; border-radius:6px; white-space:pre-wrap; color:#fff; border:1px solid #374151; display:none;"></div>
+    
+    <div id="downloadSection" style="display:none; margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button id="pdfBtn" style="background:#dc2626; color:#fff; padding:10px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">📄 Download PDF</button>
+      <button id="docxBtn" style="background:#059669; color:#fff; padding:10px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">📝 Download DOCX</button>
+    </div>
+  </div>
+  
   <p id="confidence" style="margin-top:10px; color:#22c55e; font-weight:bold;"></p>
-  <pre id="responseOutput" style="margin-top:20px; white-space:pre-wrap;"></pre>
-  <button id="pdfBtn" style="display:none; margin-top:20px; background:#dc2626; color:#fff; padding:10px 20px; border-radius:6px; border:none; cursor:pointer;">Download PDF</button>
 
   <script>
     const analyzeBtn = document.getElementById('analyzeBtn');
@@ -62,12 +80,17 @@
     const responseOutput = document.getElementById('responseOutput');
     const confidence = document.getElementById('confidence');
     const pdfBtn = document.getElementById('pdfBtn');
+    const docxBtn = document.getElementById('docxBtn');
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadStatus = document.getElementById('uploadStatus');
     const fileUpload = document.getElementById('fileUpload');
     const imageUpload = document.getElementById('imageUpload');
     const analysisContainer = document.getElementById('analysisContainer');
     const analysisDetails = document.getElementById('analysisDetails');
+    const responseSection = document.getElementById('responseSection');
+    const responseStatus = document.getElementById('responseStatus');
+    const downloadSection = document.getElementById('downloadSection');
+    const userInfo = document.getElementById('userInfo');
 
     let currentRecordId = null;
     let uploadedFileUrl = null;
@@ -219,42 +242,82 @@
       }
       
       currentRecordId = data.recordId || null;
-      generateBtn.style.display = 'inline-block';
+      
+      // Show response generation section
+      if (responseSection) {
+        responseSection.style.display = 'block';
+      }
     };
 
     generateBtn.onclick = async () => {
       if (!currentRecordId) {
         if (!confirm('No recordId present. Continue anyway?')) return;
       }
-      if (responseOutput) {
-        responseOutput.textContent = 'Generating response letter...';
+      
+      // Show status
+      if (responseStatus) {
+        responseStatus.textContent = 'Generating response letter...';
+        responseStatus.style.display = 'block';
       }
 
       const summary = summaryOutput ? summaryOutput.textContent : '';
-      const res = await fetch('/.netlify/functions/generate-response', {
-        method: 'POST',
-        body: JSON.stringify({ summary, recordId: currentRecordId })
-      });
-      const data = await res.json();
-      if (responseOutput) {
-        responseOutput.textContent = data.letter || `Error: ${data.error || 'No response generated.'}`;
-      }
-      if (pdfBtn) {
-        pdfBtn.style.display = 'inline-block';
+      const userData = userInfo ? userInfo.value : '';
+      
+      try {
+        const res = await fetch('/.netlify/functions/generate-response', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            summary, 
+            recordId: currentRecordId,
+            userData: userData,
+            letterText: document.getElementById('letterInput').value.trim()
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.letter) {
+          if (responseOutput) {
+            responseOutput.textContent = data.letter;
+            responseOutput.style.display = 'block';
+          }
+          if (downloadSection) {
+            downloadSection.style.display = 'flex';
+          }
+          if (responseStatus) {
+            responseStatus.textContent = 'Response letter generated successfully!';
+            responseStatus.style.color = '#22c55e';
+          }
+        } else {
+          if (responseStatus) {
+            responseStatus.textContent = `Error: ${data.error || 'No response generated.'}`;
+            responseStatus.style.color = '#dc2626';
+          }
+        }
+      } catch (error) {
+        if (responseStatus) {
+          responseStatus.textContent = `Error: ${error.message}`;
+          responseStatus.style.color = '#dc2626';
+        }
       }
     };
 
     pdfBtn.onclick = async () => {
-      if (!currentRecordId) {
-        alert('No record available for PDF generation.');
+      const responseText = responseOutput ? responseOutput.textContent : '';
+      if (!responseText) {
+        alert('No response letter available for PDF generation.');
         return;
       }
       
       try {
-        const res = await fetch('/.netlify/functions/export-pdf', {
+        const res = await fetch('/.netlify/functions/generate-pdf', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recordId: currentRecordId })
+          body: JSON.stringify({ 
+            text: responseText,
+            fileName: 'IRS_Response_Letter.pdf'
+          })
         });
         
         if (res.ok) {
@@ -262,7 +325,7 @@
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'IRS_Response.pdf';
+          a.download = 'IRS_Response_Letter.pdf';
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
@@ -272,6 +335,41 @@
         }
       } catch (error) {
         alert('Error generating PDF: ' + error.message);
+      }
+    };
+
+    docxBtn.onclick = async () => {
+      const responseText = responseOutput ? responseOutput.textContent : '';
+      if (!responseText) {
+        alert('No response letter available for DOCX generation.');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/.netlify/functions/generate-docx', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: responseText,
+            fileName: 'IRS_Response_Letter.docx'
+          })
+        });
+        
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'IRS_Response_Letter.docx';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } else {
+          alert('Error generating DOCX. Please try again.');
+        }
+      } catch (error) {
+        alert('Error generating DOCX: ' + error.message);
       }
     };
   </script>
