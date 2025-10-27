@@ -77,7 +77,7 @@
     
     <div style="display:flex; gap:10px; align-items:center;">
       <button id="generateBtn" style="background:#3b82f6; color:#fff; padding:10px 20px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">Generate Response Letter</button>
-      <span id="responseStatus" style="color:#22c55e; font-size:14px;"></span>
+      <span id="responseStatusText" style="color:#22c55e; font-size:14px;"></span>
     </div>
   </div>
   
@@ -132,6 +132,7 @@
     const approachSelect = document.getElementById('approachSelect');
     const styleSelect = document.getElementById('styleSelect');
     const responseStatus = document.getElementById('responseStatus');
+    const responseStatusText = document.getElementById('responseStatusText');
     const uploadStatus = document.getElementById('uploadStatus');
     const fileUpload = document.getElementById('fileUpload');
     const imageUpload = document.getElementById('imageUpload');
@@ -324,9 +325,9 @@
       }
       
       // Show status
-      if (responseStatus) {
-        responseStatus.textContent = 'Generating response letter...';
-        responseStatus.style.display = 'block';
+      if (responseStatusText) {
+        responseStatusText.textContent = 'Generating response letter...';
+        responseStatusText.style.display = 'block';
       }
 
       const summary = summaryOutput ? summaryOutput.textContent : '';
@@ -364,22 +365,22 @@
           if (downloadSection) {
             downloadSection.style.display = 'flex';
           }
-          if (responseStatus) {
-            responseStatus.textContent = 'Response letter generated successfully!';
-            responseStatus.style.color = '#22c55e';
+          if (responseStatusText) {
+            responseStatusText.textContent = 'Response letter generated successfully!';
+            responseStatusText.style.color = '#22c55e';
           }
         } else {
-          if (responseStatus) {
-            responseStatus.textContent = `Error: ${data.error || 'No response generated.'}`;
-            responseStatus.style.color = '#dc2626';
+          if (responseStatusText) {
+            responseStatusText.textContent = `Error: ${data.error || 'No response generated.'}`;
+            responseStatusText.style.color = '#dc2626';
           }
         }
       } catch (error) {
         console.error('Response generation error:', error);
         
-        if (responseStatus) {
-          responseStatus.textContent = `Response generation failed: ${error.message}`;
-          responseStatus.style.color = '#dc2626';
+        if (responseStatusText) {
+          responseStatusText.textContent = `Response generation failed: ${error.message}`;
+          responseStatusText.style.color = '#dc2626';
         }
       }
     };
