@@ -266,6 +266,13 @@
       };
 
       try {
+        console.log('Sending to analyze-letter:', {
+          textLength: text.length,
+          hasFileUrl: !!uploadedFileUrl,
+          hasImageUrl: !!uploadedImageUrl,
+          fileUrlType: uploadedFileUrl ? uploadedFileUrl.substring(0, 50) + '...' : 'none'
+        });
+        
         const res = await fetch('/.netlify/functions/analyze-letter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

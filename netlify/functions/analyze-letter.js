@@ -65,15 +65,20 @@ exports.handler = async (event) => {
         
         if (!pdfParse || !mammoth) {
           console.log('File processing dependencies not available, skipping file processing');
+          console.log('pdfParse available:', !!pdfParse);
+          console.log('mammoth available:', !!mammoth);
           letterText += "\n\n[File uploaded but processing not available - please paste text manually]";
         } else {
+          console.log('File processing dependencies available');
           // Check if it's a data URL (base64 encoded file)
           if (fileUrl.startsWith('data:')) {
             const base64Data = fileUrl.split(',')[1];
             const buffer = Buffer.from(base64Data, 'base64');
             
             if (fileUrl.includes('application/pdf')) {
+              console.log('Processing PDF file, buffer size:', buffer.length);
               const parsed = await pdfParse(buffer);
+              console.log('PDF parsed successfully, text length:', parsed.text.length);
               letterText += "\n\n" + parsed.text;
               console.log('PDF text extracted, length:', parsed.text.length);
             } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
