@@ -4,8 +4,21 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function handler(event) {
   try {
+    // Debug: Check environment variables
+    console.log('SITE_URL:', process.env.SITE_URL);
+    console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set' : 'Missing');
+    console.log('STRIPE_PRICE_RESPONSE:', process.env.STRIPE_PRICE_RESPONSE);
+    
     const { recordId = null } = JSON.parse(event.body || "{}"); // send from client if available
     const priceId = process.env.STRIPE_PRICE_RESPONSE || "price_49USD_single";
+    
+    // Validate required environment variables
+    if (!process.env.SITE_URL) {
+      throw new Error('SITE_URL environment variable is not set');
+    }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
