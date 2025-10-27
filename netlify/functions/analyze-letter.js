@@ -90,10 +90,14 @@ export const handler = async (event) => {
 
     const aiResponse = completion.choices?.[0]?.message?.content || "No response generated.";
     
+    // Calculate confidence score based on token usage
+    const confidenceScore = Math.round(Math.max(60, Math.min(95, (1 - (completion.usage?.completion_tokens || 0) / 2048) * 100)));
+    
     // Try to parse the AI response as JSON, fallback to plain text
     let structuredAnalysis;
     try {
       structuredAnalysis = JSON.parse(aiResponse);
+      structuredAnalysis.confidence = confidenceScore;
     } catch {
       structuredAnalysis = {
         letterType: "Unknown",
@@ -101,7 +105,7 @@ export const handler = async (event) => {
         reason: "Unable to parse structured response",
         requiredActions: "Review the summary for details",
         nextSteps: "Consider consulting a tax professional",
-        confidence: 50,
+        confidence: confidenceScore,
         urgency: "Medium",
         estimatedResolution: "Varies"
       };
