@@ -1,15 +1,36 @@
-const OpenAI = require("openai");
-const fetch = require("node-fetch");
-const pdfParse = require("pdf-parse");
-const mammoth = require("mammoth");
-const Tesseract = require("tesseract.js");
-const { getSupabaseAdmin } = require("./_supabase.js");
+// Import dependencies with error handling
+let OpenAI, fetch, pdfParse, mammoth, Tesseract, getSupabaseAdmin;
+
+try {
+  OpenAI = require("openai");
+  fetch = require("node-fetch");
+  pdfParse = require("pdf-parse");
+  mammoth = require("mammoth");
+  Tesseract = require("tesseract.js");
+  const supabaseModule = require("./_supabase.js");
+  getSupabaseAdmin = supabaseModule.getSupabaseAdmin;
+} catch (importError) {
+  console.error("Import error:", importError);
+}
 
 exports.handler = async (event) => {
   console.log('=== ANALYZE LETTER FUNCTION START ===');
   console.log('HTTP Method:', event.httpMethod);
   console.log('Event body type:', typeof event.body);
   console.log('Event body length:', event.body ? event.body.length : 0);
+  
+  // Check if dependencies loaded successfully
+  if (!OpenAI) {
+    console.error('OpenAI not loaded');
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ error: 'OpenAI dependency not loaded' })
+    };
+  }
   
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -42,47 +63,45 @@ exports.handler = async (event) => {
       try {
         console.log('Processing file URL:', fileUrl);
         
-        // Check if it's a data URL (base64 encoded file)
-        if (fileUrl.startsWith('data:')) {
-          const base64Data = fileUrl.split(',')[1];
-          const buffer = Buffer.from(base64Data, 'base64');
-          
-          if (fileUrl.includes('application/pdf')) {
-            const parsed = await pdfParse(buffer);
-            letterText += "\n\n" + parsed.text;
-            console.log('PDF text extracted, length:', parsed.text.length);
-          } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
-            const { value } = await mammoth.extractRawText({ buffer: buffer });
-            letterText += "\n\n" + value;
-            console.log('DOCX text extracted, length:', value.length);
-          }
+        if (!pdfParse || !mammoth) {
+          console.log('File processing dependencies not available, skipping file processing');
+          letterText += "\n\n[File uploaded but processing not available - please paste text manually]";
         } else {
-          // Handle regular URL
-          const fileResponse = await fetch(fileUrl);
-          if (!fileResponse.ok) {
-            throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
-          }
-          const fileBuffer = await fileResponse.arrayBuffer();
-          const uint8 = new Uint8Array(fileBuffer);
+          // Check if it's a data URL (base64 encoded file)
+          if (fileUrl.startsWith('data:')) {
+            const base64Data = fileUrl.split(',')[1];
+            const buffer = Buffer.from(base64Data, 'base64');
+            
+            if (fileUrl.includes('application/pdf')) {
+              const parsed = await pdfParse(buffer);
+              letterText += "\n\n" + parsed.text;
+              console.log('PDF text extracted, length:', parsed.text.length);
+            } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
+              const { value } = await mammoth.extractRawText({ buffer: buffer });
+              letterText += "\n\n" + value;
+              console.log('DOCX text extracted, length:', value.length);
+            }
+          } else {
+            // Handle regular URL
+            const fileResponse = await fetch(fileUrl);
+            if (!fileResponse.ok) {
+              throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
+            }
+            const fileBuffer = await fileResponse.arrayBuffer();
+            const uint8 = new Uint8Array(fileBuffer);
 
-          if (fileUrl.endsWith(".pdf")) {
-            const parsed = await pdfParse(uint8);
-            letterText += "\n\n" + parsed.text;
-          } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
-            const { value } = await mammoth.extractRawText({ buffer: Buffer.from(uint8) });
-            letterText += "\n\n" + value;
+            if (fileUrl.endsWith(".pdf")) {
+              const parsed = await pdfParse(uint8);
+              letterText += "\n\n" + parsed.text;
+            } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
+              const { value } = await mammoth.extractRawText({ buffer: Buffer.from(uint8) });
+              letterText += "\n\n" + value;
+            }
           }
         }
       } catch (fileError) {
         console.error("File processing error:", fileError);
-        return {
-          statusCode: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-          body: JSON.stringify({ error: `Failed to process file: ${fileError.message}` }),
-        };
+        letterText += "\n\n[File processing error - please paste text manually]";
       }
     }
 
@@ -91,26 +110,24 @@ exports.handler = async (event) => {
       try {
         console.log('Processing image URL:', imageUrl.substring(0, 50) + '...');
         
-        // Check if it's a data URL (base64 encoded image)
-        if (imageUrl.startsWith('data:')) {
-          const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
-          letterText += "\n\n" + extractedText;
-          console.log('Image text extracted, length:', extractedText.length);
+        if (!Tesseract) {
+          console.log('Image processing dependencies not available, skipping image processing');
+          letterText += "\n\n[Image uploaded but OCR processing not available - please paste text manually]";
         } else {
-          // Handle regular URL
-          const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
-          letterText += "\n\n" + extractedText;
+          // Check if it's a data URL (base64 encoded image)
+          if (imageUrl.startsWith('data:')) {
+            const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
+            letterText += "\n\n" + extractedText;
+            console.log('Image text extracted, length:', extractedText.length);
+          } else {
+            // Handle regular URL
+            const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
+            letterText += "\n\n" + extractedText;
+          }
         }
       } catch (imageError) {
         console.error("Image processing error:", imageError);
-        return {
-          statusCode: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-          body: JSON.stringify({ error: `Failed to process image: ${imageError.message}` }),
-        };
+        letterText += "\n\n[Image processing error - please paste text manually]";
       }
     }
 
@@ -281,60 +298,52 @@ exports.handler = async (event) => {
       };
     }
 
-    // --- STEP 4: Store in Supabase ---
-    try {
-      const supabase = getSupabaseAdmin();
-      const { data, error } = await supabase
-        .from("tlh_letters")
-        .insert({
-          user_email: userEmail,
-          stripe_session_id: stripeSessionId,
-          price_id: priceId,
-          letter_text: letterText,
-          analysis: structuredAnalysis,
-          summary: structuredAnalysis.summary || aiResponse,
-          status: "analyzed"
-        })
-        .select("id, created_at, status")
-        .single();
+    // --- STEP 4: Store in Supabase (optional) ---
+    let recordId = null;
+    if (getSupabaseAdmin) {
+      try {
+        const supabase = getSupabaseAdmin();
+        const { data, error } = await supabase
+          .from("tlh_letters")
+          .insert({
+            user_email: userEmail,
+            stripe_session_id: stripeSessionId,
+            price_id: priceId,
+            letter_text: letterText,
+            analysis: structuredAnalysis,
+            summary: structuredAnalysis.summary || aiResponse,
+            status: "analyzed"
+          })
+          .select("id, created_at, status")
+          .single();
 
-      if (error) throw error;
-
-      // --- STEP 5: Return structured response ---
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS'
-        },
-        body: JSON.stringify({
-          message: "Analysis complete.",
-          analysis: structuredAnalysis,
-          recordId: data.id,
-          summary: structuredAnalysis.summary || aiResponse
-        }),
-      };
-    } catch (dbError) {
-      console.error("Database error:", dbError);
-      // Return analysis even if database fails
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS'
-        },
-        body: JSON.stringify({
-          message: "Analysis complete (database error occurred).",
-          analysis: structuredAnalysis,
-          summary: structuredAnalysis.summary || aiResponse,
-          recordId: null
-        }),
-      };
+        if (error) throw error;
+        recordId = data.id;
+        console.log('Record saved to database:', recordId);
+      } catch (dbError) {
+        console.error("Database error:", dbError);
+        console.log('Continuing without database storage');
+      }
+    } else {
+      console.log('Database not available, skipping storage');
     }
+
+    // --- STEP 5: Return structured response ---
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: JSON.stringify({
+        message: "Analysis complete.",
+        analysis: structuredAnalysis,
+        recordId: recordId,
+        summary: structuredAnalysis.summary || aiResponse
+      }),
+    };
   } catch (err) {
     console.error("Error in analyze-letter.js:", err);
     return {
