@@ -39,6 +39,9 @@
   
   <button id="analyzeBtn" style="background:#22c55e; color:#fff; padding:12px 24px; border-radius:6px; border:none; cursor:pointer; font-weight:bold;">Analyze Letter</button>
   
+  <!-- Analysis Status -->
+  <div id="summaryOutput" style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px; color:#fff; display:none;"></div>
+  
   <!-- Enhanced Analysis Display -->
   <div id="analysisContainer" style="display:none; margin-top:20px; padding:20px; background:#1e293b; border-radius:8px;">
     <h3 style="color:#22c55e; margin-bottom:15px;">📋 Letter Analysis</h3>
@@ -173,8 +176,14 @@
         return alert('Please upload a file, image, or paste your letter text.');
       }
       
-      summaryOutput.textContent = 'Analyzing...';
-      confidence.textContent = '';
+      // Show status with proper null checking
+      if (summaryOutput) {
+        summaryOutput.textContent = 'Analyzing...';
+        summaryOutput.style.display = 'block';
+      }
+      if (confidence) {
+        confidence.textContent = '';
+      }
 
       const requestBody = {
         text: text || '',
@@ -189,16 +198,24 @@
       });
       const data = await res.json();
       if (data.error) {
-        summaryOutput.textContent = `Error: ${data.error}`;
+        if (summaryOutput) {
+          summaryOutput.textContent = `Error: ${data.error}`;
+          summaryOutput.style.display = 'block';
+        }
         return;
       }
       
       // Display enhanced analysis
       if (data.analysis) {
         displayEnhancedAnalysis(data.analysis);
-        confidence.textContent = `AI Confidence: ${data.analysis.confidence}%`;
+        if (confidence) {
+          confidence.textContent = `AI Confidence: ${data.analysis.confidence}%`;
+        }
       } else {
-        summaryOutput.textContent = data.summary || 'No summary generated.';
+        if (summaryOutput) {
+          summaryOutput.textContent = data.summary || 'No summary generated.';
+          summaryOutput.style.display = 'block';
+        }
       }
       
       currentRecordId = data.recordId || null;
@@ -209,16 +226,22 @@
       if (!currentRecordId) {
         if (!confirm('No recordId present. Continue anyway?')) return;
       }
-      responseOutput.textContent = 'Generating response letter...';
+      if (responseOutput) {
+        responseOutput.textContent = 'Generating response letter...';
+      }
 
-      const summary = summaryOutput.textContent;
+      const summary = summaryOutput ? summaryOutput.textContent : '';
       const res = await fetch('/.netlify/functions/generate-response', {
         method: 'POST',
         body: JSON.stringify({ summary, recordId: currentRecordId })
       });
       const data = await res.json();
-      responseOutput.textContent = data.letter || `Error: ${data.error || 'No response generated.'}`;
-      pdfBtn.style.display = 'inline-block';
+      if (responseOutput) {
+        responseOutput.textContent = data.letter || `Error: ${data.error || 'No response generated.'}`;
+      }
+      if (pdfBtn) {
+        pdfBtn.style.display = 'inline-block';
+      }
     };
 
     pdfBtn.onclick = async () => {
