@@ -12,10 +12,14 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.76.1",
     "docx": "^8.5.0",
+    "mammoth": "^1.11.0",
     "micro": "^10.0.1",
+    "node-fetch": "^3.3.2",
     "openai": "^4.20.0",
     "pdf-lib": "^1.17.1",
-    "stripe": "^14.0.0"
+    "pdf-parse": "^2.4.5",
+    "stripe": "^14.0.0",
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
