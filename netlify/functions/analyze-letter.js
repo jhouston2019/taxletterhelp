@@ -1,16 +1,34 @@
-import OpenAI from "openai";
-import fetch from "node-fetch";
-import pdfParse from "pdf-parse";
-import * as mammoth from "mammoth";
-import Tesseract from "tesseract.js";
-import { getSupabaseAdmin } from "./_supabase.js";
+const OpenAI = require("openai");
+const fetch = require("node-fetch");
+const pdfParse = require("pdf-parse");
+const mammoth = require("mammoth");
+const Tesseract = require("tesseract.js");
+const { getSupabaseAdmin } = require("./_supabase.js");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
+  console.log('Analyze letter function called');
+  
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   try {
+    console.log('Event body:', event.body);
     const { text, fileUrl, imageUrl, userEmail = null, priceId = process.env.STRIPE_PRICE_RESPONSE, stripeSessionId = null } = JSON.parse(event.body || "{}");
     let letterText = text || "";
+    
+    console.log('Letter text length:', letterText.length);
 
     // --- STEP 1: Extract text from file if provided ---
     if (fileUrl) {
@@ -60,6 +78,21 @@ export const handler = async (event) => {
     }
 
     // --- STEP 3: Analyze the letter using OpenAI ---
+    console.log('Starting OpenAI analysis...');
+    
+    // Check if OpenAI API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key not found');
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'OpenAI API key not configured' })
+      };
+    }
+
     const systemPrompt = `
       You are a senior IRS Taxpayer Advocate with 25+ years of experience specializing in:
       - CP2000, CP2001, CP2002, CP2003 notices (Proposed Assessments)
@@ -239,7 +272,8 @@ export const handler = async (event) => {
         body: JSON.stringify({
           message: "Analysis complete (database error occurred).",
           analysis: structuredAnalysis,
-          summary: structuredAnalysis.summary || aiResponse
+          summary: structuredAnalysis.summary || aiResponse,
+          recordId: null
         }),
       };
     }

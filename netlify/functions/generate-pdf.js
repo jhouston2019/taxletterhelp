@@ -1,8 +1,32 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 
-export async function handler(event) {
+exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   try {
-    const { text, fileName = 'response-letter.pdf' } = JSON.parse(event.body);
+    const { text, fileName = 'response-letter.pdf' } = JSON.parse(event.body || '{}');
+    
+    if (!text) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'No text provided for PDF generation' })
+      };
+    }
     
     // Create a new PDF document
     const pdfDoc = await PDFDocument.create();

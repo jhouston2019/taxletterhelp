@@ -1,8 +1,32 @@
-import { Document, Packer, Paragraph, TextRun } from "docx";
+const { Document, Packer, Paragraph, TextRun } = require("docx");
 
-export async function handler(event) {
+exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   try {
-    const { text, fileName = 'response-letter.docx' } = JSON.parse(event.body);
+    const { text, fileName = 'response-letter.docx' } = JSON.parse(event.body || '{}');
+    
+    if (!text) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'No text provided for DOCX generation' })
+      };
+    }
     
     // Create a new DOCX document
     const doc = new Document({
