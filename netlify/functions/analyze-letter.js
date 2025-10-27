@@ -5,8 +5,6 @@ const mammoth = require("mammoth");
 const Tesseract = require("tesseract.js");
 const { getSupabaseAdmin } = require("./_supabase.js");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 exports.handler = async (event) => {
   console.log('Analyze letter function called');
   
@@ -33,24 +31,47 @@ exports.handler = async (event) => {
     // --- STEP 1: Extract text from file if provided ---
     if (fileUrl) {
       try {
-        const fileResponse = await fetch(fileUrl);
-        if (!fileResponse.ok) {
-          throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
-        }
-        const fileBuffer = await fileResponse.arrayBuffer();
-        const uint8 = new Uint8Array(fileBuffer);
+        console.log('Processing file URL:', fileUrl);
+        
+        // Check if it's a data URL (base64 encoded file)
+        if (fileUrl.startsWith('data:')) {
+          const base64Data = fileUrl.split(',')[1];
+          const buffer = Buffer.from(base64Data, 'base64');
+          
+          if (fileUrl.includes('application/pdf')) {
+            const parsed = await pdfParse(buffer);
+            letterText += "\n\n" + parsed.text;
+            console.log('PDF text extracted, length:', parsed.text.length);
+          } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
+            const { value } = await mammoth.extractRawText({ buffer: buffer });
+            letterText += "\n\n" + value;
+            console.log('DOCX text extracted, length:', value.length);
+          }
+        } else {
+          // Handle regular URL
+          const fileResponse = await fetch(fileUrl);
+          if (!fileResponse.ok) {
+            throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
+          }
+          const fileBuffer = await fileResponse.arrayBuffer();
+          const uint8 = new Uint8Array(fileBuffer);
 
-        if (fileUrl.endsWith(".pdf")) {
-          const parsed = await pdfParse(uint8);
-          letterText += "\n\n" + parsed.text;
-        } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
-          const { value } = await mammoth.extractRawText({ buffer: Buffer.from(uint8) });
-          letterText += "\n\n" + value;
+          if (fileUrl.endsWith(".pdf")) {
+            const parsed = await pdfParse(uint8);
+            letterText += "\n\n" + parsed.text;
+          } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
+            const { value } = await mammoth.extractRawText({ buffer: Buffer.from(uint8) });
+            letterText += "\n\n" + value;
+          }
         }
       } catch (fileError) {
         console.error("File processing error:", fileError);
         return {
           statusCode: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
           body: JSON.stringify({ error: `Failed to process file: ${fileError.message}` }),
         };
       }
@@ -59,12 +80,26 @@ exports.handler = async (event) => {
     // --- STEP 2: Extract text from image if provided ---
     if (imageUrl) {
       try {
-        const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
-        letterText += "\n\n" + extractedText;
+        console.log('Processing image URL:', imageUrl.substring(0, 50) + '...');
+        
+        // Check if it's a data URL (base64 encoded image)
+        if (imageUrl.startsWith('data:')) {
+          const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
+          letterText += "\n\n" + extractedText;
+          console.log('Image text extracted, length:', extractedText.length);
+        } else {
+          // Handle regular URL
+          const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
+          letterText += "\n\n" + extractedText;
+        }
       } catch (imageError) {
         console.error("Image processing error:", imageError);
         return {
           statusCode: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
           body: JSON.stringify({ error: `Failed to process image: ${imageError.message}` }),
         };
       }
@@ -92,6 +127,9 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: 'OpenAI API key not configured' })
       };
     }
+
+    // Initialize OpenAI client
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     const systemPrompt = `
       You are a senior IRS Taxpayer Advocate with 25+ years of experience specializing in:
@@ -283,9 +321,15 @@ exports.handler = async (event) => {
       statusCode: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        details: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      }),
     };
   }
 };
