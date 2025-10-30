@@ -2,7 +2,7 @@ const OpenAI = require("openai");
 const Stripe = require("stripe");
 const sgMail = require("@sendgrid/mail");
 const { createClient } = require("@supabase/supabase-js");
-const fetch = require("node-fetch");
+// Use built-in fetch (Node 18+) - no need to import node-fetch
 
 const REQUIRED_KEYS = [
   'OPENAI_API_KEY',
@@ -172,7 +172,8 @@ exports.handler = async (event) => {
   // Test SITE_URL
   if (process.env.SITE_URL) {
     report.integrations.SITE_URL = await timeIt(async () => {
-      const res = await fetch(process.env.SITE_URL, { method: 'GET' });
+      // Use built-in fetch (available in Node 18+)
+      const res = await globalThis.fetch(process.env.SITE_URL, { method: 'GET' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return true;
     });
