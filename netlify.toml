@@ -7,40 +7,26 @@
 
 # Exclude Netlify functions from redirects (must come first)
 [[redirects]]
-from = "/.netlify/functions/*"
-status = 200
-force = true
-
-[[redirects]]
-from = "/[build]
-  command = ""
-  publish = "."
-
-[build.environment]
-  NODE_VERSION = "18"
-
-# Allow functions first
-[[redirects]]
-from = "/.netlify/functions/*"
-status = 200
-force = true
+  from = "/.netlify/functions/*"
+  status = 200
+  force = true
 
 # Ensure sitemap and robots are directly accessible
 [[redirects]]
-from = "/robots.txt"
-to = "/robots.txt"
-status = 200
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
 
 [[redirects]]
-from = "/sitemap.xml"
-to = "/sitemap.xml"
-status = 200
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
 
 # Catch-all redirect for single-page app behavior
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [functions]
   node_bundler = "esbuild"
@@ -77,7 +63,7 @@ status = 200
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Optional: prevent caching on sitemap and robots
+# Prevent caching on sitemap and robots
 [[headers]]
   for = "/robots.txt"
   [headers.values]
@@ -87,41 +73,3 @@ status = 200
   for = "/sitemap.xml"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-*"
-to = "/index.html"
-status = 200
-
-[functions]
-  node_bundler = "esbuild"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-  for = "/.netlify/functions/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
