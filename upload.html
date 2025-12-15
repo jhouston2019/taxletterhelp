@@ -71,13 +71,12 @@
         
         // Check payment status and user authentication
         document.addEventListener('DOMContentLoaded', async () => {
-            // Temporarily disabled for testing
-            // const hasPaid = localStorage.getItem('paid') === 'true';
-            // if (!hasPaid) {
-            //     alert('Payment required to access AI analysis features. Redirecting to payment page...');
-            //     window.location.href = '/payment.html';
-            //     return;
-            // }
+            const hasPaid = localStorage.getItem('paid') === 'true';
+            if (!hasPaid) {
+                alert('Payment required to access AI analysis features. Redirecting to pricing page...');
+                window.location.href = '/pricing.html';
+                return;
+            }
             
             // Check if user is logged in
             currentUser = await getCurrentUser();
