@@ -77,10 +77,25 @@
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
+        
+        // Initialize admin mode on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAdminMode();
+        });
+        
         document.getElementById('payButton').addEventListener('click', async function() {
             const button = this;
             const loading = document.getElementById('loading');
+            
+            // Admin mode bypass
+            if (shouldBypassPayment()) {
+                console.log('[ADMIN] Payment bypassed - redirecting to upload');
+                localStorage.setItem('paid', 'true');
+                window.location.href = '/upload.html';
+                return;
+            }
             
             // Show loading state
             button.disabled = true;

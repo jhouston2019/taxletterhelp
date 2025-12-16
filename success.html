@@ -60,7 +60,14 @@
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initAdminMode } from './src/utils/admin-mode.js';
+        
+        // Initialize admin mode on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAdminMode();
+        });
+        
         // Set the payment flag in localStorage
         localStorage.setItem("paid", "true");
         

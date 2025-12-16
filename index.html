@@ -376,5 +376,11 @@
     </footer>
 
     <script type="module" src="/src/main.js"></script>
+    <script type="module">
+        import { initAdminMode } from './src/utils/admin-mode.js';
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAdminMode();
+        });
+    </script>
 </body>
 </html>
