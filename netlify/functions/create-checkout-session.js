@@ -29,7 +29,15 @@ export async function handler(event) {
       mode: 'payment',
       success_url: `${process.env.SITE_URL}/thank-you.html`,
       cancel_url: `${process.env.SITE_URL}/pricing.html`,
-      metadata: recordId ? { recordId } : { plan: 'single' }
+      metadata: {
+        ...(recordId ? { recordId } : {}),
+        product_type: 'irs_notice_response',
+        pricing_model: 'one_time',
+        risk_level: 'regulated',
+        ai_mode: 'constrained_procedural',
+        not_chat_based: 'true',
+        price_point: '79'
+      }
     });
 
     return {
