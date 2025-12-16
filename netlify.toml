@@ -5,12 +5,6 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Exclude Netlify functions from redirects (must come first)
-[[redirects]]
-  from = "/.netlify/functions/*"
-  status = 200
-  force = true
-
 # Ensure sitemap and robots are directly accessible
 [[redirects]]
   from = "/robots.txt"
