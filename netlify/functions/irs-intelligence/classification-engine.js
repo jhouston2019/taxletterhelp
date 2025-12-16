@@ -1,14 +1,21 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
  * IRS NOTICE CLASSIFICATION ENGINE
  * 
  * Purpose: Deterministic classification layer that identifies IRS notice types
  * and extracts critical metadata BEFORE AI generation.
  * 
- * Why this matters:
- * - Prevents AI from hallucinating notice types
- * - Ensures consistent, reliable classification
- * - Drives all downstream response logic
- * - Provides structured context for AI generation
+ * Why this is safer than general AI:
+ * - Pattern matching prevents AI hallucination
+ * - Deterministic rules ensure consistency
+ * - No AI guessing in classification
+ * - Drives all downstream procedural logic
+ * 
+ * Where logic overrides AI:
+ * - Notice type identification (regex patterns)
+ * - Deadline extraction (date parsing)
+ * - Financial amount detection (pattern matching)
+ * - Confidence scoring (rule-based)
  */
 
 /**

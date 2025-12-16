@@ -1,14 +1,21 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
  * RISK & ADMISSION GUARDRAILS
  * 
  * Purpose: Safety layer that prevents dangerous admissions, over-disclosure,
  * and legal misstatements in IRS correspondence.
  * 
- * Why this matters:
- * - Protects taxpayer from self-incrimination
- * - Prevents volunteering information that expands audit scope
- * - Catches language that could increase penalties or liability
- * - Ensures legally appropriate statements
+ * Why this is safer than general AI:
+ * - Pattern matching detects 50+ dangerous phrases
+ * - Safety scoring (0-100) quantifies risk
+ * - Blocks admissions of fault before generation
+ * - Prevents over-disclosure of sensitive information
+ * 
+ * Where logic overrides AI:
+ * - Risk pattern detection (regex matching)
+ * - Safety score calculation (rule-based)
+ * - Admission identification (pattern matching)
+ * - Professional review triggers (objective thresholds)
  */
 
 /**

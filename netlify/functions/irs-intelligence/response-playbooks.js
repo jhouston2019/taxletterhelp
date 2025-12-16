@@ -1,14 +1,21 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
  * IRS RESPONSE PLAYBOOKS
  * 
  * Purpose: Notice-specific response templates and constraints that ensure
  * procedurally correct, IRS-appropriate correspondence.
  * 
- * Why this matters:
- * - Each notice type has specific response requirements
- * - Prevents generic, unhelpful responses
- * - Enforces IRS procedural rules
- * - Guides AI to produce compliant correspondence
+ * Why this is safer than general AI:
+ * - Notice-specific requirements prevent generic responses
+ * - Prohibited language lists block dangerous admissions
+ * - Required elements ensure IRS compliance
+ * - Evidence types prevent over-disclosure
+ * 
+ * Where AI is deliberately constrained:
+ * - Allowed user positions (fixed list per notice)
+ * - Prohibited language (blocked phrases)
+ * - Required elements (mandatory components)
+ * - Response structure (fixed format)
  */
 
 const IRS_PLAYBOOKS = {
@@ -353,7 +360,7 @@ const IRS_PLAYBOOKS = {
       "DO NOT volunteer information not requested",
       "DO NOT provide records for years not under examination",
       "DO NOT make statements about intent or knowledge",
-      "DO NOT meet with auditor alone - consider representation",
+      "DO NOT meet with auditor alone - representation required",
       "DO NOT ignore - can result in summons or proposed assessment",
       "Audit can expand to other years if issues found"
     ],

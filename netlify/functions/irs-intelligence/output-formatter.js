@@ -1,14 +1,15 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
  * STRUCTURED OUTPUT FORMATTER
  * 
- * Purpose: Enforces consistent, professional output structure for all IRS responses.
- * No chat style, no emojis, pure procedural intelligence.
+ * Purpose: Enforces procedural, risk-aware output for IRS correspondence.
+ * Directive language only. No educational content. No chat behavior.
  * 
- * Why this matters:
- * - Consistent format builds trust and professionalism
- * - Ensures all critical information is communicated
- * - Makes output scannable and actionable
- * - Differentiates from generic AI chat responses
+ * Design principles:
+ * - Action-oriented (not explanatory)
+ * - Procedurally constrained (not conversational)
+ * - Risk-aware (not friendly)
+ * - Decisive (not suggestive)
  */
 
 /**
@@ -55,38 +56,27 @@ function formatAnalysisOutput(params) {
  */
 function formatSection1_NoticeExplanation(classification, financialInfo) {
   let section = "═══════════════════════════════════════════════════════════════\n";
-  section += "SECTION 1: WHAT THIS IRS NOTICE MEANS\n";
+  section += "NOTICE CLASSIFICATION\n";
   section += "═══════════════════════════════════════════════════════════════\n\n";
   
   section += `Notice Type: ${classification.noticeType}\n`;
-  section += `Description: ${classification.description}\n`;
   section += `Category: ${classification.category}\n`;
-  section += `Detection Confidence: ${classification.confidence.toUpperCase()}\n\n`;
+  section += `Confidence: ${classification.confidence.toUpperCase()}\n\n`;
   
-  section += "PLAIN ENGLISH EXPLANATION:\n\n";
-  
-  // Notice-specific explanations
-  const explanations = {
-    CP2000: "The IRS has information from third parties (employers, banks, etc.) that does not match what you reported on your tax return. This is NOT a bill yet - it is a proposed change. You have the right to agree, disagree, or partially agree with the proposed changes.",
-    
-    CP14: "You have an unpaid balance on your tax account. This is the first notice of the balance due. The IRS expects payment or a response explaining why you disagree with the amount.",
-    
-    CP501: "This is the FIRST REMINDER that you have an unpaid balance. The IRS sent a previous notice (CP14) that was not resolved. This is an escalation and requires immediate attention.",
-    
-    CP503: "This is the SECOND REMINDER of your unpaid balance. This is a critical escalation. The next step is CP504 (Intent to Levy), which authorizes the IRS to seize your bank accounts, garnish wages, or take other collection action.",
-    
-    CP504: "This is the FINAL NOTICE before the IRS takes enforcement action. The IRS is notifying you of their intent to levy (seize) your assets, bank accounts, or wages. You have 30 days to respond or file for a Collection Due Process hearing to preserve your appeal rights.",
-    
-    CP75: "The IRS has selected your tax return for examination (audit). This notice requests specific documentation to verify items on your return. This is not an accusation of wrongdoing - audits can be random or triggered by specific items.",
-    
-    AUDIT_LETTER: "This is a formal audit examination notice. The IRS is conducting a detailed review of your tax return and requires comprehensive documentation. This is more serious than a CP75 and typically involves an in-person or virtual meeting with an IRS examiner.",
-    
-    IDENTITY_VERIFICATION: "The IRS has flagged your tax return for potential identity theft or fraud. They are requiring you to verify your identity before processing your return or releasing your refund. This does not necessarily mean you are suspected of fraud - it may be a routine security check.",
-    
-    UNKNOWN: "The specific notice type could not be definitively identified. However, based on the content, this appears to be an IRS correspondence requiring a response. Treat this as urgent until you can clarify the specific requirements with the IRS."
+  // Stripped-down notice identification (action-focused only)
+  const noticeIdentification = {
+    CP2000: "Proposed income assessment. Response required within 30 days.",
+    CP14: "Balance due - first notice. Payment or dispute required within 21 days.",
+    CP501: "Balance due - first reminder. Escalation from CP14. Immediate action required.",
+    CP503: "Balance due - second reminder. Next step: CP504 (levy authorization).",
+    CP504: "Intent to levy. Final notice before asset seizure. 30 days to respond or request hearing.",
+    CP75: "Examination notice. Documentation required. Response deadline per notice.",
+    AUDIT_LETTER: "Formal audit. Comprehensive documentation required. Professional representation recommended.",
+    IDENTITY_VERIFICATION: "Identity verification required. Refund held until verified.",
+    UNKNOWN: "Notice type unconfirmed. Assume response required within 30 days. Professional consultation required."
   };
   
-  section += explanations[classification.noticeType] || explanations.UNKNOWN;
+  section += noticeIdentification[classification.noticeType] || noticeIdentification.UNKNOWN;
   section += "\n\n";
   
   // Financial impact
@@ -136,7 +126,7 @@ function formatSection2_RequiredAction(classification, deadlineIntelligence) {
       section += `${deadlineIntelligence.criticalWarning}\n\n`;
     }
   } else {
-    section += "\nThis notice is informational. While a response is not strictly required, you should review it carefully to ensure the information is correct. If you disagree with any information, you should respond to correct the record.\n\n";
+    section += "\nInformational notice. Response not required unless information is incorrect.\n\n";
   }
   
   section += "───────────────────────────────────────────────────────────────\n\n";
@@ -149,7 +139,7 @@ function formatSection2_RequiredAction(classification, deadlineIntelligence) {
  */
 function formatSection3_ResponseStrategy(classification, deadlineIntelligence) {
   let section = "═══════════════════════════════════════════════════════════════\n";
-  section += "SECTION 3: YOUR BEST RESPONSE STRATEGY\n";
+  section += "REQUIRED RESPONSE PROCEDURE\n";
   section += "═══════════════════════════════════════════════════════════════\n\n";
   
   // Notice-specific strategies
@@ -305,42 +295,39 @@ function formatSection5_RiskAssessment(riskAnalysis) {
  */
 function formatSection6_ProfessionalHelp(professionalHelp, classification, financialInfo) {
   let section = "═══════════════════════════════════════════════════════════════\n";
-  section += "SECTION 6: WHEN PROFESSIONAL HELP BECOMES NECESSARY\n";
+  section += "PROFESSIONAL REPRESENTATION THRESHOLD\n";
   section += "═══════════════════════════════════════════════════════════════\n\n";
   
   if (professionalHelp.recommendProfessional) {
-    section += `RECOMMENDATION: Professional representation is ${professionalHelp.urgency}\n\n`;
+    section += `STATUS: Professional representation ${professionalHelp.urgency}\n`;
     section += `REASON: ${professionalHelp.reason}\n\n`;
     
     if (professionalHelp.urgency === "CRITICAL") {
-      section += "⚠️ CRITICAL: Do not attempt to handle this matter without professional representation. ";
-      section += "The risks of proceeding alone are too high and could result in significant financial harm, ";
-      section += "expanded audit scope, or criminal referral.\n\n";
+      section += "⚠️ CRITICAL: Do not proceed without professional representation.\n";
+      section += "Risk: Significant financial harm, audit expansion, or criminal referral.\n\n";
     }
     
-    section += "WHEN TO HIRE A TAX PROFESSIONAL:\n\n";
-    section += "• Amount at issue exceeds $10,000\n";
-    section += "• Notice involves audit or examination\n";
-    section += "• Intent to levy (CP504, Letter 1058) has been issued\n";
-    section += "• Multiple tax years are involved\n";
-    section += "• Complex tax issues (business income, foreign accounts, etc.)\n";
-    section += "• You are unsure how to respond\n";
-    section += "• Prior attempts to resolve have failed\n";
-    section += "• Criminal investigation is suspected\n\n";
+    section += "PROFESSIONAL REPRESENTATION REQUIRED WHEN:\n\n";
+    section += "• Amount exceeds $10,000\n";
+    section += "• Audit or examination notice\n";
+    section += "• Intent to levy issued (CP504, Letter 1058)\n";
+    section += "• Multiple tax years involved\n";
+    section += "• Complex tax issues (business, foreign accounts)\n";
+    section += "• Prior resolution attempts failed\n";
+    section += "• Criminal investigation suspected\n\n";
   } else {
-    section += "RECOMMENDATION: Professional representation is optional for this notice type and amount.\n\n";
-    section += "You may be able to handle this matter yourself if:\n";
-    section += "• The issue is straightforward\n";
-    section += "• You have all necessary documentation\n";
-    section += "• The amount is relatively small\n";
-    section += "• You understand the IRS requirements\n\n";
-    section += "However, professional help is always beneficial and may result in better outcomes.\n\n";
+    section += "STATUS: Professional representation optional for this case.\n\n";
+    section += "Self-response acceptable if:\n";
+    section += "• Issue is straightforward\n";
+    section += "• Documentation complete\n";
+    section += "• Amount under threshold\n";
+    section += "• IRS requirements understood\n\n";
   }
   
-  section += "TYPES OF TAX PROFESSIONALS:\n\n";
-  section += "• Tax Attorney: Best for legal issues, audits, appeals, and collection matters\n";
-  section += "• Certified Public Accountant (CPA): Best for complex tax calculations and return preparation\n";
-  section += "• Enrolled Agent (EA): IRS-licensed, best for IRS representation and tax resolution\n\n";
+  section += "REPRESENTATION OPTIONS:\n\n";
+  section += "• Tax Attorney: Legal issues, audits, appeals, collection\n";
+  section += "• CPA: Complex calculations, return preparation\n";
+  section += "• Enrolled Agent: IRS representation, tax resolution\n\n";
   
   section += "═══════════════════════════════════════════════════════════════\n\n";
   
@@ -417,22 +404,22 @@ function formatResponseLetter(params) {
  */
 function formatDisclaimer(classification, riskAnalysis) {
   let disclaimer = "\n\n═══════════════════════════════════════════════════════════════\n";
-  disclaimer += "IMPORTANT DISCLAIMER\n";
+  disclaimer += "LEGAL NOTICE\n";
   disclaimer += "═══════════════════════════════════════════════════════════════\n\n";
   
-  disclaimer += "This analysis is provided for informational purposes only and does not constitute legal or tax advice. ";
-  disclaimer += "While this tool uses IRS-specific procedural knowledge to provide guidance, it cannot replace professional representation.\n\n";
+  disclaimer += "This is a procedural guidance system. Not legal advice. Not tax advice.\n";
+  disclaimer += "Professional representation required for final decisions.\n\n";
   
-  if (riskAnalysis && riskAnalysis.overallRisk === "HIGH" || riskAnalysis && riskAnalysis.overallRisk === "CRITICAL") {
-    disclaimer += "⚠️ IMPORTANT: This matter involves significant risk factors. Professional consultation is strongly recommended before taking any action.\n\n";
+  if (riskAnalysis && (riskAnalysis.overallRisk === "HIGH" || riskAnalysis.overallRisk === "CRITICAL")) {
+    disclaimer += "⚠️ Risk factors detected. Professional consultation required before action.\n\n";
   }
   
   const highRiskNotices = ["CP504", "CP75", "AUDIT_LETTER", "LETTER_1058"];
   if (highRiskNotices.includes(classification.noticeType)) {
-    disclaimer += "⚠️ CRITICAL: This notice type carries serious consequences. Professional representation is strongly recommended.\n\n";
+    disclaimer += "⚠️ High-risk notice type. Professional representation required.\n\n";
   }
   
-  disclaimer += "You should verify all information with the IRS and consult with a qualified tax professional before responding to any IRS notice.\n\n";
+  disclaimer += "Verify all information with IRS. Consult qualified tax professional before responding.\n\n";
   disclaimer += "═══════════════════════════════════════════════════════════════\n";
   
   return disclaimer;

@@ -1,13 +1,21 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
  * DEADLINE & ESCALATION INTELLIGENCE
  * 
  * Purpose: Calculates exact response windows and predicts escalation sequences
  * based on IRS notice type and timeline.
  * 
- * Why this matters:
- * - Users need to understand consequences of inaction
- * - Deadlines are strict and missing them has severe consequences
- * - Escalation paths are predictable and should be communicated clearly
+ * Why this is safer than general AI:
+ * - Mathematical deadline calculation (not AI estimation)
+ * - Predefined escalation sequences (not AI prediction)
+ * - Day-by-day consequence timeline (not vague guidance)
+ * - Urgency scoring based on objective criteria
+ * 
+ * Where logic overrides AI:
+ * - Days remaining calculation (mathematical)
+ * - Urgency level determination (rule-based)
+ * - Escalation sequence (predefined by notice type)
+ * - Consequence prediction (IRS procedural knowledge)
  */
 
 /**

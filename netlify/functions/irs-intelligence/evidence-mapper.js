@@ -1,14 +1,21 @@
+// CORE INTELLIGENCE — DO NOT MODIFY WITHOUT TEST SUITE
 /**
- * EVIDENCE MAPPING AI
+ * EVIDENCE MAPPING SYSTEM
  * 
  * Purpose: Maps user-provided evidence to specific claims and provides
  * explicit guidance on what to attach vs. summarize vs. exclude.
  * 
- * Why this matters:
- * - Prevents over-disclosure of sensitive information
- * - Ensures evidence directly supports claims
- * - Protects taxpayer from volunteering damaging information
- * - Creates clear, defensible documentation trail
+ * Why this is safer than general AI:
+ * - Document-by-document analysis (not generic "attach docs")
+ * - Explicit ATTACH/SUMMARIZE/EXCLUDE decisions
+ * - Over-disclosure prevention (blocks full bank statements)
+ * - Audit expansion warnings (no prior year returns)
+ * 
+ * Where logic overrides AI:
+ * - Document type detection (pattern matching)
+ * - Attachment decision rules (deterministic)
+ * - Redaction requirements (rule-based)
+ * - Over-disclosure warnings (predefined)
  */
 
 /**
@@ -110,7 +117,7 @@ function analyzeDocument(doc, noticeType, allowedEvidenceTypes) {
         reason: `Form ${form1099Type} directly addresses CP2000 income discrepancy`,
         supports: "Underreported income explanation",
         instructions: `Attach Form ${form1099Type}. If this corrects IRS records, include explanation of why IRS data is incorrect. If this was not included in original return, explain why.`,
-        warnings: ["If this 1099 was not reported, you may need to file amended return"]
+        warnings: ["If this 1099 was not reported, file amended return (Form 1040-X)"]
       };
     }
     
@@ -308,12 +315,12 @@ function generateEvidenceRecommendations(noticeType, attachCount, excludeCount) 
     recommendations.push("Organize documents by tax return line item");
     recommendations.push("Create an index of all documents provided");
     recommendations.push("Only provide documents specifically requested in the audit notice");
-    recommendations.push("Consider filing Form 2848 (Power of Attorney) to authorize representative");
+    recommendations.push("File Form 2848 (Power of Attorney) to authorize representative");
   }
   
   // Warnings based on document counts
   if (attachCount === 0) {
-    recommendations.push("⚠️ WARNING: You have no documents to attach. Consider gathering supporting documentation before responding.");
+    recommendations.push("⚠️ WARNING: No documents to attach. Gather supporting documentation before responding.");
   }
   
   if (excludeCount > 3) {
@@ -321,7 +328,7 @@ function generateEvidenceRecommendations(noticeType, attachCount, excludeCount) 
   }
   
   if (attachCount > 20) {
-    recommendations.push("⚠️ CAUTION: You have many documents to attach. Consider creating a summary sheet to help IRS reviewer navigate your evidence.");
+    recommendations.push("⚠️ CAUTION: Multiple documents to attach. Create summary sheet for IRS reviewer.");
   }
   
   return recommendations;
