@@ -143,170 +143,67 @@ exports.handler = async (event) => {
       };
     }
 
-    // --- STEP 3: Analyze the letter using OpenAI ---
-    console.log('Starting OpenAI analysis...');
-    console.log('Environment variables available:', Object.keys(process.env).filter(key => key.includes('OPENAI')));
+    // --- STEP 3: Use IRS Response Intelligence System ---
+    console.log('Starting IRS Intelligence System analysis...');
     
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('OpenAI API key not found');
-      console.error('Available env vars:', Object.keys(process.env).slice(0, 10));
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ error: 'OpenAI API key not configured' })
-      };
-    }
-
-    console.log('OpenAI API key found, initializing client...');
-    // Initialize OpenAI client
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    console.log('OpenAI client initialized successfully');
-
-    const systemPrompt = `
-      You are a senior IRS Taxpayer Advocate with 25+ years of experience specializing in:
-      - CP2000, CP2001, CP2002, CP2003 notices (Proposed Assessments)
-      - 1099-K, 1099-MISC, 1099-NEC discrepancies
-      - Audit notices (CP75, CP2001, Letter 2205)
-      - Underpayment penalties (CP14, CP15, CP16)
-      - Identity verification (5071C, 5747C, 4883C)
-      - Math error notices (CP2002, CP2003)
-      - Balance due notices (CP14, CP15, CP16, CP161)
-      - Refund holds and offsets (CP53, CP54, CP55)
-      
-      Current IRS procedures as of 2024:
-      - Most notices have 30-day response deadlines
-      - Online response options available at irs.gov
-      - Payment plans available for most balances
-      - Penalty abatement possible for reasonable cause
-      - Identity verification can be done online
-      - Most correspondence can be handled without visiting an office
-      
-      Analyze this IRS letter with expert-level knowledge and provide a comprehensive response in the following JSON format. Vary your writing style and approach while maintaining accuracy:
-      
-      {
-        "letterType": "Specific notice type (e.g., CP2000, CP2001, 1099-K, Audit Notice, etc.)",
-        "summary": "Plain English explanation of what this letter means and its implications",
-        "reason": "Detailed explanation of why the taxpayer received this letter",
-        "requiredActions": "Specific actions needed, deadlines, and required documentation",
-        "nextSteps": "Step-by-step recommended response actions with priorities",
-        "confidence": 85,
-        "urgency": "High/Medium/Low based on deadlines and amounts",
-        "estimatedResolution": "Realistic timeframe for resolution",
-        "penaltyRisk": "Potential penalties if not addressed",
-        "paymentOptions": "Available payment methods and plans",
-        "appealRights": "Information about appeal rights and procedures"
-      }
-      
-      Be extremely specific about:
-      - Exact deadlines and response requirements
-      - Dollar amounts and calculations
-      - Required supporting documentation
-      - Online vs. mail response options
-      - Penalty implications and abatement possibilities
-      - Payment plan options and requirements
-      
-      Provide actionable, expert-level advice that helps the taxpayer understand their situation clearly and take appropriate action. Vary your explanation style and tone to make each analysis unique while being equally helpful.
-    `;
-
-    console.log('Making OpenAI API call...');
-    console.log('Letter text length for API:', letterText.length);
+    // Import the intelligence system
+    const { analyzeIRSLetter } = require('./irs-intelligence/index.js');
     
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: letterText },
-      ],
-      temperature: 0.7,
-      top_p: 0.9,
-    });
-
-    console.log('OpenAI API call completed');
-    console.log('Completion usage:', completion.usage);
-    
-    let aiResponse = completion.choices?.[0]?.message?.content || "No response generated.";
-    
-    // Clean up markdown code blocks if present
-    if (aiResponse.includes('```json')) {
-      aiResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    }
-    
-    console.log('AI response length:', aiResponse.length);
-    
-    // Calculate confidence score based on token usage
-    const confidenceScore = Math.round(Math.max(60, Math.min(95, (1 - (completion.usage?.completion_tokens || 0) / 2048) * 100)));
-    
-    // Notice type recognition patterns
-    const noticeTypePatterns = {
-      'CP2000': /CP2000|Proposed Assessment.*Income/i,
-      'CP2001': /CP2001|Proposed Assessment.*Additional Tax/i,
-      'CP2002': /CP2002|Math Error/i,
-      'CP2003': /CP2003|Math Error.*Additional/i,
-      'CP14': /CP14|Balance Due/i,
-      'CP15': /CP15|Balance Due.*Final/i,
-      'CP16': /CP16|Balance Due.*Notice/i,
-      'CP75': /CP75|Audit|Examination/i,
-      'CP161': /CP161|Balance Due.*Final/i,
-      '1099-K': /1099-K|Payment Card|Third Party Network/i,
-      '1099-MISC': /1099-MISC|Miscellaneous Income/i,
-      '1099-NEC': /1099-NEC|Nonemployee Compensation/i,
-      '5071C': /5071C|Identity Verification/i,
-      '5747C': /5747C|Identity Verification/i,
-      '4883C': /4883C|Identity Verification/i,
-      'CP53': /CP53|Refund Hold/i,
-      'CP54': /CP54|Refund Offset/i,
-      'CP55': /CP55|Refund Offset/i
-    };
-
-    // Detect notice type from letter text
-    let detectedNoticeType = "Unknown";
-    for (const [type, pattern] of Object.entries(noticeTypePatterns)) {
-      if (pattern.test(letterText)) {
-        detectedNoticeType = type;
-        break;
-      }
-    }
-
-    // Try to parse the AI response as JSON, fallback to plain text
-    let structuredAnalysis;
     try {
-      structuredAnalysis = JSON.parse(aiResponse);
-      structuredAnalysis.confidence = confidenceScore;
+      // Run complete intelligence analysis
+      const intelligenceResult = await analyzeIRSLetter(letterText, {
+        documents: [], // No documents in initial analysis
+        userContext: {}
+      });
       
-      // Override with detected notice type if more specific
-      if (detectedNoticeType !== "Unknown" && structuredAnalysis.letterType === "Unknown") {
-        structuredAnalysis.letterType = detectedNoticeType;
-      }
+      console.log('Intelligence analysis completed');
+      console.log('Notice Type:', intelligenceResult.classification.noticeType);
+      console.log('Urgency:', intelligenceResult.classification.urgencyLevel);
+      console.log('Risk Level:', intelligenceResult.metadata.riskLevel);
       
-      // Add additional fields if missing
-      if (!structuredAnalysis.penaltyRisk) {
-        structuredAnalysis.penaltyRisk = "Review notice for specific penalty information";
-      }
-      if (!structuredAnalysis.paymentOptions) {
-        structuredAnalysis.paymentOptions = "Contact IRS for payment plan options";
-      }
-      if (!structuredAnalysis.appealRights) {
-        structuredAnalysis.appealRights = "You have the right to appeal within 30 days";
-      }
+      // Format for backward compatibility with existing UI
+      const structuredAnalysis = {
+        letterType: intelligenceResult.classification.noticeType,
+        summary: intelligenceResult.analysisOutput,
+        reason: intelligenceResult.classification.description,
+        requiredActions: `Response Required: ${intelligenceResult.classification.responseRequired ? 'YES' : 'NO'}. Days Remaining: ${intelligenceResult.deadlineIntelligence.deadline.daysRemaining}`,
+        nextSteps: intelligenceResult.deadlineIntelligence.escalation.currentStage.action,
+        confidence: intelligenceResult.classification.confidence === "high" ? 90 : intelligenceResult.classification.confidence === "medium" ? 75 : 60,
+        urgency: intelligenceResult.classification.urgencyLevel,
+        estimatedResolution: "30-90 days with proper response",
+        penaltyRisk: intelligenceResult.classification.escalationRisk.join('; '),
+        paymentOptions: "Payment plans available - see analysis for details",
+        appealRights: "Appeal rights preserved with timely response",
+        
+        // Enhanced fields from intelligence system
+        deadlineIntelligence: intelligenceResult.deadlineIntelligence,
+        financialInfo: intelligenceResult.financialInfo,
+        professionalHelpRecommendation: intelligenceResult.professionalHelpAssessment,
+        playbook: intelligenceResult.playbook.noticeType,
+        fullAnalysis: intelligenceResult.analysisOutput
+      };
       
-    } catch (parseError) {
-      console.error("Failed to parse AI response as JSON:", parseError);
-      structuredAnalysis = {
-        letterType: detectedNoticeType,
-        summary: aiResponse,
-        reason: "Unable to parse structured response",
-        requiredActions: "Review the summary for details",
-        nextSteps: "Consider consulting a tax professional",
-        confidence: Math.max(60, confidenceScore - 10), // Lower confidence for parse errors
-        urgency: "Medium",
-        estimatedResolution: "Varies",
-        penaltyRisk: "Review notice for specific penalty information",
-        paymentOptions: "Contact IRS for payment plan options",
-        appealRights: "You have the right to appeal within 30 days"
+      console.log('Structured analysis prepared');
+      
+    } catch (intelligenceError) {
+      console.error('Intelligence system error, falling back to basic analysis:', intelligenceError);
+      
+      // Fallback to basic classification if intelligence system fails
+      const { classifyIRSNotice } = require('./irs-intelligence/classification-engine.js');
+      const classification = classifyIRSNotice(letterText);
+      
+      var structuredAnalysis = {
+        letterType: classification.noticeType,
+        summary: `This appears to be a ${classification.noticeType} (${classification.description}). ${classification.escalationRisk[0]}`,
+        reason: classification.description,
+        requiredActions: `Response required within ${classification.typicalDeadlineDays} days`,
+        nextSteps: "Review the notice carefully and gather supporting documentation",
+        confidence: classification.confidence === "high" ? 85 : 70,
+        urgency: classification.urgencyLevel,
+        estimatedResolution: "30-90 days",
+        penaltyRisk: classification.escalationRisk.join('; '),
+        paymentOptions: "Contact IRS for payment arrangements",
+        appealRights: "You have appeal rights - see notice for details"
       };
     }
 

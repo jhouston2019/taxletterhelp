@@ -1,5 +1,6 @@
 const OpenAI = require("openai");
 const { getSupabaseAdmin } = require("./_supabase.js");
+const { generateIRSResponse, analyzeIRSLetter, buildConstrainedSystemPrompt, buildConstrainedUserPrompt } = require("./irs-intelligence/index.js");
 
 exports.handler = async (event) => {
   // Handle CORS preflight
@@ -15,68 +16,151 @@ exports.handler = async (event) => {
     };
   }
 
-  // Initialize OpenAI client
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
-    const { summary, recordId = null, tone = 'professional', approach = 'cooperative', style = 'detailed' } = JSON.parse(event.body || "{}");
-    if (!summary) return { statusCode: 400, body: JSON.stringify({ error: "Missing summary" }) };
+    const { 
+      summary, 
+      letterText = null,
+      recordId = null, 
+      tone = 'professional', 
+      approach = 'cooperative', 
+      style = 'detailed',
+      userPosition = null,
+      documents = []
+    } = JSON.parse(event.body || "{}");
+    
+    if (!summary && !letterText) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing summary or letter text" }) };
+    }
 
+    // Initialize OpenAI client
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    // If we have the original letter text, use the full intelligence system
+    if (letterText && userPosition) {
+      console.log('Using IRS Response Intelligence System');
+      
+      // Step 1: Analyze the letter
+      const analysisResult = await analyzeIRSLetter(letterText, {
+        documents: documents,
+        userContext: {
+          userInput: userPosition.explanation,
+          complexity: userPosition.complexity || "standard"
+        }
+      });
+      
+      // Step 2: Generate constrained AI response
+      const aiGenerateFunction = async (systemPrompt, userPrompt) => {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          temperature: 0.7, // Lower temperature for more consistent, factual output
+          top_p: 0.9,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+        });
+        return completion.choices?.[0]?.message?.content?.trim() || "";
+      };
+      
+      // Step 3: Generate response with full intelligence system
+      const responseResult = await generateIRSResponse(
+        analysisResult,
+        userPosition,
+        aiGenerateFunction
+      );
+      
+      // Check for errors or warnings
+      if (responseResult.error) {
+        return {
+          statusCode: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({
+            error: responseResult.message,
+            allowedPositions: responseResult.allowedPositions
+          })
+        };
+      }
+      
+      if (responseResult.warning) {
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({
+            warning: true,
+            message: responseResult.message,
+            riskReport: responseResult.riskReport,
+            recommendation: responseResult.recommendation
+          })
+        };
+      }
+      
+      const letter = responseResult.responseLetter;
+      
+      // Update the existing record (if provided)
+      if (recordId) {
+        const supabase = getSupabaseAdmin();
+        const { error } = await supabase
+          .from("tlh_letters")
+          .update({ 
+            ai_response: letter, 
+            status: "responded",
+            risk_level: responseResult.metadata.riskLevel,
+            requires_professional_review: responseResult.professionalReviewNeed.needsReview
+          })
+          .eq("id", recordId);
+        if (error) console.error("Database update error:", error);
+      }
+
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ 
+          letter,
+          riskAnalysis: responseResult.riskAnalysis,
+          professionalReviewNeed: responseResult.professionalReviewNeed,
+          attachmentInstructions: responseResult.attachmentInstructions,
+          metadata: responseResult.metadata
+        }),
+      };
+    }
+    
+    // Fallback: Use legacy system with enhanced prompting (if no letter text provided)
+    console.log('Using legacy response generation with enhanced prompting');
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      temperature: 0.8,
+      temperature: 0.7,
       top_p: 0.9,
       messages: [
         { 
           role: "system", 
-          content: `You are a senior tax attorney with 20+ years of experience specializing in IRS correspondence and tax controversy matters. 
+          content: `You are a senior IRS correspondence specialist with 20+ years of experience.
 
-Write a professional, IRS-compliant response letter with the following specifications:
+CRITICAL REQUIREMENTS:
+1. Use formal business letter format
+2. Reference specific IRS notice number and date
+3. State position clearly and factually
+4. Avoid admissions of fault or negligence
+5. Do NOT volunteer information beyond the notice scope
+6. Do NOT use phrases like "I forgot", "I didn't know", "I wasn't aware"
+7. Focus on facts, not emotions
+8. Be specific about requested actions
+9. Include proper closing and signature line
 
-**TONE: ${tone}**
-- Professional & Formal: Use formal language, proper titles, and official terminology
-- Conversational & Friendly: Use approachable language while maintaining professionalism
-- Assertive & Direct: Be firm and direct in your statements and requests
-- Conciliatory & Diplomatic: Use diplomatic language to find common ground
+TONE: ${tone} - Professional and appropriate for IRS correspondence
+APPROACH: ${approach} - Balanced and strategic
+STYLE: ${style} - Clear and well-organized
 
-**APPROACH: ${approach}**
-- Defensive & Protective: Focus on protecting taxpayer rights and challenging IRS positions
-- Cooperative & Collaborative: Work with the IRS to resolve issues amicably
-- Challenging & Questioning: Question IRS findings and demand detailed explanations
-- Explanatory & Educational: Focus on explaining the taxpayer's position clearly
-
-**WRITING STYLE: ${style}**
-- Detailed & Comprehensive: Provide extensive explanations and supporting details
-- Concise & To-the-Point: Keep responses brief and focused on key points
-- Technical & Legal-Focused: Use legal terminology and cite specific tax laws
-- Personal & Relatable: Use personal examples and relatable language
-
-1. **Format & Structure:**
-   - Use proper business letter format with date, recipient, and subject line
-   - Reference the specific IRS notice number, date, and taxpayer ID
-   - Include proper salutation and closing
-
-2. **Content Requirements:**
-   - Address each specific issue raised by the IRS
-   - Provide clear, factual explanations with supporting details
-   - Include relevant tax law references when appropriate
-   - Request specific actions or clarifications as needed
-   - Offer to provide additional documentation if required
-
-3. **Professional Standards:**
-   - Use precise IRS terminology and form references
-   - Include appropriate legal disclaimers
-   - Follow current IRS response guidelines
-   - Ensure all statements are accurate and verifiable
-
-4. **Response Elements:**
-   - Acknowledge receipt of the notice
-   - State your position clearly and concisely
-   - Provide supporting documentation references
-   - Request specific relief or clarification
-   - Include contact information for follow-up
-   - Set reasonable expectations for response time
-
-Write a response that matches the specified tone, approach, and style while protecting the taxpayer's rights and maintaining professional standards.` 
+Write a response that protects the taxpayer's rights while maintaining professional standards.` 
         },
         { 
           role: "user", 
@@ -94,14 +178,26 @@ Write a response that matches the specified tone, approach, and style while prot
         .from("tlh_letters")
         .update({ ai_response: letter, status: "responded" })
         .eq("id", recordId);
-      if (error) throw error;
+      if (error) console.error("Database update error:", error);
     }
 
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({ letter }),
     };
   } catch (error) {
-    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+    console.error("Error in generate-response:", error);
+    return { 
+      statusCode: 500, 
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ error: error.message }) 
+    };
   }
 }
