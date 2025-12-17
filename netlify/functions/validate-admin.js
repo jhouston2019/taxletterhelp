@@ -15,7 +15,7 @@
  */
 function validateAdminKey(providedKey) {
   // Admin access disabled if no key configured
-  const adminKey = process.env.ADMIN_ACCESS_KEY;
+  const adminKey = process.env.ADMIN_ACCESS_KEY || process.env.ADMIN_KEY; // Support both variable names
   if (!adminKey) {
     return false;
   }
@@ -43,7 +43,7 @@ function validateAdminCredentials(username, password) {
   // Get credentials from environment
   const adminUsername = process.env.ADMIN_USERNAME;
   const adminPassword = process.env.ADMIN_PASSWORD;
-  const adminKey = process.env.ADMIN_ACCESS_KEY;
+  const adminKey = process.env.ADMIN_ACCESS_KEY || process.env.ADMIN_KEY; // Support both variable names
   
   // Debug logging (remove after testing)
   console.log('Validating credentials...');
