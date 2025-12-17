@@ -488,27 +488,33 @@
                 
                 // Validate credentials server-side
                 try {
+                    console.log('Attempting admin login...');
                     const response = await fetch('/.netlify/functions/validate-admin', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username, password }),
                     });
                     
+                    console.log('Response status:', response.status);
                     const data = await response.json();
+                    console.log('Response data:', data);
                     
                     if (data.adminMode && data.adminKey) {
                         // Successful login - activate admin mode
+                        console.log('Login successful, redirecting...');
                         document.body.removeChild(overlay);
-                        window.location.href = \`/?admin_key=\${encodeURIComponent(data.adminKey)}\`;
+                        window.location.href = '/?admin_key=' + encodeURIComponent(data.adminKey);
                     } else {
                         // Failed login
+                        console.log('Login failed:', data.message);
                         errorDiv.textContent = 'Invalid username or password';
                         errorDiv.style.display = 'block';
                         document.getElementById('admin-password').value = '';
                         document.getElementById('admin-password').focus();
                     }
                 } catch (error) {
-                    errorDiv.textContent = 'Login failed. Please try again.';
+                    console.error('Login error:', error);
+                    errorDiv.textContent = 'Login failed: ' + error.message;
                     errorDiv.style.display = 'block';
                 }
             });
