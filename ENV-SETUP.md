@@ -7,9 +7,13 @@ Copy this to your `.env` file or Netlify environment variables.
 ### Admin Access (QA-Only)
 
 ```bash
+# Admin login credentials
+ADMIN_USERNAME=your-admin-username
+ADMIN_PASSWORD=your-secure-password
+
 # Secret key for operator testing access
 # Generate a strong random key: openssl rand -hex 32
-# Usage: Access any page with ?admin_key=YOUR_KEY
+# This key is returned after successful login
 ADMIN_ACCESS_KEY=your-secret-admin-key-here
 
 # Optional: Enable admin mode in production (default: disabled)

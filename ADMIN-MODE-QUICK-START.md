@@ -3,10 +3,15 @@
 
 ---
 
-## Step 1: Generate Admin Key (30 seconds)
+## Step 1: Set Admin Credentials (1 minute)
 
-Run this command:
+**Choose your admin username and password:**
+```
+Username: admin (or your choice)
+Password: [strong password]
+```
 
+**Generate admin key:**
 ```bash
 openssl rand -hex 32
 ```
@@ -16,21 +21,19 @@ openssl rand -hex 32
 a7f3c8e9d2b4f6a1c5e8d9b3f7a2c6e4d8b5f9a3c7e1d6b4f8a2c5e9d3b7f6a1
 ```
 
-Copy this key — you'll need it in Step 2.
+Copy these — you'll need them in Step 2.
 
 ---
 
 ## Step 2: Add to Netlify (1 minute)
 
 1. Go to: **Netlify Dashboard** → **Your Site** → **Site Settings** → **Environment Variables**
-2. Click **"Add a variable"**
-3. Enter:
-   - **Key**: `ADMIN_ACCESS_KEY`
-   - **Value**: Paste your generated key
-4. Click **"Create variable"**
-5. **(Optional)** For production access, add:
-   - **Key**: `ENABLE_ADMIN_MODE`
-   - **Value**: `true`
+2. Click **"Add a variable"** and add these three:
+   - **Key**: `ADMIN_USERNAME` | **Value**: Your chosen username
+   - **Key**: `ADMIN_PASSWORD` | **Value**: Your chosen password
+   - **Key**: `ADMIN_ACCESS_KEY` | **Value**: Your generated key
+3. **(Optional)** For production access, add:
+   - **Key**: `ENABLE_ADMIN_MODE` | **Value**: `true`
 
 ---
 
@@ -42,24 +45,25 @@ Or manually trigger: **Deploys** → **Trigger deploy** → **Deploy site**
 
 ---
 
-## Step 4: Test Admin Mode (30 seconds)
+## Step 4: Test Admin Login (30 seconds)
 
-Access any page with your admin key:
-
-```
-https://taxletterhelp.pro/upload.html?admin_key=YOUR_KEY_HERE
-```
+1. Go to: `https://taxletterhelp.pro/`
+2. Scroll to footer
+3. Click the subtle **"Admin"** link
+4. Enter your username and password
+5. Click **"Login"**
 
 **What you should see:**
 - ⚠️ Red banner at top: "ADMIN MODE — QA ACCESS ONLY"
 - Console log: "[ADMIN MODE ACTIVE]"
-- Key removed from URL
+- Admin key in URL (then removed)
 
 ---
 
 ## Step 5: Test Payment Bypass (30 seconds)
 
-1. Go to: `https://taxletterhelp.pro/payment.html?admin_key=YOUR_KEY`
+Once logged in (admin mode active):
+1. Go to: `https://taxletterhelp.pro/payment.html`
 2. Click **"Prepare My IRS Response"**
 3. Should redirect to `/upload.html` (no Stripe)
 4. Console shows: "[ADMIN] Payment bypassed"
@@ -72,9 +76,10 @@ https://taxletterhelp.pro/upload.html?admin_key=YOUR_KEY_HERE
 
 ### Activate Admin Mode
 
-```
-https://taxletterhelp.pro/?admin_key=YOUR_KEY
-```
+1. Go to: `https://taxletterhelp.pro/`
+2. Click **"Admin"** link in footer
+3. Enter username and password
+4. Click **"Login"**
 
 Admin mode persists for your entire browser session.
 
