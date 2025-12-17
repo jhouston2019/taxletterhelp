@@ -500,10 +500,10 @@
                     console.log('Response data:', data);
                     
                     if (data.adminMode && data.adminKey) {
-                        // Successful login - redirect to payment/product page
-                        console.log('Login successful, redirecting to payment page...');
+                        // Successful login - redirect to upload/product page
+                        console.log('Login successful, redirecting to upload page...');
                         document.body.removeChild(overlay);
-                        window.location.href = '/payment.html?admin_key=' + encodeURIComponent(data.adminKey);
+                        window.location.href = '/upload.html?admin_key=' + encodeURIComponent(data.adminKey);
                     } else {
                         // Failed login
                         console.log('Login failed:', data.message);
