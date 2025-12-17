@@ -375,7 +375,7 @@
         </div>
     </footer>
 
-    <script type="module" src="/src/main.js"></script>
+    <!-- Main.js removed - not needed for landing page -->
     <script>
         // Admin login modal (non-module for immediate availability)
         function showAdminLogin() {
@@ -550,11 +550,15 @@
         });
     </script>
     <script type="module">
-        // Initialize admin mode (separate module)
-        import { initAdminMode } from './src/utils/admin-mode.js';
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initAdminMode();
-        });
+        // Initialize admin mode (separate module) - fail gracefully if not available
+        try {
+            const { initAdminMode } = await import('./src/utils/admin-mode.js');
+            document.addEventListener('DOMContentLoaded', async () => {
+                await initAdminMode();
+            });
+        } catch (error) {
+            console.log('Admin mode module not available:', error.message);
+        }
     </script>
 </body>
 </html>
