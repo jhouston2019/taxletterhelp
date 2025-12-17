@@ -376,21 +376,8 @@
     </footer>
 
     <script type="module" src="/src/main.js"></script>
-    <script type="module">
-        import { initAdminMode } from './src/utils/admin-mode.js';
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initAdminMode();
-            
-            // Admin login modal handler
-            const adminLink = document.getElementById('admin-access-link');
-            if (adminLink) {
-                adminLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showAdminLogin();
-                });
-            }
-        });
-        
+    <script>
+        // Admin login modal (non-module for immediate availability)
         function showAdminLogin() {
             // Create modal overlay
             const overlay = document.createElement('div');
@@ -546,6 +533,28 @@
                 }
             });
         }
+        
+        // Attach admin link handler after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminLink = document.getElementById('admin-access-link');
+            if (adminLink) {
+                console.log('Admin link found, attaching handler');
+                adminLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Admin link clicked');
+                    showAdminLogin();
+                });
+            } else {
+                console.log('Admin link NOT found');
+            }
+        });
+    </script>
+    <script type="module">
+        // Initialize admin mode (separate module)
+        import { initAdminMode } from './src/utils/admin-mode.js';
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAdminMode();
+        });
     </script>
 </body>
 </html>
