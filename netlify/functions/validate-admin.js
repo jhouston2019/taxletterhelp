@@ -45,8 +45,16 @@ function validateAdminCredentials(username, password) {
   const adminPassword = process.env.ADMIN_PASSWORD;
   const adminKey = process.env.ADMIN_ACCESS_KEY;
   
+  // Debug logging (remove after testing)
+  console.log('Validating credentials...');
+  console.log('Username provided:', username);
+  console.log('Username from env:', adminUsername ? 'SET' : 'NOT SET');
+  console.log('Password from env:', adminPassword ? 'SET' : 'NOT SET');
+  console.log('Admin key from env:', adminKey ? 'SET' : 'NOT SET');
+  
   // Admin access disabled if credentials not configured
   if (!adminUsername || !adminPassword || !adminKey) {
+    console.log('Missing environment variables');
     return { valid: false, adminKey: null };
   }
 
@@ -54,13 +62,22 @@ function validateAdminCredentials(username, password) {
   const enableAdmin = process.env.ENABLE_ADMIN_MODE;
   const nodeEnv = process.env.NODE_ENV;
   
+  console.log('Node env:', nodeEnv);
+  console.log('Enable admin mode:', enableAdmin);
+  
   if (nodeEnv === 'production' && enableAdmin !== 'true') {
     console.warn('Admin login attempted in production without ENABLE_ADMIN_MODE=true');
     return { valid: false, adminKey: null };
   }
 
   // Validate credentials (exact match required)
-  const valid = username === adminUsername && password === adminPassword;
+  const usernameMatch = username === adminUsername;
+  const passwordMatch = password === adminPassword;
+  const valid = usernameMatch && passwordMatch;
+  
+  console.log('Username match:', usernameMatch);
+  console.log('Password match:', passwordMatch);
+  console.log('Valid:', valid);
   
   return {
     valid,
