@@ -11,6 +11,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Admin credentials (NEVER COMMIT)
+ADMIN-CREDENTIALS.md
+
 # Build outputs
 dist/
 build/
