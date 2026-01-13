@@ -1,30 +1,38 @@
 # Tax Letter Help — Pricing & Messaging Consistency Lock
 ## Execution Summary
 
-**Date**: December 16, 2025  
-**Objective**: Eliminate all legacy pricing ($49) and AI-toy messaging across the entire site  
-**Status**: ✅ COMPLETE
+**Date**: December 16, 2025 (Updated: January 13, 2026)
+**Objective**: Eliminate all legacy pricing and AI-toy messaging across the entire site  
+**Status**: ✅ COMPLETE (Updated to $97)
 
 ---
 
 ## PHASE 1 — GLOBAL PRICING UPDATE
 
-### ✅ All $49 References Replaced with $79
+### ✅ All Pricing References Updated to $97 (Previously $79, originally $49)
 
 **Files Updated:**
 1. **index.html** (5 instances updated)
-   - Hero CTA: "$49" → "$79"
-   - How It Works section: "$49" → "$79"
-   - Comparison table: "$49" → "$79"
-   - Pricing section (2 instances): "$49" → "$79 one-time per notice"
+   - Hero CTA: "$79" → "$97"
+   - How It Works section: "$79" → "$97"
+   - Comparison table: "$79" → "$97"
+   - Pricing section (2 instances): "$79" → "$97 one-time per notice"
    - Updated aria-labels and button text
 
 2. **payment.html** (2 instances updated)
-   - Price display: "$49 single use" → "$79 one-time per notice"
+   - Price display: "$79 single use" → "$97 one-time per notice"
    - Button text updated to procedural language
 
-3. **images/og-image-generator.html** (1 instance updated)
-   - Pricing OG image: "$49 Flat Fee" → "$79 One-Time Per Notice"
+3. **pricing.html** (3 instances updated)
+   - Meta description: "$79" → "$97"
+   - Main pricing display: "$79" → "$97"
+   - Footer text: "$79" → "$97"
+
+4. **irs-response-letter-generator.html** (2 instances updated)
+   - Pricing mentions: "$79" → "$97"
+
+5. **create-checkout-session.js** (1 instance updated)
+   - Metadata price_point: '79' → '97'
 
 **Remaining $49 References:**
 - Documentation files only (PRICING-POSITIONING-EXECUTION-SUMMARY.md, STRIPE-PRODUCT-UPDATE-GUIDE.md, etc.)

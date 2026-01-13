@@ -1,7 +1,7 @@
 # PRICING & POSITIONING UPDATE CHECKLIST
 
 ## OBJECTIVE
-Update all references from $49 to $79 and remove "AI-powered" language across the entire site.
+Update all references from $79 to $97 and remove "AI-powered" language across the entire site.
 
 ---
 
@@ -10,7 +10,7 @@ Update all references from $49 to $79 and remove "AI-powered" language across th
 ### ✅ COMPLETED
 
 1. **pricing.html** ✅
-   - Updated price to $79
+   - Updated price to $97
    - Changed header to "IRS Notice Response Preparation"
    - Added differentiation section
    - Updated CTA to "Prepare My IRS Response"
@@ -18,7 +18,7 @@ Update all references from $49 to $79 and remove "AI-powered" language across th
 
 2. **create-checkout-session.js** ✅
    - Added Stripe metadata fields
-   - Configured for $79 price point
+   - Configured for $97 price point
 
 3. **STRIPE-PRODUCT-UPDATE-GUIDE.md** ✅
    - Created comprehensive guide for Stripe configuration
@@ -29,23 +29,23 @@ Update all references from $49 to $79 and remove "AI-powered" language across th
 
 #### HIGH PRIORITY (Customer-Facing)
 
-4. **index.html** - Homepage
-   - [ ] Line 9: Remove "AI-powered" from meta description
-   - [ ] Line 13: Remove "AI-powered" from OG description
-   - [ ] Line 19: Remove "AI-powered" from Twitter description
-   - [ ] Line 34: Remove "AI-powered" from schema description
-   - [ ] Line 58: Update CTA from "$49" to "$79"
-   - [ ] Line 140: Update "one-time payment of $49" to "$79"
-   - [ ] Line 254: Update table cell "$49" to "$79"
-   - [ ] Line 271: Remove "Choose Your Plan" header
-   - [ ] Line 272: Remove "AI-powered" and update "$49" to "$79"
-   - [ ] Line 276: Update "$49" to "$79"
-   - [ ] Line 279: Remove "AI-powered analysis"
+4. **index.html** - Homepage ✅
+   - [x] Line 9: Remove "AI-powered" from meta description
+   - [x] Line 13: Remove "AI-powered" from OG description
+   - [x] Line 19: Remove "AI-powered" from Twitter description
+   - [x] Line 34: Remove "AI-powered" from schema description
+   - [x] Line 58: Update CTA from "$79" to "$97"
+   - [x] Line 140: Update "one-time payment of $79" to "$97"
+   - [x] Line 254: Update table cell "$79" to "$97"
+   - [x] Line 271: Remove "Choose Your Plan" header
+   - [x] Line 272: Remove "AI-powered" and update "$79" to "$97"
+   - [x] Line 276: Update "$79" to "$97"
+   - [x] Line 279: Remove "AI-powered analysis"
 
-5. **payment.html** - Payment Page
-   - [ ] Line 24: Remove "AI-powered"
-   - [ ] Line 35: Update "$49" to "$79"
-   - [ ] Line 39: Remove "AI-powered"
+5. **payment.html** - Payment Page ✅
+   - [x] Line 24: Remove "AI-powered"
+   - [x] Line 35: Update "$79" to "$97"
+   - [x] Line 39: Remove "AI-powered"
 
 6. **success.html** - Thank You Page
    - [ ] Line 31: Remove "AI-powered"
@@ -83,8 +83,8 @@ Update all references from $49 to $79 and remove "AI-powered" language across th
 ## REPLACEMENT GUIDELINES
 
 ### Price Updates
-- **Old**: "$49"
-- **New**: "$79"
+- **Old**: "$79"
+- **New**: "$97"
 - **Context**: "one-time, per IRS notice"
 
 ### Language Replacements
@@ -95,7 +95,7 @@ Update all references from $49 to $79 and remove "AI-powered" language across th
 | "AI-generated" | "Procedurally prepared" OR "System-generated" |
 | "AI assistant" | "Response preparation system" |
 | "Choose Your Plan" | "IRS Notice Response Preparation" |
-| "Get My IRS Response Letter - $49" | "Prepare My IRS Response - $79" |
+| "Get My IRS Response Letter - $79" | "Prepare My IRS Response - $97" |
 
 ### Meta Description Template
 **Old**:
@@ -114,10 +114,10 @@ Upload your IRS notice and get notice-specific, risk-aware response preparation 
 
 ### Step 1: Price Updates
 ```bash
-# Find all $49 references
-grep -r "\$49" --include="*.html" .
+# Find all $79 references
+grep -r "\$79" --include="*.html" .
 
-# Replace with $79 (manual verification recommended)
+# Replace with $97 (manual verification recommended)
 ```
 
 ### Step 2: AI Language Removal
@@ -139,10 +139,10 @@ grep -ri "AI assistant" --include="*.html" .
 After updates, verify:
 
 ### Price Consistency
-- [ ] All pages show $79 (not $49)
-- [ ] No mixed pricing exists
-- [ ] Stripe checkout shows $79
-- [ ] Payment confirmation shows $79
+- [x] All pages show $97 (not $79)
+- [x] No mixed pricing exists
+- [ ] Stripe checkout shows $97
+- [ ] Payment confirmation shows $97
 
 ### Language Consistency
 - [ ] No "AI-powered" language remains
@@ -182,7 +182,7 @@ After updates, verify:
 - [ ] Desktop responsive
 
 ### Content Testing
-- [ ] No $49 references visible
+- [x] No $79 references visible (updated to $97)
 - [ ] No "AI-powered" text visible
 - [ ] Positioning is consistent
 - [ ] CTAs are clear and directive
@@ -254,7 +254,7 @@ git push origin main
 - Monitor error logs
 
 ### First Week
-- Analyze conversion rate at $79
+- Analyze conversion rate at $97
 - Gather customer feedback
 - Monitor for any issues
 - Adjust messaging if needed
@@ -276,7 +276,7 @@ IRS response engine with:
 - Evidence mapping with explicit guidance
 - Deadline intelligence and escalation timelines
 
-The new price is $79 per notice (previously $49). This reflects the 
+The new price is $97 per notice (previously $79). This reflects the 
 materially better outcomes and safety controls now included.
 
 Thank you for your continued trust.
@@ -287,16 +287,16 @@ Add to FAQ:
 - Why did the price change?
 - What's different about the new system?
 - Is this still better than ChatGPT?
-- Do I need to pay $79 for each notice?
+- Do I need to pay $97 for each notice?
 
 ---
 
 ## SUCCESS CRITERIA
 
 ### Pricing
-- ✅ All pages show $79 consistently
-- ✅ Stripe checkout works at $79
-- ✅ No $49 references remain
+- ✅ All pages show $97 consistently
+- ✅ Stripe checkout works at $97
+- ✅ No $79 references remain
 
 ### Positioning
 - ✅ No "AI-powered" language exists
