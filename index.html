@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TaxLetterHelp – Understand and Respond to Any IRS Letter Instantly</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/src/styles/ad-system.css">
   <meta name="description" content="Upload your IRS or tax notice and get notice-specific, risk-aware response preparation. Procedural IRS response system designed to prevent over-disclosure.">
   <meta name="keywords" content="IRS letter help, CP2000, 1099K, audit response, tax notice explanation, tax letter response, AI tax help, AI tax letter, respond to IRS, understand IRS letter">
   <link rel="canonical" href="https://taxletterhelp.pro/">
@@ -288,6 +289,12 @@
             </div>
         </section>
 
+    <!-- POST-CONTENT NATIVE AD (LANDING PAGE ONLY) -->
+    <section class="native-ad post-content-ad landing-only">
+        <p class="ad-label">Sponsored Resources</p>
+        <div id="ad-post-content"></div>
+    </section>
+
     <!-- FAQ -->
         <section id="faq" style="padding:72px 0; background:#ffffff; color:#2d3748;">
             <div style="width:min(1120px, 92%); margin-inline:auto;">
@@ -566,5 +573,8 @@
             console.log('Admin mode module not available:', error.message);
         }
     </script>
+    
+    <!-- Ad system initialization (landing page: single ad only) -->
+    <script type="module" src="/src/utils/ad-system.js"></script>
 </body>
 </html>

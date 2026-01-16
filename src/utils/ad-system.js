@@ -80,6 +80,14 @@ function shouldShowAds() {
 }
 
 /**
+ * Check if current page is the landing page
+ */
+function isLandingPage() {
+  const currentPath = window.location.pathname;
+  return currentPath === '/' || currentPath === '/index.html';
+}
+
+/**
  * Detect device type
  */
 function isMobileDevice() {
@@ -387,13 +395,19 @@ export async function initAdSystem() {
   // Initialize session tracking
   initSessionTracking();
 
-  // Initialize ad units based on device
+  // Initialize ad units based on page type
   initPostContentAd();
   
-  if (isMobileDevice()) {
-    initMobileFooterAd();
+  // Landing page: ONLY post-content ad (no exit grid, no mobile footer)
+  if (isLandingPage()) {
+    console.log('Landing page detected: single ad only');
   } else {
-    initExitGridAd();
+    // Content pages: full ad suite
+    if (isMobileDevice()) {
+      initMobileFooterAd();
+    } else {
+      initExitGridAd();
+    }
   }
 
   console.log('Ad system initialized successfully');
