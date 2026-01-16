@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IRS Audit Letter Help | TaxLetterHelp</title>
-  <meta name="description" content="Received an IRS audit letter? Understand what it means, what the IRS is asking for, and what can happen if you don’t respond.">
+  <meta name="description" content="Received an IRS audit letter? Understand what it means, what the IRS is asking for, and what can happen if you don't respond.">
+  <link rel="stylesheet" href="/src/styles/ad-system.css">
 </head>
 <body style="background:#f9fafb; color:#111827; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
   <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:flex-start; border-bottom: 2px solid #334155;">
@@ -15,7 +16,7 @@
     <!-- H1 -->
     <section style="padding:3rem 1.5rem 2rem;">
       <div style="width:min(1120px, 92%); margin-inline:auto; max-width:800px;">
-        <h1 style="font-size:2rem; margin-bottom:1rem; color:#111827;">Received an IRS Audit Letter? Here’s What It Means</h1>
+        <h1 style="font-size:2rem; margin-bottom:1rem; color:#111827;">Received an IRS Audit Letter? Here's What It Means</h1>
       </div>
     </section>
 
@@ -54,6 +55,12 @@
       </div>
     </section>
 
+    <!-- POST-CONTENT NATIVE AD -->
+    <section class="native-ad post-content-ad">
+      <p class="ad-label">Sponsored Resources</p>
+      <div id="ad-post-content"></div>
+    </section>
+
     <!-- CTA -->
     <section style="padding:0 1.5rem 2.5rem; text-align:center;">
       <div style="width:min(1120px, 92%); margin-inline:auto;">
@@ -73,7 +80,19 @@
     </section>
   </main>
 
+  <!-- EXIT GRID AD (DESKTOP ONLY) -->
+  <section class="native-ad exit-grid-ad desktop-only">
+    <p class="ad-label">Additional Options You May Consider</p>
+    <div id="ad-exit-grid"></div>
+  </section>
+
+  <!-- MOBILE FOOTER STICKY AD -->
+  <div class="native-ad mobile-footer-ad mobile-only">
+    <button class="ad-close" aria-label="Close ad">×</button>
+    <div id="ad-mobile-footer"></div>
+  </div>
+
+  <!-- Ad system initialization -->
+  <script type="module" src="/src/utils/ad-system.js"></script>
 </body>
 </html>
-
-

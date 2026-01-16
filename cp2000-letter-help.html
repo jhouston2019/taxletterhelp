@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CP2000 Letter Help | TaxLetterHelp</title>
-  <meta name="description" content="Understand your CP2000 IRS letter, why the IRS says your income doesn’t match, and what your options are before the deadline.">
+  <meta name="description" content="Understand your CP2000 IRS letter, why the IRS says your income doesn't match, and what your options are before the deadline.">
+  <link rel="stylesheet" href="/src/styles/ad-system.css">
 </head>
 <body style="background:#f9fafb; color:#111827; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
   <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:flex-start; border-bottom: 2px solid #334155;">
@@ -37,9 +38,9 @@
       <div style="width:min(1120px, 92%); margin-inline:auto; max-width:800px;">
         <h2 style="font-size:1.4rem; margin-bottom:0.75rem; color:#111827;">What Happens If You Ignore It</h2>
         <ul style="padding-left:1.25rem; color:#374151; margin:0;">
-          <li style="margin-bottom:0.5rem;">The proposed tax increase may become final</li>
-          <li style="margin-bottom:0.5rem;">Penalties and interest may be added</li>
-          <li style="margin-bottom:0.5rem;">Your account may move toward collections</li>
+          <li style="margin-bottom:0.5rem;">The proposed changes become final</li>
+          <li style="margin-bottom:0.5rem;">You may owe additional taxes, penalties, and interest</li>
+          <li style="margin-bottom:0.5rem;">You lose your right to dispute the changes</li>
         </ul>
       </div>
     </section>
@@ -52,6 +53,12 @@
           Upload your CP2000 letter to get a clear explanation of what income is being questioned, what the IRS is proposing, and what your response options are — so you know how to proceed before the deadline.
         </p>
       </div>
+    </section>
+
+    <!-- POST-CONTENT NATIVE AD -->
+    <section class="native-ad post-content-ad">
+      <p class="ad-label">Sponsored Resources</p>
+      <div id="ad-post-content"></div>
     </section>
 
     <!-- CTA -->
@@ -73,7 +80,19 @@
     </section>
   </main>
 
+  <!-- EXIT GRID AD (DESKTOP ONLY) -->
+  <section class="native-ad exit-grid-ad desktop-only">
+    <p class="ad-label">Additional Options You May Consider</p>
+    <div id="ad-exit-grid"></div>
+  </section>
+
+  <!-- MOBILE FOOTER STICKY AD -->
+  <div class="native-ad mobile-footer-ad mobile-only">
+    <button class="ad-close" aria-label="Close ad">×</button>
+    <div id="ad-mobile-footer"></div>
+  </div>
+
+  <!-- Ad system initialization -->
+  <script type="module" src="/src/utils/ad-system.js"></script>
 </body>
 </html>
-
-
