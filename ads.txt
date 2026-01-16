@@ -1,0 +1,16 @@
+# Tax Letter Help - Authorized Digital Sellers (ads.txt)
+# Updated: January 15, 2026
+#
+# This file declares authorized sellers of advertising inventory on this site.
+# Learn more: https://iabtechlab.com/ads-txt/
+
+# Google AdSense
+# Replace pub-XXXXXXXXXXXXXXXX with your actual AdSense Publisher ID
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# Instructions:
+# 1. Get your Publisher ID from AdSense dashboard (Account > Account Information)
+# 2. Replace pub-XXXXXXXXXXXXXXXX above with your actual ID
+# 3. Deploy this file to your site root: https://taxletterhelp.pro/ads.txt
+# 4. Verify it's accessible in a browser
+# 5. Wait 24-48 hours for AdSense to crawl and verify
