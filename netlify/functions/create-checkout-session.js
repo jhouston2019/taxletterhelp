@@ -36,7 +36,7 @@ export async function handler(event) {
         risk_level: 'regulated',
         ai_mode: 'constrained_procedural',
         not_chat_based: 'true',
-        price_point: '97'
+        price_point: '19'
       }
     });
 
