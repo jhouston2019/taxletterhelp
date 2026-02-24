@@ -1,16 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Successful - TaxLetterHelp</title>
-  <link rel="stylesheet" href="/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful | TaxLetterHelp</title>
+    <meta name="robots" content="noindex, nofollow">
 </head>
-<body style="background:#0f172a; color:#fff; font-family:'Inter',sans-serif;">
-  <div style="text-align:center; padding:60px 20px;">
-    <h1>✅ Payment Successful</h1>
-    <p>Thank you for your purchase. You can now generate your AI Response Letter below.</p>
-    <a href="/resource.html" style="display:inline-block; margin-top:30px; background:#22c55e; color:#fff; padding:14px 28px; border-radius:6px; text-decoration:none;">Generate My Response Letter</a>
-  </div>
+
+<body style="background:#f8fafc; color:#0f172a; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
+    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom:2px solid #334155; align-items:center;">
+        <div style="color:#f5f5f5;"><strong>TaxLetterHelp</strong></div>
+        <div>
+            <a href="/upload.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Upload</a> |
+            <a href="/dashboard.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Dashboard</a> |
+            <a href="/pricing.html" style="color:#f5f5f5; text-decoration:none; margin:0 10px; padding:8px 12px; border-radius:4px;">Pricing</a>
+        </div>
+    </nav>
+
+    <main>
+        <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
+            <!-- Success Header -->
+            <div style="text-align:center; padding:4rem 0; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; margin-bottom:3rem; border-radius:12px;">
+                <span style="font-size:4rem; margin-bottom:1rem; display:block;">✅</span>
+                <h1 style="font-size:3rem; margin-bottom:1rem; font-weight:700;">Payment Successful!</h1>
+                <p style="font-size:1.3rem; opacity:0.95; max-width:600px; margin:0 auto;">Your payment has been confirmed. You can now upload your IRS letter.</p>
+            </div>
+
+            <!-- Main Content -->
+            <div style="max-width:600px; margin:0 auto; background:white; border-radius:16px; padding:2.5rem; box-shadow:0 20px 40px rgba(0,0,0,0.1); border:1px solid #e2e8f0;">
+                
+                <!-- Loading State -->
+                <div id="verifying-payment" style="text-align:center;">
+                    <div style="border:4px solid #f3f3f3; border-top:4px solid #3b82f6; border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin:0 auto 1rem;"></div>
+                    <p style="color:#64748b;">Verifying your payment...</p>
+                </div>
+
+                <!-- Success State (hidden initially) -->
+                <div id="payment-confirmed" style="display:none;">
+                    <div style="color:#2d3748; margin-bottom:2rem; text-align:center;">
+                        <h2 style="font-size:1.8rem; margin-bottom:1rem; color:#1e293b;">🎉 Payment Confirmed!</h2>
+                        <p style="color:#4a5568; line-height:1.6; margin-bottom:1.5rem;">Thank you for your payment. You now have access to our IRS notice response preparation system.</p>
+                    </div>
+
+                    <div style="background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:2px solid #10b981; border-radius:12px; padding:1.5rem; margin:2rem 0; text-align:center;">
+                        <h3 style="color:#065f46; margin-bottom:0.5rem; font-size:1.3rem;">🔓 Access Unlocked</h3>
+                        <p style="color:#047857; margin:0; font-weight:500;">You can now upload your IRS letter and prepare your response</p>
+                    </div>
+
+                    <div style="background:#f8fafc; border-radius:12px; padding:1.5rem; margin:2rem 0; border-left:4px solid #10b981;">
+                        <h3 style="color:#1e293b; margin-bottom:1rem; font-size:1.3rem;">What's Next?</h3>
+                        <ul style="list-style:none; padding:0; text-align:left;">
+                            <li style="padding:0.5rem 0; color:#4a5568;">✓ Upload your IRS letter (PDF or image)</li>
+                            <li style="padding:0.5rem 0; color:#4a5568;">✓ Notice type is classified automatically</li>
+                            <li style="padding:0.5rem 0; color:#4a5568;">✓ Procedural rules are applied</li>
+                            <li style="padding:0.5rem 0; color:#4a5568;">✓ Download your prepared response</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align:center; margin-top:2rem;">
+                        <a href="/upload.html" id="upload-btn" style="background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:white; padding:1.2rem 2.5rem; border:none; border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; box-shadow:0 6px 20px rgba(59, 130, 246, 0.3); text-decoration:none; display:inline-block;">Upload My IRS Letter</a>
+                    </div>
+                </div>
+
+                <!-- Error State (hidden initially) -->
+                <div id="payment-error" style="display:none; text-align:center;">
+                    <div style="background:#fee2e2; border:2px solid #ef4444; border-radius:12px; padding:2rem; margin:2rem 0;">
+                        <span style="font-size:3rem; display:block; margin-bottom:1rem;">⚠️</span>
+                        <h3 style="color:#991b1b; margin-bottom:1rem;">Payment Verification Failed</h3>
+                        <p style="color:#7f1d1d; margin-bottom:1.5rem;">We couldn't verify your payment. This may be temporary.</p>
+                        <p style="color:#7f1d1d; font-size:0.9rem;">If you were charged, please contact support with your payment confirmation.</p>
+                    </div>
+                    <a href="/pricing.html" style="background:#6c757d; color:white; padding:1rem 2rem; border-radius:8px; text-decoration:none; display:inline-block;">Return to Pricing</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="padding:28px 0; background:#0b1220; color:#cbd5e1; text-align:center; margin-top:3rem;">
+        <div style="width:min(1120px, 92%); margin-inline:auto;">
+            <p>&copy; 2026 TaxLetterHelp. <a href="/privacy.html" style="color:#93c5fd; text-decoration:none;">Privacy</a> | <a href="/terms.html" style="color:#93c5fd; text-decoration:none;">Terms</a> | <a href="/disclaimer.html" style="color:#93c5fd; text-decoration:none;">Disclaimer</a></p>
+        </div>
+    </footer>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script type="module">
+        import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
+        
+        // Initialize admin mode
+        await initAdminMode();
+        
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        // Admin bypass
+        if (shouldBypassPayment()) {
+            console.log('[ADMIN] Payment verification bypassed');
+            localStorage.setItem('paid', 'true');
+            document.getElementById('verifying-payment').style.display = 'none';
+            document.getElementById('payment-confirmed').style.display = 'block';
+        } else if (!sessionId) {
+            // No session ID - shouldn't happen in normal flow
+            console.error('No session ID provided');
+            document.getElementById('verifying-payment').style.display = 'none';
+            document.getElementById('payment-error').style.display = 'block';
+        } else {
+            // Verify payment with backend
+            try {
+                const response = await fetch('/.netlify/functions/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.paid) {
+                    // Payment confirmed
+                    localStorage.setItem('paid', 'true');
+                    localStorage.setItem('stripe_session_id', sessionId);
+                    localStorage.setItem('payment_record_id', data.recordId);
+                    
+                    document.getElementById('verifying-payment').style.display = 'none';
+                    document.getElementById('payment-confirmed').style.display = 'block';
+                    
+                    // Track conversion
+                    if (window.gtag) {
+                        gtag('event', 'purchase', {
+                            transaction_id: sessionId,
+                            value: 19.00,
+                            currency: 'USD'
+                        });
+                    }
+                } else {
+                    // Payment not found or not confirmed
+                    console.error('Payment not confirmed:', data);
+                    document.getElementById('verifying-payment').style.display = 'none';
+                    document.getElementById('payment-error').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                document.getElementById('verifying-payment').style.display = 'none';
+                document.getElementById('payment-error').style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

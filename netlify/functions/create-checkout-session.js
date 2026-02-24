@@ -27,8 +27,8 @@ export async function handler(event) {
         quantity: 1 
       }],
       mode: 'payment',
-      success_url: `${process.env.SITE_URL}/thank-you.html`,
-      cancel_url: `${process.env.SITE_URL}/pricing.html`,
+      success_url: `${process.env.SITE_URL}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.SITE_URL}/cancel.html`,
       metadata: {
         ...(recordId ? { recordId } : {}),
         product_type: 'irs_notice_response',
