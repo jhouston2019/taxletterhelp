@@ -64,25 +64,84 @@
             </div>
         </section>
 
+        <!-- ESTIMATED IMPACT CALCULATOR -->
+        <section style="padding:72px 20px; background:#ffffff; color:#2d3748; border-bottom:2px solid #e2e8f0;">
+            <div style="width:min(900px, 92%); margin-inline:auto;">
+                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:1rem; color:#2d3748; font-weight:700;">Estimate What This IRS Notice Could Cost You</h2>
+                <p style="text-align:center; font-size:1.2rem; margin-bottom:3rem; color:#64748b;">Most taxpayers don't realize the financial impact of responding incorrectly — or not responding at all.</p>
+                
+                <div style="background:#f8fafc; border:2px solid #3b82f6; border-radius:16px; padding:40px; max-width:700px; margin:0 auto; box-shadow:0 8px 24px rgba(59, 130, 246, 0.15);">
+                    <div style="display:grid; gap:20px; margin-bottom:24px;">
+                        <div>
+                            <label style="display:block; font-weight:600; color:#1e40af; margin-bottom:8px; font-size:1rem;">IRS Proposed Amount:</label>
+                            <input type="text" id="irs-amount" placeholder="$8,400" style="width:100%; padding:14px; border:2px solid #cbd5e1; border-radius:8px; font-size:1.1rem; box-sizing:border-box; font-family:'Inter',sans-serif;" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; color:#1e40af; margin-bottom:8px; font-size:1rem;">Your Reported Amount:</label>
+                            <input type="text" id="your-amount" placeholder="$2,100" style="width:100%; padding:14px; border:2px solid #cbd5e1; border-radius:8px; font-size:1.1rem; box-sizing:border-box; font-family:'Inter',sans-serif;" />
+                        </div>
+                    </div>
+                    
+                    <div style="background:#eef2ff; border:2px solid #3b82f6; border-radius:12px; padding:24px; text-align:center; margin-bottom:20px;">
+                        <p style="font-size:0.95rem; color:#64748b; margin:0 0 8px 0; font-weight:600;">Estimated Exposure Range</p>
+                        <p style="font-size:2rem; color:#1e40af; margin:0; font-weight:800;">$6,300 potential difference</p>
+                        <p style="font-size:0.9rem; color:#64748b; margin:12px 0 0 0; font-style:italic;">Plus penalties and interest if finalized</p>
+                    </div>
+                    
+                    <p style="text-align:center; font-size:1.15rem; color:#1e40af; font-weight:700; margin-bottom:24px;">Your response determines which number becomes final.</p>
+                    
+                    <a href="payment.html" style="display:block; width:100%; text-align:center; padding:16px; font-weight:600; text-decoration:none; border-radius:10px; background:#22c55e; color:#ffffff; box-shadow:0 6px 18px rgba(34, 197, 94, 0.35); font-size:1.1rem; transition:all 0.2s ease;" aria-label="Prepare my IRS response">Prepare My IRS Response</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHAT HAPPENS IF YOU DO NOTHING -->
+        <section style="padding:72px 20px; background:#0f172a; color:#ffffff;">
+            <div style="width:min(1120px, 92%); margin-inline:auto;">
+                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:3rem; color:#ffffff; font-weight:700;">What Happens If You Ignore or Mishandle an IRS Notice</h2>
+                
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px; margin-bottom:2rem;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:28px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#ef4444; font-size:1.4rem; margin-bottom:12px; font-weight:700;">Assessment Becomes Final</h3>
+                        <p style="color:#cbd5e1; line-height:1.6;">The IRS may finalize their proposed changes without your input.</p>
+                    </div>
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:28px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#ef4444; font-size:1.4rem; margin-bottom:12px; font-weight:700;">Additional Penalties & Interest</h3>
+                        <p style="color:#cbd5e1; line-height:1.6;">Delays can increase the total amount owed.</p>
+                    </div>
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:28px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#ef4444; font-size:1.4rem; margin-bottom:12px; font-weight:700;">Loss of Appeal Rights</h3>
+                        <p style="color:#cbd5e1; line-height:1.6;">Some notices have strict deadlines for dispute.</p>
+                    </div>
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:28px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#ef4444; font-size:1.4rem; margin-bottom:12px; font-weight:700;">Expanded Review Risk</h3>
+                        <p style="color:#cbd5e1; line-height:1.6;">Incorrect responses can trigger deeper examination.</p>
+                    </div>
+                </div>
+                
+                <p style="text-align:center; font-size:1.2rem; color:#94a3b8; font-style:italic;">Doing nothing is a decision. So is responding incorrectly.</p>
+            </div>
+        </section>
+
         <!-- PARITY + VALUE BLOCK -->
         <section style="padding:60px 20px; background:#1e293b; color:#fff; border-top:3px solid #3b82f6;">
             <div style="width:min(1120px, 92%); margin-inline:auto;">
                 <h2 style="text-align:center; font-size:2.3rem; margin-bottom:3rem; color:#ffffff;">Professional-Level IRS Responses — Without the CPA Cost</h2>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
-                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px;">
-                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px;">Structured Like a Professional</h3>
+                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Structured Like a Professional</h3>
                         <p style="color:#cbd5e1; line-height:1.6;">Every response follows the same format used by tax professionals handling IRS notices.</p>
                     </div>
-                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px;">
-                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px;">Prevents Costly Mistakes</h3>
+                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Prevents Costly Mistakes</h3>
                         <p style="color:#cbd5e1; line-height:1.6;">Avoid over-disclosure, incorrect admissions, and misclassified responses.</p>
                     </div>
-                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px;">
-                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px;">Notice-Specific Logic</h3>
+                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Notice-Specific Logic</h3>
                         <p style="color:#cbd5e1; line-height:1.6;">Each IRS letter type triggers the correct procedural response automatically.</p>
                     </div>
-                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px;">
-                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px;">Defensible Positioning</h3>
+                    <div style="background:#0f172a; border:1px solid #334155; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#3b82f6; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Defensible Positioning</h3>
                         <p style="color:#cbd5e1; line-height:1.6;">Responses are structured to clearly present your position to the IRS.</p>
                     </div>
                 </div>
@@ -145,7 +204,65 @@
           </div>
         </section>
 
-    <!-- MONEY PROTECTION SECTION -->
+    <!-- CASE PREVIEW ENGINE -->
+        <section style="padding:72px 20px; background:#f8fafc; color:#2d3748;">
+            <div style="width:min(1120px, 92%); margin-inline:auto;">
+                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:1rem; color:#2d3748; font-weight:700;">Example IRS Notice Outcomes</h2>
+                <p style="text-align:center; font-size:1.2rem; margin-bottom:3rem; color:#64748b;">How proper responses change the outcome</p>
+                
+                <div style="display:grid; gap:24px; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));">
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:28px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 28px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.06)';">
+                        <h3 style="color:#1e40af; font-size:1.4rem; margin-bottom:16px; font-weight:700;">CP2000 Income Discrepancy</h3>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">IRS Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"$8,400 additional income"</p>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">Corrected Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"Clarified reporting mismatch"</p>
+                        </div>
+                        <div style="background:#f0f9ff; border-left:4px solid #3b82f6; padding:12px; border-radius:6px;">
+                            <p style="font-size:0.85rem; color:#1e40af; margin:0 0 4px 0; font-weight:600;">Outcome:</p>
+                            <p style="color:#1e40af; margin:0; font-weight:600; font-size:1.05rem;">Adjusted or reduced liability</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:28px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 28px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.06)';">
+                        <h3 style="color:#1e40af; font-size:1.4rem; margin-bottom:16px; font-weight:700;">1099-K Reporting Issue</h3>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">IRS Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"Unreported income flagged"</p>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">Corrected Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"Personal vs business transactions separated"</p>
+                        </div>
+                        <div style="background:#f0f9ff; border-left:4px solid #3b82f6; padding:12px; border-radius:6px;">
+                            <p style="font-size:0.85rem; color:#1e40af; margin:0 0 4px 0; font-weight:600;">Outcome:</p>
+                            <p style="color:#1e40af; margin:0; font-weight:600; font-size:1.05rem;">Clarification submitted</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:28px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 28px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.06)';">
+                        <h3 style="color:#1e40af; font-size:1.4rem; margin-bottom:16px; font-weight:700;">Audit Inquiry</h3>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">IRS Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"Income verification required"</p>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <p style="font-size:0.85rem; color:#64748b; margin:0 0 4px 0; font-weight:600;">Corrected Position:</p>
+                            <p style="color:#2d3748; margin:0; font-size:1.05rem;">"Structured documentation response"</p>
+                        </div>
+                        <div style="background:#f0f9ff; border-left:4px solid #3b82f6; padding:12px; border-radius:6px;">
+                            <p style="font-size:0.85rem; color:#1e40af; margin:0 0 4px 0; font-weight:600;">Outcome:</p>
+                            <p style="color:#1e40af; margin:0; font-weight:600; font-size:1.05rem;">Position properly supported</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PARITY + VALUE BLOCK -->
         <section style="padding:72px 0; background:#f0f9ff; color:#2d3748; border-top:2px solid #3b82f6; border-bottom:2px solid #3b82f6;">
             <div style="width:min(1120px, 92%); margin-inline:auto; text-align:center;">
                 <h2 style="font-size:2.5rem; margin-bottom:1rem; color:#1e40af;">Most IRS Notices Are Not Final — They Are Negotiable</h2>
@@ -283,20 +400,20 @@
                 <p style="text-align:center; font-size:1.1rem; margin-bottom:3rem; color:#64748b;">These errors weaken your position and can lead to unnecessary payments</p>
                 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px; margin-bottom:2rem;">
-                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px;">
-                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px;">Admitting Fault Unnecessarily</h3>
+                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(220, 38, 38, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Admitting Fault Unnecessarily</h3>
                         <p style="color:#4a5568; line-height:1.6;">Statements like "I forgot" or "I didn't report" can create liability.</p>
                     </div>
-                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px;">
-                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px;">Providing Too Much Information</h3>
+                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(220, 38, 38, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Providing Too Much Information</h3>
                         <p style="color:#4a5568; line-height:1.6;">Over-disclosure can expand the scope of the IRS review.</p>
                     </div>
-                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px;">
-                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px;">Responding to the Wrong Issue</h3>
+                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(220, 38, 38, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Responding to the Wrong Issue</h3>
                         <p style="color:#4a5568; line-height:1.6;">Misunderstanding the notice leads to incorrect responses.</p>
                     </div>
-                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px;">
-                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px;">Missing Deadlines or Structure</h3>
+                    <div style="background:#ffffff; border:1px solid #fecaca; border-radius:12px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(220, 38, 38, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <h3 style="color:#dc2626; font-size:1.3rem; margin-bottom:12px; font-weight:700;">Missing Deadlines or Structure</h3>
                         <p style="color:#4a5568; line-height:1.6;">Improper formatting or timing weakens your position.</p>
                     </div>
                 </div>
@@ -314,39 +431,39 @@
                 <p style="text-align:center; font-size:1.2rem; margin-bottom:3rem; color:#94a3b8;">Not just AI prompting - a hybrid intelligence system with embedded IRS expertise</p>
                 
                 <div style="display:grid; gap:24px; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); margin-bottom:3rem;">
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">🎯</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Deterministic Classification</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Deterministic Classification</h3>
                         <p style="color:#94a3b8; line-height:1.6;">Pattern-matching identifies 15+ IRS notice types with 100% consistency. No AI guessing.</p>
                     </div>
                     
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">🛡️</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Risk Guardrails</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Risk Guardrails</h3>
                         <p style="color:#94a3b8; line-height:1.6;">50+ dangerous language patterns analyzed. Prevents admissions like "I forgot" or "I didn't report".</p>
                     </div>
                     
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">📋</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Notice-Specific Playbooks</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Notice-Specific Playbooks</h3>
                         <p style="color:#94a3b8; line-height:1.6;">Each notice type has required elements, prohibited language, and proper response structure.</p>
                     </div>
                     
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">📎</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Evidence Mapping</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Evidence Mapping</h3>
                         <p style="color:#94a3b8; line-height:1.6;">Document-by-document guidance: ATTACH W-2s, EXCLUDE prior returns, SUMMARIZE bank statements.</p>
                     </div>
                     
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">⏰</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Deadline Intelligence</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Deadline Intelligence</h3>
                         <p style="color:#94a3b8; line-height:1.6;">Exact days remaining + stage-by-stage escalation timeline. Know what happens if you don't respond.</p>
                     </div>
                     
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px;">
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="font-size:2.5rem; margin-bottom:1rem;">⚖️</div>
-                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem;">Professional Help Assessment</h3>
+                        <h3 style="color:#ffffff; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Professional Help Assessment</h3>
                         <p style="color:#94a3b8; line-height:1.6;">Objective criteria determine when you need a CPA based on amount, complexity, and risk level.</p>
                     </div>
                 </div>
@@ -361,7 +478,7 @@
     <!-- COMPARISON TABLE -->
         <section style="padding:72px 0; background:#f8fafc; color:#2d3748;">
             <div style="width:min(1120px, 92%); margin-inline:auto;">
-                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:1rem; color:#2d3748;">Compare Your Options</h2>
+                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:1rem; color:#2d3748; font-weight:700;">Compare Your Options</h2>
                 <p style="text-align:center; font-size:1.2rem; margin-bottom:3rem; color:#64748b;">Why TaxLetterHelp delivers better results than traditional services</p>
                 
                 <div style="overflow-x:auto; background:#ffffff; border-radius:12px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); margin-bottom:3rem;">
@@ -422,7 +539,7 @@
                 </div>
 
                 <!-- AI CAPABILITY COMPARISON -->
-                <h3 style="text-align:center; font-size:2rem; margin:4rem 0 2rem; color:#2d3748;">TaxLetterHelp vs. Generic AI Tools</h3>
+                <h3 style="text-align:center; font-size:2rem; margin:4rem 0 2rem; color:#2d3748; font-weight:700;">TaxLetterHelp vs. Generic AI Tools</h3>
                 <div style="overflow-x:auto; background:#ffffff; border-radius:12px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06);">
                     <table style="width:100%; border-collapse:collapse; font-size:1rem;">
                         <thead>
@@ -482,10 +599,38 @@
             </div>
         </section>
 
+    <!-- DECISION CONFIDENCE BAR -->
+        <section style="padding:72px 20px; background:#ffffff; color:#2d3748; border-top:2px solid #e2e8f0; border-bottom:2px solid #e2e8f0;">
+            <div style="width:min(1000px, 92%); margin-inline:auto;">
+                <h2 style="text-align:center; font-size:2.5rem; margin-bottom:3rem; color:#2d3748; font-weight:700;">Make the Right Decision Before You Respond</h2>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center;">
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:32px;">
+                        <h3 style="color:#64748b; font-size:1.3rem; margin-bottom:20px; font-weight:600;">You can:</h3>
+                        <ul style="list-style:none; padding:0; margin:0;">
+                            <li style="padding:12px 0; color:#4a5568; font-size:1.05rem; border-bottom:1px solid #e2e8f0;">Guess and respond on your own</li>
+                            <li style="padding:12px 0; color:#4a5568; font-size:1.05rem; border-bottom:1px solid #e2e8f0;">Wait and pay a CPA hundreds</li>
+                            <li style="padding:12px 0; color:#4a5568; font-size:1.05rem;">Ignore the notice and risk escalation</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background:linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); border:3px solid #1e40af; border-radius:12px; padding:32px; box-shadow:0 8px 24px rgba(59, 130, 246, 0.3);">
+                        <h3 style="color:#ffffff; font-size:1.4rem; margin-bottom:20px; font-weight:700;">Or:</h3>
+                        <ul style="list-style:none; padding:0; margin:0 0 24px 0;">
+                            <li style="padding:12px 0; color:#ffffff; font-size:1.05rem; border-bottom:1px solid rgba(255,255,255,0.2); font-weight:500;">Get a structured, notice-specific response</li>
+                            <li style="padding:12px 0; color:#ffffff; font-size:1.05rem; border-bottom:1px solid rgba(255,255,255,0.2); font-weight:500;">Avoid common mistakes</li>
+                            <li style="padding:12px 0; color:#ffffff; font-size:1.05rem; font-weight:500;">Respond confidently in minutes</li>
+                        </ul>
+                        <a href="payment.html" style="display:block; width:100%; text-align:center; padding:14px; font-weight:600; text-decoration:none; border-radius:8px; background:#22c55e; color:#ffffff; box-shadow:0 6px 18px rgba(34, 197, 94, 0.5); font-size:1.05rem; transition:all 0.2s ease;" aria-label="Prepare my IRS response">Prepare My IRS Response</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     <!-- PRICING -->
         <section id="pricing" style="padding:84px 0; background:linear-gradient(180deg, #f8fafc, #eef2ff); border-top:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb; text-align:center;">
       <div style="width:min(1120px, 92%); margin-inline:auto; color:#2d3748;">
-                <h2 style="font-size:clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.5rem; color:#2d3748;">Choose Your Plan</h2>
+                <h2 style="font-size:clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.5rem; color:#2d3748; font-weight:700;">Choose Your Plan</h2>
         <p style="color:#64748b; margin-bottom:1rem;">CPAs charge $300-600 in small towns, $500-1,200 in major cities. Our notice-specific response system prepares your IRS response for <strong>$19</strong>.</p>
         <p style="color:#1e40af; margin-bottom:2rem; font-size:1.15rem; font-weight:600;">One response could save hundreds — or thousands — in unnecessary payments or professional fees.</p>
 
@@ -561,13 +706,33 @@
             </div>
         </section>
 
+    <!-- POSITIONING LOCK-IN STATEMENT -->
+        <section style="padding:60px 20px; background:#1e293b; color:#ffffff; border-top:3px solid #3b82f6; border-bottom:3px solid #3b82f6;">
+            <div style="width:min(800px, 92%); margin-inline:auto; text-align:center;">
+                <p style="font-size:1.8rem; line-height:1.5; color:#ffffff; margin-bottom:1.5rem; font-weight:600;">This is not just a letter generator.</p>
+                <p style="font-size:1.3rem; line-height:1.7; color:#cbd5e1; margin-bottom:2rem;">It is a structured IRS response system designed to help you:</p>
+                <div style="display:grid; gap:16px; max-width:600px; margin:0 auto;">
+                    <p style="font-size:1.15rem; color:#ffffff; margin:0; font-weight:500;">→ avoid overpayment</p>
+                    <p style="font-size:1.15rem; color:#ffffff; margin:0; font-weight:500;">→ respond correctly</p>
+                    <p style="font-size:1.15rem; color:#ffffff; margin:0; font-weight:500;">→ protect your position</p>
+                </div>
+            </div>
+        </section>
+
     <!-- URGENCY -->
         <section style="text-align:center; padding:70px 0; background:#0f172a; color:#ffffff;">
             <div style="width:min(1120px, 92%); margin-inline:auto;">
                 <h2 style="font-size:2.5rem; margin-bottom:1.5rem; font-weight:700; color:#ffffff;">IRS Deadlines Don't Wait for Appointments</h2>
                 <p style="color:#cbd5e1; margin:8px 0 16px; font-size:1.2rem;">Whether you're in New York City or rural Wyoming, most IRS letters require response within 30 days. Every day you wait adds stress, penalties, and risk. Get your professional response letter in minutes, not weeks.</p>
                 <p style="color:#94a3b8; margin:8px 0 22px; font-size:1.1rem; font-style:italic;">Every day you wait reduces your ability to respond effectively. IRS timelines move forward — whether you act or not.</p>
-                <a href="payment.html" style="display:inline-block; padding:14px 22px; font-weight:600; text-decoration:none; border-radius:10px; background:linear-gradient(180deg, #22c55e, #16a34a); color:#ffffff; box-shadow:0 6px 18px rgba(34, 197, 94, 0.35); transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;" aria-label="Prepare your IRS response">Prepare My IRS Response</a>
+                
+                <div style="background:rgba(59, 130, 246, 0.1); border:2px solid #3b82f6; border-radius:12px; padding:32px; max-width:700px; margin:0 auto 32px;">
+                    <p style="font-size:1.3rem; color:#ffffff; margin:0 0 12px 0; line-height:1.5;">You don't need to guess.</p>
+                    <p style="font-size:1.3rem; color:#ffffff; margin:0 0 12px 0; line-height:1.5;">You don't need to overpay.</p>
+                    <p style="font-size:1.3rem; color:#ffffff; margin:0; line-height:1.5; font-weight:700;">You just need to respond correctly.</p>
+                </div>
+                
+                <a href="payment.html" style="display:inline-block; padding:16px 32px; font-weight:700; text-decoration:none; border-radius:10px; background:linear-gradient(180deg, #22c55e, #16a34a); color:#ffffff; box-shadow:0 8px 24px rgba(34, 197, 94, 0.4); transition:all 0.2s ease; font-size:1.15rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 32px rgba(34, 197, 94, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(34, 197, 94, 0.4)';" aria-label="Prepare your IRS response">Prepare My IRS Response Now</a>
             </div>
         </section>
     </main>
