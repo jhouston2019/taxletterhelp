@@ -1,8 +1,9 @@
-import Stripe from "stripe";
+const Stripe = require("stripe");
+const { wrapHandler, trackError } = require('./_error-tracking.js');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function handler(event) {
+const mainHandler = async (event) => {
   try {
     // Debug: Check environment variables
     console.log('SITE_URL:', process.env.SITE_URL);
@@ -51,6 +52,7 @@ export async function handler(event) {
       body: JSON.stringify({ url: session.url })
     };
   } catch (error) {
+    trackError(error, { functionName: 'create-checkout-session' });
     return {
       statusCode: 500,
       headers: {
@@ -63,4 +65,6 @@ export async function handler(event) {
       })
     };
   }
-}
+};
+
+exports.handler = wrapHandler(mainHandler, 'create-checkout-session');

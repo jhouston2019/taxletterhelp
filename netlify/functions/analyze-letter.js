@@ -13,7 +13,9 @@ try {
   console.error("Import error:", importError);
 }
 
-exports.handler = async (event) => {
+const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
+
+const mainHandler = async (event) => {
   console.log('=== ANALYZE LETTER FUNCTION START ===');
   console.log('HTTP Method:', event.httpMethod);
   console.log('Event body type:', typeof event.body);
@@ -254,6 +256,10 @@ exports.handler = async (event) => {
       }),
     };
   } catch (err) {
+    trackError(err, { 
+      functionName: 'analyze-letter',
+      letterTextLength: letterText?.length || 0
+    });
     console.error("Error in analyze-letter.js:", err);
     return {
       statusCode: 500,
@@ -271,3 +277,5 @@ exports.handler = async (event) => {
     };
   }
 };
+
+exports.handler = wrapHandler(mainHandler, 'analyze-letter');

@@ -1,12 +1,10 @@
-import Stripe from "stripe";
-import { buffer } from "micro";
-import { getSupabaseAdmin } from "./_supabase.js";
+const Stripe = require("stripe");
+const { getSupabaseAdmin } = require("./_supabase.js");
+const { wrapHandler, trackError, trackEvent } = require('./_error-tracking.js');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const config = { path: "/.netlify/functions/stripe-webhook" };
-
-export async function handler(event) {
+const mainHandler = async (event) => {
   try {
     const sig = event.headers["stripe-signature"];
     const rawBody = event.isBase64Encoded ? Buffer.from(event.body, "base64") : Buffer.from(event.body || "");
@@ -80,14 +78,23 @@ export async function handler(event) {
         
         if (insertError) {
           console.error('[WEBHOOK] Database insert error:', insertError);
+          trackError(insertError, { functionName: 'stripe-webhook', action: 'insert_payment' });
         } else {
           console.log('[WEBHOOK] Payment record created:', newRecord.id);
+          trackEvent('payment_completed', { 
+            sessionId: session.id,
+            amount: session.amount_total / 100,
+            recordId: newRecord.id
+          });
         }
       }
     }
 
     return { statusCode: 200, body: "ok" };
   } catch (e) {
+    trackError(e, { functionName: 'stripe-webhook' });
     return { statusCode: 500, body: e.message };
   }
-}
+};
+
+exports.handler = wrapHandler(mainHandler, 'stripe-webhook');

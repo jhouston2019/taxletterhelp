@@ -1,8 +1,9 @@
 const OpenAI = require("openai");
 const { getSupabaseAdmin } = require("./_supabase.js");
 const { generateIRSResponse, analyzeIRSLetter, buildConstrainedSystemPrompt, buildConstrainedUserPrompt } = require("./irs-intelligence/index.js");
+const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
 
-exports.handler = async (event) => {
+const mainHandler = async (event) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -190,6 +191,11 @@ Write a response that protects the taxpayer's rights while maintaining professio
       body: JSON.stringify({ letter }),
     };
   } catch (error) {
+    trackError(error, { 
+      functionName: 'generate-response',
+      hasLetterText: !!letterText,
+      hasUserPosition: !!userPosition
+    });
     console.error("Error in generate-response:", error);
     return { 
       statusCode: 500, 
@@ -200,4 +206,6 @@ Write a response that protects the taxpayer's rights while maintaining professio
       body: JSON.stringify({ error: error.message }) 
     };
   }
-}
+};
+
+exports.handler = wrapHandler(mainHandler, 'generate-response');
