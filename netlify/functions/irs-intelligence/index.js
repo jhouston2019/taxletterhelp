@@ -2,7 +2,7 @@
  * IRS RESPONSE INTELLIGENCE SYSTEM - MAIN INTEGRATION
  * 
  * This module integrates all intelligence components to transform
- * Tax Letter Help from generic AI into IRS-specific decision intelligence.
+ * Tax Letter Defense Pro from generic AI into IRS-specific decision intelligence.
  * 
  * WHY THIS TOOL IS SAFER THAN GENERAL AI:
  * 

@@ -1,4 +1,4 @@
-# Tax Letter Help - Google AdSense Setup Guide
+# Tax Letter Defense Pro - Google AdSense Setup Guide
 
 **Version:** 1.0.0  
 **Date:** January 15, 2026  
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This guide walks through setting up Google AdSense for Tax Letter Help's native ad system.
+This guide walks through setting up Google AdSense for Tax Letter Defense Pro's native ad system.
 
 **Current Status:** Ad containers ready, AdSense code integrated, awaiting configuration.
 
@@ -274,7 +274,7 @@ Go to **Sites** → Select `taxletterhelp.pro`
 Create `/ads.txt` in your site root:
 
 ```
-# Tax Letter Help - Ads.txt
+# Tax Letter Defense Pro - Ads.txt
 google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
 ```
 
@@ -486,7 +486,7 @@ const ADS_ENABLED = false; // Disable all ads
 - **Community:** https://support.google.com/adsense/community
 - **Policy Center:** https://support.google.com/adsense/answer/48182
 
-### Tax Letter Help Documentation
+### Tax Letter Defense Pro Documentation
 - `/AD-INTEGRATION-GUIDE.md` - Integration guide
 - `/AD-SYSTEM-README.md` - Quick reference
 - `/AD-DEPLOYMENT-CHECKLIST.md` - Deployment steps

@@ -1,4 +1,4 @@
-# Tax Letter Help - AdSense Configuration Summary
+# Tax Letter Defense Pro - AdSense Configuration Summary
 
 **Date:** January 15, 2026  
 **Status:** ✅ Code Ready - Awaiting AdSense Account Setup

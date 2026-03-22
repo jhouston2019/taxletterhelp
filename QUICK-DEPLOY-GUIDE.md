@@ -1,4 +1,4 @@
-# TaxLetterHelp - Quick Deploy Guide
+# Tax Letter Defense Pro - Quick Deploy Guide
 ## Get Live in 2 Hours
 
 **Target:** Deploy a working site to production  
@@ -12,7 +12,7 @@
 ### Create Project
 1. Go to https://app.supabase.com
 2. Click "New Project"
-3. Name: `taxletterhelp`
+3. Name: `Tax Letter Defense Pro`
 4. Generate strong password (save it!)
 5. Wait for provisioning
 
@@ -64,7 +64,7 @@
 ### Create API Key
 1. Go to API keys
 2. Click "Create new secret key"
-3. Name: `TaxLetterHelp`
+3. Name: `Tax Letter Defense Pro`
 4. Copy key (starts with `sk-proj-`)
 5. **Save immediately** (can't view again)
 

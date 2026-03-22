@@ -1,8 +1,8 @@
-# PRODUCT HARDENING SUMMARY - Tax Letter Help
+# PRODUCT HARDENING SUMMARY - Tax Letter Defense Pro
 
 ## EXECUTIVE SUMMARY
 
-Tax Letter Help has been hardened from a "generic AI tool" into a **procedural, risk-aware IRS response engine**.
+Tax Letter Defense Pro has been hardened from a "generic AI tool" into a **procedural, risk-aware IRS response engine**.
 
 **Objective Achieved**: Product now feels decisive, narrow, authoritative, and impossible to mistake for a chatbot.
 
@@ -430,7 +430,7 @@ Each file now includes:
 
 ## CONCLUSION
 
-Tax Letter Help has been successfully hardened into a **procedural, risk-aware IRS response engine** that:
+Tax Letter Defense Pro has been successfully hardened into a **procedural, risk-aware IRS response engine** that:
 
 1. ✅ Feels decisive and authoritative (not friendly or conversational)
 2. ✅ Provides action-only guidance (not educational content)

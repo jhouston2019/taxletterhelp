@@ -430,7 +430,7 @@ async function generateReport() {
 
 async function main() {
   console.log(`\n${colors.blue}╔═══════════════════════════════════════════════════════╗${colors.reset}`);
-  console.log(`${colors.blue}║   TAXLETTERHELP - SETUP VALIDATION SCRIPT            ║${colors.reset}`);
+  console.log(`${colors.blue}║   Tax Letter Defense Pro - SETUP VALIDATION SCRIPT            ║${colors.reset}`);
   console.log(`${colors.blue}╚═══════════════════════════════════════════════════════╝${colors.reset}\n`);
   
   await validateEnvironmentVariables();

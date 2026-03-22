@@ -1,5 +1,5 @@
 /**
- * Tax Letter Help - Native Ad System with Google AdSense
+ * Tax Letter Defense Pro - Native Ad System with Google AdSense
  * Conversion-safe monetization for non-buyers
  * 
  * RULES:

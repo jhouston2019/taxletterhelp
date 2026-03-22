@@ -194,7 +194,7 @@ https://taxletterhelp.pro/any-page.html?admin_key=YOUR_KEY
 
 ## That's It!
 
-You're ready to test the full Tax Letter Help flow without payment.
+You're ready to test the full Tax Letter Defense Pro flow without payment.
 
 **For detailed documentation, see:**
 - `ADMIN-MODE-GUIDE.md` - Complete guide

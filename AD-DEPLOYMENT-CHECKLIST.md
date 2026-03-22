@@ -1,4 +1,4 @@
-# Tax Letter Help - Ad System Deployment Checklist
+# Tax Letter Defense Pro - Ad System Deployment Checklist
 
 **Version:** 1.0.0  
 **Date:** January 15, 2026  

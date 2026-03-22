@@ -1,4 +1,4 @@
-# TaxLetterHelp - Deployment Ready Checklist
+# Tax Letter Defense Pro - Deployment Ready Checklist
 ## Complete Guide to Launch
 
 **Last Updated:** March 17, 2026  
@@ -8,7 +8,7 @@
 
 ## 🎯 OVERVIEW
 
-This checklist guides you through deploying TaxLetterHelp from local development to production. Follow each step in order.
+This checklist guides you through deploying Tax Letter Defense Pro from local development to production. Follow each step in order.
 
 **Estimated Time:** 4-6 hours  
 **Difficulty:** Intermediate  
@@ -240,7 +240,7 @@ SENDGRID_API_KEY=... (if using)
 
 1. Go to API keys: https://platform.openai.com/api-keys
 2. Click "Create new secret key"
-3. Name: `TaxLetterHelp Production`
+3. Name: `Tax Letter Defense Pro Production`
 4. Copy key → Update `OPENAI_API_KEY` in `.env` and Netlify
 5. **Save key immediately** (can't view again)
 
@@ -252,7 +252,7 @@ SENDGRID_API_KEY=... (if using)
 
 1. Go to https://sentry.io/signup
 2. Sign up (free tier available)
-3. Create organization: `TaxLetterHelp`
+3. Create organization: `Tax Letter Defense Pro`
 
 ### Step 6.2: Create Project
 
@@ -344,7 +344,7 @@ node scripts/validate-setup.js
 3. Add monitor:
    - Type: HTTPS
    - URL: `https://YOUR-DOMAIN/`
-   - Name: `TaxLetterHelp Main`
+   - Name: `Tax Letter Defense Pro Main`
    - Interval: 5 minutes
 4. Add second monitor for upload page
 5. Set up email alerts
@@ -526,7 +526,7 @@ Check that security headers are set in `netlify.toml`:
 
 **🎉 CONGRATULATIONS!**
 
-If all checkboxes are complete, your TaxLetterHelp site is live and ready to help taxpayers!
+If all checkboxes are complete, your Tax Letter Defense Pro site is live and ready to help taxpayers!
 
 **Next Steps:**
 1. Monitor closely for first 48 hours

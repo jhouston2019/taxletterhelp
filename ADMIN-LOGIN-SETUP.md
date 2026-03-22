@@ -217,7 +217,7 @@ ENABLE_ADMIN_MODE=true  # Optional, for production
 
 ### Admin Link Location
 ```
-Footer: © 2025 TaxLetterHelp. Privacy Policy | Terms | Disclaimer | Admin
+Footer: © 2025 Tax Letter Defense Pro. Privacy Policy | Terms | Disclaimer | Admin
                                                                       ^^^^
 ```
 

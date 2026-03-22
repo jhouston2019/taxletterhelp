@@ -24,13 +24,13 @@ export async function handler(event) {
     const msg = {
       to,
       from: process.env.SUPPORT_EMAIL,
-      subject: 'Your IRS Response Letter from TaxLetterHelp',
+      subject: 'Your IRS Response Letter from Tax Letter Defense Pro',
       text: 'Attached is your AI-generated IRS response letter PDF.',
       html: `
         <h2>Your IRS Response Letter is Ready</h2>
-        <p>Thank you for using TaxLetterHelp! Your AI-generated response letter is attached as a PDF.</p>
+        <p>Thank you for using Tax Letter Defense Pro! Your AI-generated response letter is attached as a PDF.</p>
         <p>Please review the letter carefully before sending it to the IRS. Remember to consult with a tax professional for complex matters.</p>
-        <p>Best regards,<br>The TaxLetterHelp Team</p>
+        <p>Best regards,<br>The Tax Letter Defense Pro Team</p>
       `,
       attachments: [{
         content: pdfBuffer.toString('base64'),

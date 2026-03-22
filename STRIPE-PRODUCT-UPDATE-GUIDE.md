@@ -11,7 +11,7 @@ Update Stripe product configuration to align with the new $79 pricing and proced
 ### Navigate to Stripe Dashboard
 1. Go to https://dashboard.stripe.com
 2. Navigate to **Products** → **Product Catalog**
-3. Find the existing "Tax Letter Help" or "IRS Letter Response" product
+3. Find the existing "Tax Letter Defense Pro" or "IRS Letter Response" product
 
 ### Update Product Name
 ```

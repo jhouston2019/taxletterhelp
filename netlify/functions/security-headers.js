@@ -25,6 +25,8 @@ export function validateOrigin(event) {
     'http://localhost:5173',
     'https://taxletterhelp.com',
     'https://www.taxletterhelp.com',
+    'https://taxletterhelp.pro',
+    'https://www.taxletterhelp.pro',
     'https://taxletterhelp.netlify.app'
   ];
   

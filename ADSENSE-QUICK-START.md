@@ -1,4 +1,4 @@
-# Tax Letter Help - AdSense Quick Start
+# Tax Letter Defense Pro - AdSense Quick Start
 
 **Version:** 2.0.0 | **Status:** Ready | **Date:** Jan 15, 2026
 

@@ -1,8 +1,8 @@
-# Tax Letter Help - Ad System Integration Guide
+# Tax Letter Defense Pro - Ad System Integration Guide
 
 ## Overview
 
-This guide explains how to integrate conversion-safe native ad placements into Tax Letter Help pages.
+This guide explains how to integrate conversion-safe native ad placements into Tax Letter Defense Pro pages.
 
 ## Quick Start
 
@@ -75,7 +75,7 @@ Choose placements based on page type and device target.
 
 ```html
 <footer class="footer">
-  <p>© 2025 TaxLetterHelp...</p>
+  <p>© 2025 Tax Letter Defense Pro...</p>
 </footer>
 
 <!-- EXIT GRID AD (DESKTOP ONLY) -->
@@ -108,7 +108,7 @@ Choose placements based on page type and device target.
 
 ```html
 <footer class="footer">
-  <p>© 2025 TaxLetterHelp...</p>
+  <p>© 2025 Tax Letter Defense Pro...</p>
 </footer>
 
 <!-- MOBILE FOOTER STICKY AD -->
@@ -132,7 +132,7 @@ Choose placements based on page type and device target.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Title | TaxLetterHelp</title>
+  <title>Page Title | Tax Letter Defense Pro</title>
   
   <!-- Existing styles -->
   <link rel="stylesheet" href="/seo-shared-styles.css">
@@ -166,7 +166,7 @@ Choose placements based on page type and device target.
   </main>
 
   <footer class="footer">
-    <p>© 2025 TaxLetterHelp...</p>
+    <p>© 2025 Tax Letter Defense Pro...</p>
   </footer>
 
   <!-- EXIT GRID AD (DESKTOP ONLY) -->
@@ -352,7 +352,7 @@ For questions or issues:
 ## Summary
 
 **End State:**
-- Tax Letter Help monetizes non-buyers
+- Tax Letter Defense Pro monetizes non-buyers
 - Preserves trust and conversions
 - Adds stable revenue floor
 - No impact on user experience

@@ -1,4 +1,4 @@
-# TaxLetterHelp.com
+# Tax Letter Defense Pro
 
 AI-powered tax letter analysis and response generation platform.
 
@@ -87,7 +87,7 @@ Deploy to Netlify:
 ## File Structure
 
 ```
-taxletterhelp/
+tax-letter-defense-pro/
 ├── src/
 │   ├── components/
 │   │   ├── Auth.js              # Authentication functions

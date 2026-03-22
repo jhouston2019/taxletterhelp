@@ -1,4 +1,4 @@
-// Test suite for TaxLetterHelp application
+// Test suite for Tax Letter Defense Pro application
 // Run with: node test-suite.js
 
 import fs from 'fs';
@@ -216,7 +216,7 @@ test('Documentation is complete', () => {
 });
 
 // Run all tests
-console.log('🧪 Running TaxLetterHelp Test Suite...\n');
+console.log('🧪 Running Tax Letter Defense Pro Test Suite...\n');
 
 // Add more tests here as needed
 

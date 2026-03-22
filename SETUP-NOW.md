@@ -1,4 +1,4 @@
-# 🚀 TaxLetterHelp - Setup Instructions
+# 🚀 Tax Letter Defense Pro - Setup Instructions
 ## Get Your Site Running RIGHT NOW
 
 **Time Required:** 2 hours  
@@ -47,7 +47,7 @@ ADMIN_KEY=<generate-strong-key>
 **A. Create Supabase Project:**
 1. Go to https://app.supabase.com
 2. Click "New Project"
-3. Name: `taxletterhelp`
+3. Name: `Tax Letter Defense Pro`
 4. Generate password (save it!)
 5. Wait 2-3 minutes
 
@@ -108,7 +108,7 @@ Should return empty result (no error = success)
 **C. Create API Key:**
 1. Go to API keys: https://platform.openai.com/api-keys
 2. Click "Create new secret key"
-3. Name: `TaxLetterHelp Production`
+3. Name: `Tax Letter Defense Pro Production`
 4. Copy key → Update `OPENAI_API_KEY` in `.env`
 5. **SAVE IT NOW** (you can't view it again)
 

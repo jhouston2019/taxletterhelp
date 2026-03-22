@@ -1,4 +1,4 @@
-# Tax Letter Help — Admin Mode Guide
+# Tax Letter Defense Pro — Admin Mode Guide
 ## QA-Only Access Infrastructure
 
 **Purpose**: Secure operator testing access without affecting user experience  
@@ -304,7 +304,7 @@ All criteria met ✅:
 
 ## CONCLUSION
 
-Admin mode is a **secure, invisible, session-only** QA access mechanism that allows operators to test the full Tax Letter Help flow without payment.
+Admin mode is a **secure, invisible, session-only** QA access mechanism that allows operators to test the full Tax Letter Defense Pro flow without payment.
 
 **Key Benefits:**
 - Zero impact on user experience

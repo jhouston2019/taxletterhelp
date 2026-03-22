@@ -1,7 +1,7 @@
 {
   "name": "taxletterhelp-functions",
   "version": "1.0.0",
-  "description": "Netlify functions for Tax Letter Help AI",
+  "description": "Netlify functions for Tax Letter Defense Pro",
   "type": "commonjs",
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This system transforms Tax Letter Help from a generic AI tool into an **IRS-specific decision intelligence platform** with embedded procedural logic, risk controls, and notice-specific expertise.
+This system transforms Tax Letter Defense Pro from a generic AI tool into an **IRS-specific decision intelligence platform** with embedded procedural logic, risk controls, and notice-specific expertise.
 
 ## Why This Tool is Safer Than General AI
 

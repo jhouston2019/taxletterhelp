@@ -265,9 +265,9 @@ git push origin main
 
 ### Email to Existing Customers (Optional)
 ```
-Subject: TaxLetterHelp System Upgrade
+Subject: Tax Letter Defense Pro System Upgrade
 
-We've upgraded TaxLetterHelp from a generic AI tool to a procedural 
+We've upgraded Tax Letter Defense Pro from a generic AI tool to a procedural 
 IRS response engine with:
 
 - Deterministic notice classification

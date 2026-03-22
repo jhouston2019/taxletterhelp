@@ -1,4 +1,4 @@
-# TaxLetterHelp - Launch Action Plan
+# Tax Letter Defense Pro - Launch Action Plan
 ## Prioritized Task List to Production
 
 **Goal:** Fix critical issues and launch within 2-3 weeks  
@@ -79,7 +79,7 @@ Create `thank-you.html`:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful | TaxLetterHelp</title>
+    <title>Payment Successful | Tax Letter Defense Pro</title>
 </head>
 <body>
     <h1>Payment Successful!</h1>
@@ -306,7 +306,7 @@ netlify deploy --prod
 
 **Action:**
 1. Create Sentry account: https://sentry.io
-2. Create project: "taxletterhelp"
+2. Create project: "Tax Letter Defense Pro"
 3. Install Sentry:
 ```bash
 npm install @sentry/node @sentry/browser

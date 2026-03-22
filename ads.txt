@@ -1,4 +1,4 @@
-# Tax Letter Help - Authorized Digital Sellers (ads.txt)
+# Tax Letter Defense Pro - Authorized Digital Sellers (ads.txt)
 # Updated: January 15, 2026
 #
 # This file declares authorized sellers of advertising inventory on this site.

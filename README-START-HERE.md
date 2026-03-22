@@ -1,4 +1,4 @@
-# 🚀 TaxLetterHelp - MASTER GUIDE
+# 🚀 Tax Letter Defense Pro - MASTER GUIDE
 ## Everything You Need to Deploy Your Site
 
 **Last Updated:** March 17, 2026  
@@ -147,7 +147,7 @@ netlify logs:function stripe-webhook
 ## 📁 PROJECT STRUCTURE
 
 ```
-taxletterhelp/
+tax-letter-defense-pro/
 ├── 📖 START-HERE.md                    ← YOU ARE HERE
 ├── 📖 SETUP-NOW.md                     ← 2-hour deployment guide
 ├── 📖 DEPLOYMENT-READY-CHECKLIST.md   ← Complete deployment
