@@ -35,6 +35,50 @@
     "description": "Notice-specific IRS response preparation system with procedural rules, deadline awareness, and risk controls."
   }
   </script>
+  <style>
+    .platform-preview-section {
+      background: #0f172a;
+    }
+    .platform-preview-section .screenshot-container {
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+      overflow: hidden;
+      line-height: 0;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    .platform-preview-section .screenshot-container img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      vertical-align: top;
+    }
+    .platform-preview-section .platform-callout-title {
+      color: #ffffff;
+    }
+    .platform-preview-section .platform-callout-body {
+      color: rgba(255, 255, 255, 0.65);
+    }
+    @media (max-width: 768px) {
+      .platform-preview-section .screenshot-container,
+      .platform-preview-section .dashboard-visual-wrapper {
+        max-width: 100%;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+      }
+      .platform-preview-section .platform-callouts {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+      }
+    }
+  </style>
 </head>
 
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -505,8 +549,20 @@
             <div style="width:min(1120px, 92%); margin-inline:auto;">
                 <h2 style="text-align:center; font-size:2.5rem; margin-bottom:1rem; color:#2d3748; font-weight:700;">How It Works</h2>
                 <p style="text-align:center; font-size:1.15rem; margin-bottom:1rem; color:#1e40af; font-weight:600;">See exactly how your response will be structured before you submit it.</p>
-                <p style="text-align:center; font-size:1.05rem; margin-bottom:3rem; color:#64748b;">Every situation is different — the system adapts your response based on your specific notice and details.</p>
-                
+                <p style="text-align:center; font-size:1.05rem; margin-bottom:2rem; color:#64748b;">Every situation is different — the system adapts your response based on your specific notice and details.</p>
+            </div>
+        <section class="platform-preview-section" aria-label="Platform preview" style="padding:72px 0; color:#ffffff;">
+            <div class="dashboard-visual-wrapper" style="width:min(1120px, 92%); margin-inline:auto;">
+                <div class="screenshot-container">
+                    <img src="./images/og-image.jpg" alt="Tax Letter Defense Pro platform preview" width="1200" height="630" loading="lazy" decoding="async" />
+                </div>
+            </div>
+            <div class="platform-callouts" style="width:min(1120px, 92%); margin-inline:auto; margin-top:2rem; text-align:center;">
+                <h3 class="platform-callout-title" style="margin:0 0 0.75rem; font-size:1.5rem; font-weight:700;">Inside your structured IRS response workflow</h3>
+                <p class="platform-callout-body" style="margin:0; font-size:1.1rem; line-height:1.6;">Notice classification, deadlines, and draft language are organized in one place—aligned with how the IRS reviews submissions.</p>
+            </div>
+        </section>
+            <div style="width:min(1120px, 92%); margin-inline:auto;">
                 <div style="display:grid; gap:18px; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); margin-bottom:32px;">
           <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); text-align:center; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.06)';"><div style="font-size:22px; width:44px; height:44px; display:grid; place-items:center; border-radius:10px; background:#eef2ff; color:#1e40af; margin-bottom:8px; margin:0 auto 1.5rem;">1</div><h3 style="color:#2d3748; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">Pay & Upload Your Letter</h3><p style="color:#4a5568; opacity:0.8; line-height:1.6;">Secure one-time payment of $19, then upload your IRS letter. We support PDFs and images.</p></div>
           <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 4px 14px rgba(15, 23, 42, 0.06); text-align:center; transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15, 23, 42, 0.06)';"><div style="font-size:22px; width:44px; height:44px; display:grid; place-items:center; border-radius:10px; background:#eef2ff; color:#1e40af; margin-bottom:8px; margin:0 auto 1.5rem;">2</div><h3 style="color:#2d3748; margin-bottom:1rem; font-size:1.4rem; font-weight:700;">System Classifies Notice</h3><p style="color:#4a5568; opacity:0.8; line-height:1.6;">Notice type is identified and procedural rules are applied before any response is prepared.</p></div>
