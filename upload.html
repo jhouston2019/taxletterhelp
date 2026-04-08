@@ -4,6 +4,12 @@
     <!-- UPLOAD_HTML_VERSION: CDN-FIXED-v1 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtobXlqb3p1bmd6Z2Z4enZtc2NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODM5MjMsImV4cCI6MjA3NzE1OTkyM30.f19JppZePBVhFosgo1CuiCTjRTrdNNQoKKWh1cO7frU
+
+";
+    </script>
     <title>Upload Your IRS Letter – Get Instant AI Analysis | Tax Letter Defense Pro</title>
     <meta name="description" content="Upload your IRS or state tax letter (PDF, image, or text) and get notice-specific response preparation with procedural rules.">
     <link rel="canonical" href="https://taxletterhelp.com/upload.html">
@@ -131,8 +137,8 @@
     </script>
     <script type="module">
         console.log('upload.html loaded: CDN-FIXED-v1');
-        import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js';
-        import { getCurrentUser } from './src/components/Auth.js';
+        import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js?v=2';
+        import { getCurrentUser } from './src/components/Auth.js?v=2';
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
         
         let currentUser = null;

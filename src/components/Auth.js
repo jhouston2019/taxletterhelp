@@ -1,6 +1,6 @@
 const { createClient } = globalThis.supabase;
 
-const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 export async function signIn(email, password) {
   return supabase.auth.signInWithPassword({ email, password });

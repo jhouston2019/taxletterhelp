@@ -1,6 +1,6 @@
 const { createClient } = globalThis.supabase;
 
-const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 export async function uploadFile(file, userId) {
   const { data, error } = await supabase.storage.from('letters').upload(`${userId}/${file.name}`, file);
