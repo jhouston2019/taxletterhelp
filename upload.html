@@ -24,6 +24,11 @@
             text-align: center;
             cursor: pointer;
             transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            /* Let the zone (not inner <p> nodes) receive drag/drop so events stay reliable in Chrome/Edge/Safari */
+            user-select: none;
+        }
+        .file-drop-zone > * {
+            pointer-events: none;
         }
         .file-drop-zone:hover {
             border-color: #94a3b8;
@@ -169,17 +174,47 @@
                 return;
             }
             setDropError('');
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInput.files = dt.files;
+            try {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+            } catch (err) {
+                console.error('Could not assign dropped file to input:', err);
+                setDropError('Your browser blocked assigning the file. Please use Choose File instead.');
+                return;
+            }
             updateSelectedFileDisplay(file);
         }
 
+        /** Some apps (e.g. Outlook) expose files via items, not files, until drop. */
+        function getFileFromDataTransfer(dataTransfer) {
+            if (!dataTransfer) return null;
+            if (dataTransfer.files && dataTransfer.files.length > 0) {
+                return dataTransfer.files[0];
+            }
+            if (dataTransfer.items && dataTransfer.items.length > 0) {
+                for (let i = 0; i < dataTransfer.items.length; i++) {
+                    const item = dataTransfer.items[i];
+                    if (item.kind === 'file') {
+                        const f = item.getAsFile();
+                        if (f) return f;
+                    }
+                }
+            }
+            return null;
+        }
+
+        let fileDropZoneInitialized = false;
+
         function initFileDropZone() {
+            if (fileDropZoneInitialized) return;
             const fileInput = document.getElementById('file');
             const dropZone = document.getElementById('fileDropZone');
             const label = document.getElementById('fileDropLabel');
+            const uploadFormEl = document.getElementById('uploadForm');
             if (!fileInput || !dropZone || !label) return;
+
+            fileDropZoneInitialized = true;
 
             dropZone.addEventListener('click', () => fileInput.click());
 
@@ -192,15 +227,15 @@
 
             dropZone.addEventListener('dragenter', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
                 dropZone.classList.add('file-drop-zone--dragover');
                 label.textContent = DROP_LABEL_DRAGOVER;
             });
 
             dropZone.addEventListener('dragleave', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                if (!dropZone.contains(e.relatedTarget)) {
+                const related = e.relatedTarget;
+                if (!related || !dropZone.contains(related)) {
                     dropZone.classList.remove('file-drop-zone--dragover');
                     label.textContent = DROP_LABEL_DEFAULT;
                 }
@@ -208,21 +243,29 @@
 
             dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                e.dataTransfer.dropEffect = 'copy';
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
                 dropZone.classList.add('file-drop-zone--dragover');
                 label.textContent = DROP_LABEL_DRAGOVER;
             });
 
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
                 dropZone.classList.remove('file-drop-zone--dragover');
                 label.textContent = DROP_LABEL_DEFAULT;
-                const file = e.dataTransfer.files && e.dataTransfer.files[0];
-                if (!file) return;
+                const file = getFileFromDataTransfer(e.dataTransfer);
+                if (!file) {
+                    setDropError('No file received. Try again or use Choose File.');
+                    return;
+                }
                 applySelectedFile(file);
             });
+
+            if (uploadFormEl) {
+                uploadFormEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+                });
+            }
 
             fileInput.addEventListener('change', () => {
                 const f = fileInput.files[0];
@@ -241,7 +284,11 @@
             });
         }
 
-        initFileDropZone();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFileDropZone);
+        } else {
+            initFileDropZone();
+        }
         
         // Check payment status and user authentication
         document.addEventListener('DOMContentLoaded', async () => {
