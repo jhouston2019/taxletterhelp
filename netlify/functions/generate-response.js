@@ -1,7 +1,17 @@
 const OpenAI = require("openai");
 const { getSupabaseAdmin } = require("./_supabase.js");
-const { generateIRSResponse, analyzeIRSLetter, buildConstrainedSystemPrompt, buildConstrainedUserPrompt } = require("./irs-intelligence/index.js");
+const { classifyIRSNotice, extractFinancialInfo } = require("./irs-intelligence/classification-engine.js");
+const {
+  generateIRSResponse,
+  analyzeIRSLetter,
+  TAX_DEFENSE_SYSTEM_PROMPT_BASE,
+  formatNoticeFactsForPrompt
+} = require("./irs-intelligence/index.js");
 const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
+
+const LETTER_GENERATION_MODEL = "gpt-4o";
+const LETTER_GENERATION_MAX_TOKENS = 4000;
+const LETTER_GENERATION_TEMPERATURE = 0.3;
 
 const mainHandler = async (event) => {
   // Handle CORS preflight
@@ -26,7 +36,8 @@ const mainHandler = async (event) => {
       approach = 'cooperative', 
       style = 'detailed',
       userPosition = null,
-      documents = []
+      documents = [],
+      userData = null
     } = JSON.parse(event.body || "{}");
     
     if (!summary && !letterText) {
@@ -52,9 +63,9 @@ const mainHandler = async (event) => {
       // Step 2: Generate constrained AI response
       const aiGenerateFunction = async (systemPrompt, userPrompt) => {
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          temperature: 0.7, // Lower temperature for more consistent, factual output
-          top_p: 0.9,
+          model: LETTER_GENERATION_MODEL,
+          temperature: LETTER_GENERATION_TEMPERATURE,
+          max_tokens: LETTER_GENERATION_MAX_TOKENS,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt }
@@ -67,7 +78,8 @@ const mainHandler = async (event) => {
       const responseResult = await generateIRSResponse(
         analysisResult,
         userPosition,
-        aiGenerateFunction
+        aiGenerateFunction,
+        letterText
       );
       
       // Check for errors or warnings
@@ -134,39 +146,59 @@ const mainHandler = async (event) => {
       };
     }
     
-    // Fallback: Use legacy system with enhanced prompting (if no letter text provided)
+    // Fallback: legacy path (e.g. upload flow without structured userPosition) — full sections 1–6 in one response
     console.log('Using legacy response generation with enhanced prompting');
-    
+
+    const legacySystemPrompt = `${TAX_DEFENSE_SYSTEM_PROMPT_BASE}
+
+OUTPUT SCOPE FOR THIS REQUEST (LEGACY PATH):
+Produce the complete deliverable in one response using these exact section headings, in order:
+1. Notice Summary
+2. Issue Breakdown
+3. Risk Assessment
+4. Defense Strategy
+5. Response Letter
+6. Action Checklist
+
+Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline — with minimum 5 full paragraphs and placeholders only where taxpayer-specific facts are unknown.
+
+STYLE PREFERENCES (apply within the rules above):
+- Tone: ${tone}
+- Approach: ${approach}
+- Style: ${style}`;
+
+    let legacyUserContent = '';
+    if (letterText) {
+      const legacyClassification = classifyIRSNotice(letterText);
+      const legacyFinancial = extractFinancialInfo(letterText);
+      legacyUserContent += formatNoticeFactsForPrompt(legacyClassification, legacyFinancial, letterText);
+    } else if (summary) {
+      const legacyClassification = classifyIRSNotice(summary);
+      const legacyFinancial = extractFinancialInfo(summary);
+      legacyUserContent += formatNoticeFactsForPrompt(legacyClassification, legacyFinancial, summary);
+    }
+    legacyUserContent += `Follow the system instructions. Anchor every section to the notice and amounts below.\n\n`;
+    if (letterText) {
+      legacyUserContent += `FULL NOTICE TEXT:\n${letterText}\n\n`;
+    } else if (summary) {
+      legacyUserContent += `NOTICE / ANALYSIS TEXT (primary context):\n${summary}\n\n`;
+    }
+    if (summary) {
+      legacyUserContent += `SUPPLEMENTAL ANALYSIS (if any):\n${summary}\n\n`;
+    }
+    if (userData) {
+      const ud = typeof userData === 'string' ? userData : JSON.stringify(userData, null, 2);
+      legacyUserContent += `TAXPAYER-PROVIDED INFORMATION:\n${ud}\n\n`;
+    }
+    legacyUserContent += `Generate the full structured output as specified in the system message.`;
+
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.7,
-      top_p: 0.9,
+      model: LETTER_GENERATION_MODEL,
+      temperature: LETTER_GENERATION_TEMPERATURE,
+      max_tokens: LETTER_GENERATION_MAX_TOKENS,
       messages: [
-        { 
-          role: "system", 
-          content: `You are a senior IRS correspondence specialist with 20+ years of experience.
-
-CRITICAL REQUIREMENTS:
-1. Use formal business letter format
-2. Reference specific IRS notice number and date
-3. State position clearly and factually
-4. Avoid admissions of fault or negligence
-5. Do NOT volunteer information beyond the notice scope
-6. Do NOT use phrases like "I forgot", "I didn't know", "I wasn't aware"
-7. Focus on facts, not emotions
-8. Be specific about requested actions
-9. Include proper closing and signature line
-
-TONE: ${tone} - Professional and appropriate for IRS correspondence
-APPROACH: ${approach} - Balanced and strategic
-STYLE: ${style} - Clear and well-organized
-
-Write a response that protects the taxpayer's rights while maintaining professional standards.` 
-        },
-        { 
-          role: "user", 
-          content: `Based on this IRS letter analysis, write a professional response letter:\n\n${summary}\n\nEnsure the response addresses all issues raised, provides clear explanations, and follows proper IRS correspondence protocols.` 
-        }
+        { role: "system", content: legacySystemPrompt },
+        { role: "user", content: legacyUserContent }
       ],
     });
 

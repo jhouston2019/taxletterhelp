@@ -11,6 +11,51 @@
     <meta property="og:image" content="https://taxletterhelp.com/images/upload-og.jpg">
     <meta property="og:url" content="https://taxletterhelp.com/upload.html">
     <meta property="og:type" content="article">
+    <style>
+        .file-drop-zone {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 140px;
+            padding: 1.25rem 1rem;
+            margin-bottom: 1rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .file-drop-zone:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+        .file-drop-zone.file-drop-zone--dragover {
+            border-color: #334155;
+            border-style: solid;
+            background: #e2e8f0;
+            box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.15);
+        }
+        .file-drop-zone p {
+            margin: 0.35rem 0;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+        .file-drop-zone .file-drop-zone__title {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+        #fileNameDisplay {
+            font-weight: 600;
+            color: #334155;
+            word-break: break-all;
+        }
+        #fileDropError {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
     <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
@@ -29,6 +74,13 @@
             <form id="uploadForm" enctype="multipart/form-data">
                 <div style="margin-bottom:1.5rem;">
                     <label for="file" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Select File</label>
+                    <p id="fileDropError" style="display:none; color:#b91c1c;"></p>
+                    <div id="fileDropZone" class="file-drop-zone" role="button" tabindex="0" aria-label="Drop zone for letter file">
+                        <p id="fileDropLabel" class="file-drop-zone__title">Drag &amp; drop your letter here</p>
+                        <p>PDF, JPG, or PNG — max 10MB</p>
+                        <p id="fileNameDisplay" style="display:none;"></p>
+                    </div>
+                    <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:#64748b; text-align:center;">or</p>
                     <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400;">
                     <small style="color:#64748b; font-size:0.9rem;">Supported formats: PDF, JPG, PNG (Max 10MB)</small>
                 </div>
@@ -62,6 +114,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script type="module">
         import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js';
         import { getCurrentUser } from './src/components/Auth.js';
@@ -69,6 +122,126 @@
         
         let currentUser = null;
         let letterText = '';
+
+        const DROP_LABEL_DEFAULT = 'Drag & drop your letter here';
+        const DROP_LABEL_DRAGOVER = 'Release to add your letter';
+
+        function fileIsAllowed(file) {
+            if (!file || !file.name) return false;
+            const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : '';
+            const allowedExt = ['.pdf', '.jpg', '.jpeg', '.png'];
+            if (!allowedExt.includes(ext)) return false;
+            const type = (file.type || '').toLowerCase();
+            if (!type) return true;
+            return type === 'application/pdf' || type === 'image/jpeg' || type === 'image/png';
+        }
+
+        function setDropError(message) {
+            const el = document.getElementById('fileDropError');
+            if (!el) return;
+            if (message) {
+                el.textContent = message;
+                el.style.display = 'block';
+            } else {
+                el.textContent = '';
+                el.style.display = 'none';
+            }
+        }
+
+        function updateSelectedFileDisplay(file) {
+            const el = document.getElementById('fileNameDisplay');
+            if (!el) return;
+            if (file && file.name) {
+                el.style.display = 'block';
+                el.textContent = 'Selected: ' + file.name;
+            } else {
+                el.style.display = 'none';
+                el.textContent = '';
+            }
+        }
+
+        function applySelectedFile(file) {
+            const fileInput = document.getElementById('file');
+            if (!fileInput) return;
+            if (!fileIsAllowed(file)) {
+                setDropError('Only PDF, JPG, and PNG files are supported.');
+                updateSelectedFileDisplay(null);
+                return;
+            }
+            setDropError('');
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            updateSelectedFileDisplay(file);
+        }
+
+        function initFileDropZone() {
+            const fileInput = document.getElementById('file');
+            const dropZone = document.getElementById('fileDropZone');
+            const label = document.getElementById('fileDropLabel');
+            if (!fileInput || !dropZone || !label) return;
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+
+            dropZone.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('file-drop-zone--dragover');
+                label.textContent = DROP_LABEL_DRAGOVER;
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!dropZone.contains(e.relatedTarget)) {
+                    dropZone.classList.remove('file-drop-zone--dragover');
+                    label.textContent = DROP_LABEL_DEFAULT;
+                }
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'copy';
+                dropZone.classList.add('file-drop-zone--dragover');
+                label.textContent = DROP_LABEL_DRAGOVER;
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('file-drop-zone--dragover');
+                label.textContent = DROP_LABEL_DEFAULT;
+                const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                if (!file) return;
+                applySelectedFile(file);
+            });
+
+            fileInput.addEventListener('change', () => {
+                const f = fileInput.files[0];
+                setDropError('');
+                if (!f) {
+                    updateSelectedFileDisplay(null);
+                    return;
+                }
+                if (!fileIsAllowed(f)) {
+                    setDropError('Only PDF, JPG, and PNG files are supported.');
+                    fileInput.value = '';
+                    updateSelectedFileDisplay(null);
+                    return;
+                }
+                updateSelectedFileDisplay(f);
+            });
+        }
+
+        initFileDropZone();
         
         // Check payment status and user authentication
         document.addEventListener('DOMContentLoaded', async () => {
