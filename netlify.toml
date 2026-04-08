@@ -5,6 +5,14 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Netlify serves existing static files (e.g. upload.html) before SPA fallbacks.
+# upload.html includes the Supabase CDN script before <script type="module">; keep that order.
+
+[[redirects]]
+  from = "/upload"
+  to = "/upload.html"
+  status = 301
+
 # Ensure sitemap and robots are directly accessible
 [[redirects]]
   from = "/robots.txt"
