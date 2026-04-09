@@ -130,7 +130,7 @@
                     <label for="userData" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Your Information (Optional)</label>
                     <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400; min-height:100px; resize:vertical;"></textarea>
                 </div>
-                <button id="generateResponse" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">Generate Response Letter</button>
+                <button type="button" id="generateResponse" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">Generate Response Letter</button>
                 
                 <div id="responseResults" style="margin-top: 2rem; display: none;">
                     <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Generated Response</h3>
@@ -358,6 +358,46 @@
                 alert('Error: Some required page elements are missing. Please refresh the page.');
                 return;
             }
+
+            const generateBtn = document.getElementById('generateResponse');
+            if (!generateBtn) {
+                console.error('[upload] generateResponse button not found (getElementById returned null)');
+            } else {
+                generateBtn.addEventListener('click', async () => {
+                    console.log('Generate button clicked');
+                    const userData = document.getElementById('userData').value;
+
+                    try {
+                        showStatus('Generating response letter...');
+
+                        const response = await fetch('/.netlify/functions/generate-response', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                letterText: letterText,
+                                userData: userData
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.responseLetter) {
+                            const responseElement = document.getElementById('responseLetter');
+                            if (responseElement) {
+                                responseElement.textContent = data.responseLetter;
+                                document.getElementById('responseResults').style.display = 'block';
+                                hideStatus();
+                            } else {
+                                showStatus('Error: Could not find response letter element');
+                            }
+                        } else {
+                            showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        showStatus('Response generation failed: ' + error.message);
+                    }
+                });
+            }
         });
         
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -503,41 +543,6 @@
                 showStatus('Analysis failed: ' + error.message);
             }
         }
-        
-        document.getElementById('generateResponse').addEventListener('click', async () => {
-            const userData = document.getElementById('userData').value;
-            
-            try {
-                showStatus('Generating response letter...');
-                
-                const response = await fetch('/.netlify/functions/generate-response', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        letterText: letterText,
-                        userData: userData 
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.responseLetter) {
-                    const responseElement = document.getElementById('responseLetter');
-                    if (responseElement) {
-                        responseElement.textContent = data.responseLetter;
-                        document.getElementById('responseResults').style.display = 'block';
-                        hideStatus();
-                    } else {
-                        showStatus('Error: Could not find response letter element');
-                    }
-                } else {
-                    showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
-                }
-                
-            } catch (error) {
-                showStatus('Response generation failed: ' + error.message);
-            }
-        });
         
         document.getElementById('downloadPDF').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
