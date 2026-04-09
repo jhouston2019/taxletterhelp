@@ -27,7 +27,8 @@ exports.handler = async (event) => {
     }
 
     const buffer = Buffer.from(fileBase64, "base64");
-    const objectPath = `${userId}/${fileName}`;
+    const uniqueFileName = `${Date.now()}-${fileName}`;
+    const objectPath = `${userId}/${uniqueFileName}`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("letters")
@@ -41,7 +42,7 @@ exports.handler = async (event) => {
       .insert([
         {
           user_id: userId,
-          file_name: fileName,
+          file_name: uniqueFileName,
           file_path: uploadData.path,
         },
       ])
