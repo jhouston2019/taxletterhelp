@@ -160,7 +160,7 @@ const IRS_PLAYBOOKS = {
     ],
     
     prohibitedLanguage: [
-      "I need more time" (without specific plan),
+      "I need more time (without specific plan)",
       "I'm working on it",
       "I'll get to it soon"
     ],

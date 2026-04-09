@@ -1,9 +1,9 @@
 // Import dependencies with error handling
-let OpenAI, fetch, pdfParse, mammoth, Tesseract, getSupabaseAdmin;
+// Netlify uses Node 18+ (see netlify.toml NODE_VERSION) — native global fetch, no node-fetch require.
+let OpenAI, pdfParse, mammoth, Tesseract, getSupabaseAdmin;
 
 try {
   OpenAI = require("openai");
-  fetch = require("node-fetch");
   pdfParse = require("pdf-parse");
   mammoth = require("mammoth");
   Tesseract = require("tesseract.js");
@@ -90,7 +90,7 @@ const mainHandler = async (event) => {
             }
           } else {
             // Handle regular URL
-            const fileResponse = await fetch(fileUrl);
+            const fileResponse = await globalThis.fetch(fileUrl);
             if (!fileResponse.ok) {
               throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
             }
