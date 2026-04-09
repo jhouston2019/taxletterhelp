@@ -398,10 +398,33 @@
                     };
                     reader.readAsDataURL(file);
                     return; // Exit early for images
-                } else if (file.type === 'application/pdf') {
-                    // For PDFs, we'll use a placeholder for now
-                    // In production, you'd use a PDF parsing library
-                    letterText = `PDF content for ${file.name}. This is a placeholder for PDF text extraction.`;
+                } else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const base64Data = e.target.result.split(',')[1];
+                        try {
+                            const ocrResponse = await fetch('/.netlify/functions/extract-text', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    imageData: base64Data,
+                                    mimeType: 'application/pdf'
+                                })
+                            });
+                            const ocrData = await ocrResponse.json();
+                            if (ocrData.text) {
+                                letterText = ocrData.text;
+                                showStatus('Text extracted! Analyzing...');
+                                await analyzeLetter();
+                            } else {
+                                showStatus('Failed to extract text: ' + (ocrData.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            showStatus('Extraction failed: ' + error.message);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    return;
                 } else {
                     letterText = `Document content for ${file.name}. This is a placeholder for document text extraction.`;
                 }
