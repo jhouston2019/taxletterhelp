@@ -222,7 +222,7 @@ const mainHandler = async (event) => {
             price_id: priceId,
             letter_text: letterText,
             analysis: structuredAnalysis,
-            summary: structuredAnalysis.summary || aiResponse,
+            summary: structuredAnalysis.summary || "",
             status: "analyzed"
           })
           .select("id, created_at, status")
@@ -252,27 +252,25 @@ const mainHandler = async (event) => {
         message: "Analysis complete.",
         analysis: structuredAnalysis,
         recordId: recordId,
-        summary: structuredAnalysis.summary || aiResponse
+        summary: structuredAnalysis.summary || ""
       }),
     };
   } catch (err) {
-    trackError(err, { 
+    console.error('[analyze-letter] handler error:', err && err.message, err && err.stack);
+    trackError(err, {
       functionName: 'analyze-letter',
-      letterTextLength: letterText?.length || 0
     });
-    console.error("Error in analyze-letter.js:", err);
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        details: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      body: JSON.stringify({
+        summary: 'Analysis temporarily unavailable - server error',
+        explanation: 'The analyze function encountered an error. Check Netlify logs.',
       }),
     };
   }
