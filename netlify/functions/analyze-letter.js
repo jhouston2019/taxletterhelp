@@ -1,10 +1,10 @@
 // Import dependencies with error handling
 // Netlify uses Node 18+ (see netlify.toml NODE_VERSION) — native global fetch, no node-fetch require.
-let OpenAI, pdfParse, mammoth, Tesseract, getSupabaseAdmin;
+// PDF: no pdf-parse (DOMMatrix / browser APIs break in Node); use `text` from request body for PDFs.
+let OpenAI, mammoth, Tesseract, getSupabaseAdmin;
 
 try {
   OpenAI = require("openai");
-  pdfParse = require("pdf-parse");
   mammoth = require("mammoth");
   Tesseract = require("tesseract.js");
   const supabaseModule = require("./_supabase.js");
@@ -13,7 +13,7 @@ try {
   console.error("Import error:", importError);
 }
 
-const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
+const { wrapHandler, trackError } = require('./_error-tracking.js');
 
 const mainHandler = async (event) => {
   console.log('=== ANALYZE LETTER FUNCTION START ===');
@@ -65,42 +65,36 @@ const mainHandler = async (event) => {
       try {
         console.log('Processing file URL:', fileUrl);
         
-        if (!pdfParse || !mammoth) {
-          console.log('File processing dependencies not available, skipping file processing');
-          console.log('pdfParse available:', !!pdfParse);
-          console.log('mammoth available:', !!mammoth);
-          letterText += "\n\n[File uploaded but processing not available - please paste text manually]";
-        } else {
-          console.log('File processing dependencies available');
-          // Check if it's a data URL (base64 encoded file)
-          if (fileUrl.startsWith('data:')) {
-            const base64Data = fileUrl.split(',')[1];
-            const buffer = Buffer.from(base64Data, 'base64');
-            
-            if (fileUrl.includes('application/pdf')) {
-              console.log('Processing PDF file, buffer size:', buffer.length);
-              const parsed = await pdfParse(buffer);
-              console.log('PDF parsed successfully, text length:', parsed.text.length);
-              letterText += "\n\n" + parsed.text;
-              console.log('PDF text extracted, length:', parsed.text.length);
-            } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
+        if (fileUrl.startsWith('data:')) {
+          const base64Data = fileUrl.split(',')[1];
+          const buffer = Buffer.from(base64Data, 'base64');
+          
+          if (fileUrl.includes('application/pdf')) {
+            console.log('PDF data URL: skipping server-side PDF parse (no pdf-parse in Node); using text from request body only.');
+          } else if (fileUrl.includes('application/vnd.openxmlformats') || fileUrl.includes('application/msword')) {
+            if (!mammoth) {
+              console.log('mammoth not available, skipping DOC/DOCX processing');
+              letterText += "\n\n[Word document uploaded but processing not available - please paste text manually]";
+            } else {
               const { value } = await mammoth.extractRawText({ buffer: buffer });
               letterText += "\n\n" + value;
               console.log('DOCX text extracted, length:', value.length);
             }
-          } else {
-            // Handle regular URL
-            const fileResponse = await globalThis.fetch(fileUrl);
-            if (!fileResponse.ok) {
-              throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
-            }
-            const fileBuffer = await fileResponse.arrayBuffer();
-            const uint8 = new Uint8Array(fileBuffer);
+          }
+        } else {
+          const fileResponse = await globalThis.fetch(fileUrl);
+          if (!fileResponse.ok) {
+            throw new Error(`Failed to fetch file: ${fileResponse.statusText}`);
+          }
+          const fileBuffer = await fileResponse.arrayBuffer();
+          const uint8 = new Uint8Array(fileBuffer);
 
-            if (fileUrl.endsWith(".pdf")) {
-              const parsed = await pdfParse(uint8);
-              letterText += "\n\n" + parsed.text;
-            } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
+          if (fileUrl.endsWith(".pdf")) {
+            console.log('PDF URL: skipping server-side PDF parse (no pdf-parse in Node); using text from request body only.');
+          } else if (fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx")) {
+            if (!mammoth) {
+              letterText += "\n\n[Word document uploaded but processing not available - please paste text manually]";
+            } else {
               const { value } = await mammoth.extractRawText({ buffer: Buffer.from(uint8) });
               letterText += "\n\n" + value;
             }
@@ -108,7 +102,7 @@ const mainHandler = async (event) => {
         }
       } catch (fileError) {
         console.error("File processing error:", fileError);
-        letterText += "\n\n[File processing error - please paste text manually]";
+        letterText += "\n\n[File processing error - using text from request body if any]";
       }
     }
 
@@ -121,13 +115,11 @@ const mainHandler = async (event) => {
           console.log('Image processing dependencies not available, skipping image processing');
           letterText += "\n\n[Image uploaded but OCR processing not available - please paste text manually]";
         } else {
-          // Check if it's a data URL (base64 encoded image)
           if (imageUrl.startsWith('data:')) {
             const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
             letterText += "\n\n" + extractedText;
             console.log('Image text extracted, length:', extractedText.length);
           } else {
-            // Handle regular URL
             const { data: { text: extractedText } } = await Tesseract.recognize(imageUrl, "eng");
             letterText += "\n\n" + extractedText;
           }
@@ -148,41 +140,37 @@ const mainHandler = async (event) => {
     // --- STEP 3: Use IRS Response Intelligence System ---
     console.log('Starting IRS Intelligence System analysis...');
     
-    // Import the intelligence system
     const { analyzeIRSLetter } = require('./irs-intelligence/index.js');
     
+    let structuredAnalysis;
     try {
-      // Run complete intelligence analysis
       const intelligenceResult = await analyzeIRSLetter(letterText, {
-        documents: [], // No documents in initial analysis
+        documents: [],
         userContext: {}
       });
       
       console.log('Intelligence analysis completed');
-      console.log('Notice Type:', intelligenceResult.classification.noticeType);
-      console.log('Urgency:', intelligenceResult.classification.urgencyLevel);
-      console.log('Risk Level:', intelligenceResult.metadata.riskLevel);
+      console.log('Notice Type:', intelligenceResult?.classification?.noticeType);
+      console.log('Urgency:', intelligenceResult?.classification?.urgencyLevel);
+      console.log('Risk Level:', intelligenceResult?.metadata?.riskLevel);
       
-      // Format for backward compatibility with existing UI
-      const structuredAnalysis = {
-        letterType: intelligenceResult.classification.noticeType,
-        summary: intelligenceResult.analysisOutput,
-        reason: intelligenceResult.classification.description,
-        requiredActions: `Response Required: ${intelligenceResult.classification.responseRequired ? 'YES' : 'NO'}. Days Remaining: ${intelligenceResult.deadlineIntelligence.deadline.daysRemaining}`,
-        nextSteps: intelligenceResult.deadlineIntelligence.escalation.currentStage.action,
-        confidence: intelligenceResult.classification.confidence === "high" ? 90 : intelligenceResult.classification.confidence === "medium" ? 75 : 60,
-        urgency: intelligenceResult.classification.urgencyLevel,
+      structuredAnalysis = {
+        letterType: intelligenceResult?.classification?.noticeType,
+        summary: intelligenceResult?.analysisOutput,
+        reason: intelligenceResult?.classification?.description,
+        requiredActions: `Response Required: ${intelligenceResult?.classification?.responseRequired ? 'YES' : 'NO'}. Days Remaining: ${intelligenceResult?.deadlineIntelligence?.deadline?.daysRemaining}`,
+        nextSteps: intelligenceResult?.deadlineIntelligence?.escalation?.currentStage?.action,
+        confidence: intelligenceResult?.classification?.confidence === "high" ? 90 : intelligenceResult?.classification?.confidence === "medium" ? 75 : 60,
+        urgency: intelligenceResult?.classification?.urgencyLevel,
         estimatedResolution: "30-90 days with proper response",
-        penaltyRisk: intelligenceResult.classification.escalationRisk.join('; '),
+        penaltyRisk: intelligenceResult?.classification?.escalationRisk?.join?.('; ') ?? '',
         paymentOptions: "Payment plans available - see analysis for details",
         appealRights: "Appeal rights preserved with timely response",
-        
-        // Enhanced fields from intelligence system
-        deadlineIntelligence: intelligenceResult.deadlineIntelligence,
-        financialInfo: intelligenceResult.financialInfo,
-        professionalHelpRecommendation: intelligenceResult.professionalHelpAssessment,
-        playbook: intelligenceResult.playbook.noticeType,
-        fullAnalysis: intelligenceResult.analysisOutput
+        deadlineIntelligence: intelligenceResult?.deadlineIntelligence,
+        financialInfo: intelligenceResult?.financialInfo,
+        professionalHelpRecommendation: intelligenceResult?.professionalHelpAssessment,
+        playbook: intelligenceResult?.playbook?.noticeType,
+        fullAnalysis: intelligenceResult?.analysisOutput
       };
       
       console.log('Structured analysis prepared');
@@ -190,24 +178,28 @@ const mainHandler = async (event) => {
     } catch (intelligenceError) {
       console.error('Intelligence system error, falling back to basic analysis:', intelligenceError);
       
-      // Fallback to basic classification if intelligence system fails
       const { classifyIRSNotice } = require('./irs-intelligence/classification-engine.js');
       const classification = classifyIRSNotice(letterText);
       
-      var structuredAnalysis = {
-        letterType: classification.noticeType,
-        summary: `This appears to be a ${classification.noticeType} (${classification.description}). ${classification.escalationRisk[0]}`,
-        reason: classification.description,
-        requiredActions: `Response required within ${classification.typicalDeadlineDays} days`,
+      structuredAnalysis = {
+        letterType: classification?.noticeType,
+        summary: `This appears to be a ${classification?.noticeType} (${classification?.description}). ${classification?.escalationRisk?.[0] ?? ''}`,
+        reason: classification?.description,
+        requiredActions: `Response required within ${classification?.typicalDeadlineDays} days`,
         nextSteps: "Review the notice carefully and gather supporting documentation",
-        confidence: classification.confidence === "high" ? 85 : 70,
-        urgency: classification.urgencyLevel,
+        confidence: classification?.confidence === "high" ? 85 : 70,
+        urgency: classification?.urgencyLevel,
         estimatedResolution: "30-90 days",
-        penaltyRisk: classification.escalationRisk.join('; '),
+        penaltyRisk: classification?.escalationRisk?.join?.('; ') ?? '',
         paymentOptions: "Contact IRS for payment arrangements",
         appealRights: "You have appeal rights - see notice for details"
       };
     }
+
+    const summary =
+      structuredAnalysis?.summary ||
+      structuredAnalysis?.explanation ||
+      "Analysis complete. See details below.";
 
     // --- STEP 4: Store in Supabase (optional) ---
     let recordId = null;
@@ -221,8 +213,8 @@ const mainHandler = async (event) => {
             stripe_session_id: stripeSessionId,
             price_id: priceId,
             letter_text: letterText,
-            analysis: structuredAnalysis,
-            summary: structuredAnalysis.summary || "",
+            analysis: structuredAnalysis ?? {},
+            summary,
             status: "analyzed"
           })
           .select("id, created_at, status")
@@ -250,9 +242,9 @@ const mainHandler = async (event) => {
       },
       body: JSON.stringify({
         message: "Analysis complete.",
-        analysis: structuredAnalysis,
+        analysis: structuredAnalysis ?? {},
         recordId: recordId,
-        summary: structuredAnalysis.summary || ""
+        summary
       }),
     };
   } catch (err) {
