@@ -65,6 +65,26 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+
+        .analysis-section, .analysis-content, #explanation,
+        [id*="analysis"], [class*="analysis"], #responseLetter {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        #analysisResults,
+        #responseResults,
+        #explanation,
+        #responseLetter,
+        .analysis-section {
+            padding: 12px;
+            box-sizing: border-box;
+            width: 100%;
+        }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -103,7 +123,7 @@
             
             <div id="analysisResults" style="margin-top: 2rem; display: none;">
                 <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Letter Analysis</h3>
-                <div id="explanation" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0; color:#2d3748;"></div>
+                <div id="explanation" style="background: #f8f9fa; border-radius: 8px; margin: 1rem 0; color:#2d3748;"></div>
                 
                 <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Generate Response</h3>
                 <div style="margin-bottom:1.5rem;">
@@ -114,7 +134,7 @@
                 
                 <div id="responseResults" style="margin-top: 2rem; display: none;">
                     <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Generated Response</h3>
-                    <div id="responseLetter" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0; white-space: pre-wrap; color:#2d3748;"></div>
+                    <div id="responseLetter" style="background: #f8f9fa; border-radius: 8px; margin: 1rem 0; color:#2d3748;"></div>
                     <div style="margin-top: 1rem; display:flex; gap:1rem;">
                         <button id="downloadPDF" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; flex:1;">Download as PDF</button>
                         <button id="downloadDOCX" style="background:#6c757d; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; flex:1;">Download as DOCX</button>
