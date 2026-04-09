@@ -2,31 +2,31 @@ const { createClient } = globalThis.supabase;
 
 const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-function readFileAsBase64DataUrl(file) {
-  return new Promise((resolve, reject) => {
+async function toBase64(file) {
+  const dataUrl = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+  return dataUrl.split(',')[1];
 }
 
 export async function uploadFile(file, userId) {
-  const dataUrl = await readFileAsBase64DataUrl(file);
-  const fileBase64 = dataUrl.split(',')[1];
-  const res = await fetch('/.netlify/functions/upload-letter', {
+  const fileBase64 = await toBase64(file);
+  const response = await fetch('/.netlify/functions/upload-letter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       userId,
       fileName: file.name,
       fileBase64,
-      contentType: file.type || 'application/octet-stream',
+      contentType: file.type,
     }),
   });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || 'Upload failed');
-  return json.path;
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Upload failed');
+  return data.path;
 }
 
 export async function saveDocumentToDatabase(userId, fileName, filePath) {
