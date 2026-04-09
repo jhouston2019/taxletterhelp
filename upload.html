@@ -381,14 +381,13 @@
 
                         const data = await response.json();
 
-                        if (data.responseLetter) {
+                        const letterContent = data.responseLetter || data.letter;
+                        if (letterContent) {
                             const responseElement = document.getElementById('responseLetter');
                             if (responseElement) {
-                                responseElement.textContent = data.responseLetter;
+                                responseElement.textContent = letterContent;
                                 document.getElementById('responseResults').style.display = 'block';
                                 hideStatus();
-                            } else {
-                                showStatus('Error: Could not find response letter element');
                             }
                         } else {
                             showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
