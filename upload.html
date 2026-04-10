@@ -1539,13 +1539,26 @@
             return html.replace(/\[[^\]]+\]/g, (m) => '<span class="ph-missed">' + escapeHtml(m) + '</span>');
         }
 
+        function cleanGeneratedLetterMarkdown(text) {
+            if (text == null || typeof text !== 'string') return text;
+            return text
+                .replace(/^\s*#+\s*5\.\s*Response Letter\s*/im, '')
+                .replace(/^\s*5\.\s*Response Letter\s*/im, '')
+                .replace(/^\s*#+\s*6\.\s*Action Checklist\s*/im, '')
+                .replace(/^\s*6\.\s*Action Checklist\s*/im, '')
+                .replace(/\n\s*#+\s*6\.\s*Action Checklist\s*(?=\n)/gi, '\n')
+                .replace(/\n\s*6\.\s*Action Checklist\s*(?=\n)/gi, '\n')
+                .trim();
+        }
+
         function renderLetterMarkdown(md) {
             const el = document.getElementById('responseLetter');
             if (!el) return;
+            const cleaned = cleanGeneratedLetterMarkdown(md);
             if (globalThis.marked?.parse) {
-                el.innerHTML = highlightPlaceholdersInLetterHtml(globalThis.marked.parse(md));
+                el.innerHTML = highlightPlaceholdersInLetterHtml(globalThis.marked.parse(cleaned));
             } else {
-                el.textContent = md;
+                el.textContent = cleaned;
             }
         }
 
@@ -1635,7 +1648,7 @@
                 }
                 const letterContent = data.responseLetter || data.letter;
                 if (letterContent) {
-                    generatedLetter = letterContent;
+                    generatedLetter = cleanGeneratedLetterMarkdown(letterContent);
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
                     const ty = document.getElementById('taxYearOverride')?.value || '—';
@@ -1660,6 +1673,7 @@
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
             const irsAddrMsg = 'See notice for IRS address';
+            const contactCombo = [phone, email].filter(Boolean).join(' | ');
             return [
                 [/\[SSN\/EIN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
                 [/\[SSN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
@@ -1667,6 +1681,9 @@
                 [/\[YOUR SSN\]/gi, ssnMasked],
                 [/\[SSN LAST 4\]/gi, ssnMasked],
                 [/\[SSN\/EIN\]/gi, ssnMasked],
+                [/\[Social Security Number\]/gi, ssnMasked],
+                [/\[SSN Number\]/gi, ssnMasked],
+                [/\[Tax ID\]/gi, ssnMasked],
                 [/\[IRS ADDRESS FROM NOTICE\]/gi, irsAddrMsg],
                 [/\[IRS ADDRESS ON NOTICE\]/gi, irsAddrMsg],
                 [/\[IRS ADDRESS\]/gi, irsAddrMsg],
@@ -1681,6 +1698,13 @@
                 [/\[Your Email Address\]/gi, email],
                 [/\[your email address\]/gi, email],
                 [/\[your phone number\]/gi, phone],
+                [/\[Your Contact Information\]/gi, contactCombo],
+                [/\[YOUR CONTACT INFORMATION\]/gi, contactCombo],
+                [/\[Taxpayer Contact Information\]/gi, contactCombo],
+                [/\[Contact Information\]/gi, contactCombo],
+                [/\[Your Phone Number\]/gi, phone],
+                [/\[Phone Number\]/gi, phone],
+                [/\[Email Address\]/gi, email],
                 [/\[City,\s*State,\s*ZIP\s*Code\]/gi, csz],
                 [/\[CITY,\s*STATE,\s*ZIP\]/gi, csz],
                 [/\[City,\s*State,\s*Zip\]/gi, csz],
@@ -1708,7 +1732,9 @@
                 [/\[YOUR EMAIL\]/gi, email],
                 [/\[EMAIL\]/gi, email],
                 [/\[Email\]/gi, email],
-                [/\[NAME\]/gi, name]
+                [/\[Your Title, if applicable\]/gi, ''],
+                [/\[NAME\]/gi, name],
+                [/\[Title\]/gi, '']
             ];
         }
 
