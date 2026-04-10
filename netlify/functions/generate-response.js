@@ -160,12 +160,13 @@ Produce the complete deliverable in one response using these exact section headi
 5. Response Letter
 6. Action Checklist
 
-Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline — with minimum 5 full paragraphs and placeholders only where taxpayer-specific facts are unknown.
+Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline. It must comply with all HARD RULES in the system prompt: seasoned tax attorney (25 years), authoritative and assertive voice, zero hedging, no banned phrases, active voice preferred, opening paragraph states the taxpayer's position immediately, body has minimum 5 substantive paragraphs each advancing the defense with factual rebuttal and IRC citations where applicable, closing states exactly what action the IRS must take (no "I look forward", no thanks-for-consideration). Placeholders only where taxpayer-specific facts are unknown.
 
-STYLE PREFERENCES (apply within the rules above):
-- Tone: ${tone}
-- Approach: ${approach}
-- Style: ${style}`;
+MANDATORY OVERRIDE — STYLE PREFERENCES ARE SUBORDINATE:
+The following preferences must NOT weaken, soften, or hedge the letter. If they conflict with HARD RULES, ignore the preference in favor of the mandatory authoritative voice.
+- Requested tone label: ${tone}
+- Requested approach label: ${approach}
+- Requested style label: ${style}`;
 
     let legacyUserContent = '';
     if (letterText) {
