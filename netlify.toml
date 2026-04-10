@@ -33,6 +33,15 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions.extract-text]
+  timeout = 26
+
+[functions.analyze-letter]
+  timeout = 26
+
+[functions.generate-response]
+  timeout = 26
+
 [[headers]]
   for = "/*"
   [headers.values]
