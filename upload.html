@@ -18,6 +18,63 @@
     <meta property="og:url" content="https://taxletterhelp.com/upload.html">
     <meta property="og:type" content="article">
     <style>
+        .upload-page-outer {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 2rem 0;
+            box-sizing: border-box;
+        }
+
+        .upload-main-card {
+            max-width: 860px;
+            width: 92%;
+            margin: 0 auto;
+            padding: 40px 48px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .upload-main-card .upload-main-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .upload-main-card h3 {
+            color: #2d3748;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.35;
+        }
+
+        .upload-main-card label {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .upload-main-card input[type="file"],
+        .upload-main-card textarea,
+        .upload-main-card small {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        #uploadStatus #statusText {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
         .file-drop-zone {
             box-sizing: border-box;
             width: 100%;
@@ -68,7 +125,7 @@
         }
 
         .analysis-section, .analysis-content, #explanation,
-        [id*="analysis"], [class*="analysis"], #responseLetter {
+        [class*="analysis"] {
             word-wrap: break-word;
             overflow-wrap: break-word;
             white-space: pre-wrap;
@@ -78,17 +135,42 @@
         }
 
         #analysisResults,
-        #responseResults,
-        #explanation,
-        #responseLetter,
-        .analysis-section {
-            padding: 12px;
+        #responseResults {
             box-sizing: border-box;
             width: 100%;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        #explanation,
+        .analysis-section {
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            box-sizing: border-box;
+            width: 100%;
+            background: #f8f9fa;
+            color: #2d3748;
         }
 
         #responseLetter {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
             white-space: normal;
+            overflow: hidden;
+            padding: 32px 40px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            max-width: 100%;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 1rem 0;
+            color: #2d3748;
+            box-sizing: border-box;
         }
         #responseLetter h1, #responseLetter h2, #responseLetter h3 {
             font-weight: bold;
@@ -98,6 +180,27 @@
         #responseLetter p { margin-bottom: 12px; }
         #responseLetter ul, #responseLetter ol { margin-left: 20px; margin-bottom: 12px; }
         #responseLetter strong { font-weight: bold; }
+
+        #generateResponse {
+            width: 100%;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .upload-download-row {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        #downloadPDF,
+        #downloadDOCX {
+            min-width: 180px;
+            padding: 14px 28px;
+            flex: 1 1 auto;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -111,9 +214,9 @@
         </div>
     </nav>
 
-    <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <div style="max-width:500px; margin:2rem auto; padding:2rem; background:#ffffff; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-            <h2 style="text-align:center; margin-bottom:2rem; color:#2d3748; font-size:1.8rem;">Upload Your IRS Letter</h2>
+    <div class="upload-page-outer">
+        <div class="upload-main-card">
+            <h2 class="upload-main-title">Upload Your IRS Letter</h2>
             <form id="uploadForm" enctype="multipart/form-data">
                 <div style="margin-bottom:1.5rem;">
                     <label for="file" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Select File</label>
@@ -135,22 +238,22 @@
             </div>
             
             <div id="analysisResults" style="margin-top: 2rem; display: none;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Letter Analysis</h3>
-                <div id="explanation" style="background: #f8f9fa; border-radius: 8px; margin: 1rem 0; color:#2d3748;"></div>
+                <h3>Letter Analysis</h3>
+                <div id="explanation"></div>
                 
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Generate Response</h3>
+                <h3>Generate Response</h3>
                 <div style="margin-bottom:1.5rem;">
                     <label for="userData" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Your Information (Optional)</label>
                     <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400; min-height:100px; resize:vertical;"></textarea>
                 </div>
-                <button type="button" id="generateResponse" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">Generate Response Letter</button>
+                <button type="button" id="generateResponse" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Generate Response Letter</button>
                 
                 <div id="responseResults" style="margin-top: 2rem; display: none;">
-                    <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Generated Response</h3>
-                    <div id="responseLetter" style="background: #f8f9fa; border-radius: 8px; margin: 1rem 0; color:#2d3748;"></div>
-                    <div style="margin-top: 1rem; display:flex; gap:1rem;">
-                        <button id="downloadPDF" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; flex:1;">Download as PDF</button>
-                        <button id="downloadDOCX" style="background:#6c757d; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; flex:1;">Download as DOCX</button>
+                    <h3>Generated Response</h3>
+                    <div id="responseLetter"></div>
+                    <div class="upload-download-row">
+                        <button id="downloadPDF" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as PDF</button>
+                        <button id="downloadDOCX" style="background:#6c757d; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as DOCX</button>
                     </div>
                 </div>
             </div>
