@@ -146,6 +146,14 @@
             border-radius: 2px;
         }
 
+        #responseLetter .ph-missed {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0 3px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
         #responseLetter h1, #responseLetter h2, #responseLetter h3 {
             font-weight: bold;
             margin-top: 16px;
@@ -1528,7 +1536,7 @@
         }
 
         function highlightPlaceholdersInLetterHtml(html) {
-            return html.replace(/\[[^\]]+\]/g, (m) => '<span class="ph-placeholder">' + m + '</span>');
+            return html.replace(/\[[^\]]+\]/g, (m) => '<span class="ph-missed">' + escapeHtml(m) + '</span>');
         }
 
         function renderLetterMarkdown(md) {
@@ -1648,6 +1656,62 @@
 
         document.getElementById('footerBack4').addEventListener('click', () => goToStep(3));
 
+        function buildPlaceholderReplacementPairs(values) {
+            const { name, street, csz, ssn4, phone, email, dateShow } = values;
+            const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
+            const irsAddrMsg = 'See notice for IRS address';
+            return [
+                [/\[SSN\/EIN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
+                [/\[SSN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
+                [/\[Taxpayer SSN\/EIN\]/gi, ssnMasked],
+                [/\[YOUR SSN\]/gi, ssnMasked],
+                [/\[SSN LAST 4\]/gi, ssnMasked],
+                [/\[SSN\/EIN\]/gi, ssnMasked],
+                [/\[IRS ADDRESS FROM NOTICE\]/gi, irsAddrMsg],
+                [/\[IRS ADDRESS ON NOTICE\]/gi, irsAddrMsg],
+                [/\[IRS ADDRESS\]/gi, irsAddrMsg],
+                [/\[IRS Address\]/gi, irsAddrMsg],
+                [/\[Today's Date\]/gi, dateShow],
+                [/\[TODAY'S DATE\]/gi, dateShow],
+                [/\[Current Date\]/gi, dateShow],
+                [/\[CURRENT DATE\]/gi, dateShow],
+                [/\[DATE FROM NOTICE\]/gi, dateShow],
+                [/\[DATE\]/gi, dateShow],
+                [/\[date\]/gi, dateShow],
+                [/\[Your Email Address\]/gi, email],
+                [/\[your email address\]/gi, email],
+                [/\[your phone number\]/gi, phone],
+                [/\[City,\s*State,\s*ZIP\s*Code\]/gi, csz],
+                [/\[CITY,\s*STATE,\s*ZIP\]/gi, csz],
+                [/\[City,\s*State,\s*Zip\]/gi, csz],
+                [/\[CITY STATE ZIP\]/gi, csz],
+                [/\[CITY,\s*STATE\s+ZIP\]/gi, csz],
+                [/\[TAXPAYER ADDRESS\]/gi, street],
+                [/\[Taxpayer Address\]/gi, street],
+                [/\[YOUR ADDRESS\]/gi, street],
+                [/\[Street Address\]/gi, street],
+                [/\[Address\]/gi, street],
+                [/\[ADDRESS\]/gi, street],
+                [/\[Your Full Name\]/gi, name],
+                [/\[Taxpayer Name\]/gi, name],
+                [/\[Your Name\]/gi, name],
+                [/\[TAXPAYER NAME\]/gi, name],
+                [/\[YOUR NAME\]/gi, name],
+                [/\[TAXPAYER SIGNATURE\]/gi, name],
+                [/\[Your Signature\]/gi, name],
+                [/\[SIGNATURE\]/gi, name],
+                [/\[Signature\]/gi, name],
+                [/\[YOUR PHONE NUMBER\]/gi, phone],
+                [/\[YOUR PHONE\]/gi, phone],
+                [/\[PHONE\]/gi, phone],
+                [/\[Phone\]/gi, phone],
+                [/\[YOUR EMAIL\]/gi, email],
+                [/\[EMAIL\]/gi, email],
+                [/\[Email\]/gi, email],
+                [/\[NAME\]/gi, name]
+            ];
+        }
+
         document.getElementById('btnFillPlaceholders').addEventListener('click', () => {
             const name = document.getElementById('fillFullName').value.trim();
             const street = document.getElementById('fillStreet').value.trim();
@@ -1659,22 +1723,10 @@
             const dateShow = dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
             let md = generatedLetter;
-            const pairs = [
-                [/\[TAXPAYER NAME\]/gi, name],
-                [/\[YOUR NAME\]/gi, name],
-                [/\[ADDRESS\]/gi, street],
-                [/\[YOUR ADDRESS\]/gi, street],
-                [/\[CITY STATE ZIP\]/gi, csz],
-                [/\[CITY, STATE ZIP\]/gi, csz],
-                [/\[SSN LAST 4\]/gi, ssn4 ? 'XXX-XX-' + ssn4 : 'XXX-XX-XXXX'],
-                [/\[PHONE\]/gi, phone],
-                [/\[YOUR PHONE NUMBER\]/gi, phone],
-                [/\[EMAIL\]/gi, email],
-                [/\[YOUR EMAIL\]/gi, email],
-                [/\[DATE\]/gi, dateShow],
-                [/\[DATE FROM NOTICE\]/gi, dateShow]
-            ];
-            pairs.forEach(([re, val]) => { md = md.replace(re, val); });
+            const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow });
+            pairs.forEach(([re, val]) => {
+                md = md.replace(re, () => val);
+            });
             generatedLetter = md;
             renderLetterMarkdown(generatedLetter);
         });
