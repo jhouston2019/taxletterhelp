@@ -4,6 +4,7 @@
     <!-- UPLOAD_HTML_VERSION: CDN-FIXED-v1 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
       window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
       window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
@@ -85,6 +86,18 @@
             box-sizing: border-box;
             width: 100%;
         }
+
+        #responseLetter {
+            white-space: normal;
+        }
+        #responseLetter h1, #responseLetter h2, #responseLetter h3 {
+            font-weight: bold;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        #responseLetter p { margin-bottom: 12px; }
+        #responseLetter ul, #responseLetter ol { margin-left: 20px; margin-bottom: 12px; }
+        #responseLetter strong { font-weight: bold; }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -161,6 +174,15 @@
         
         let currentUser = null;
         let letterText = '';
+
+        function stripMarkdown(text) {
+            return text
+                .replace(/^#{1,6}\s+/gm, '')
+                .replace(/\*\*(.*?)\*\*/g, '$1')
+                .replace(/\*(.*?)\*/g, '$1')
+                .replace(/^-\s+/gm, '• ')
+                .trim();
+        }
 
         const DROP_LABEL_DEFAULT = 'Drag & drop your letter here';
         const DROP_LABEL_DRAGOVER = 'Release to add your letter';
@@ -385,7 +407,11 @@
                         if (letterContent) {
                             const responseElement = document.getElementById('responseLetter');
                             if (responseElement) {
-                                responseElement.textContent = letterContent;
+                                if (globalThis.marked?.parse) {
+                                    responseElement.innerHTML = globalThis.marked.parse(letterContent);
+                                } else {
+                                    responseElement.textContent = letterContent;
+                                }
                                 document.getElementById('responseResults').style.display = 'block';
                                 hideStatus();
                             }
@@ -549,7 +575,7 @@
                 alert('Error: Could not find response letter element');
                 return;
             }
-            const responseText = responseElement.textContent;
+            const responseText = stripMarkdown(responseElement.innerText || responseElement.textContent);
             
             try {
                 const response = await fetch('/.netlify/functions/generate-pdf', {
@@ -583,7 +609,7 @@
                 alert('Error: Could not find response letter element');
                 return;
             }
-            const responseText = responseElement.textContent;
+            const responseText = stripMarkdown(responseElement.innerText || responseElement.textContent);
             
             try {
                 const response = await fetch('/.netlify/functions/generate-docx', {
