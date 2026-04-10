@@ -149,6 +149,7 @@ const mainHandler = async (event) => {
     // Fallback: legacy path (e.g. upload flow without structured userPosition) — full sections 1–6 in one response
     console.log('Using legacy response generation with enhanced prompting');
 
+    // Letter system prompt: TAX_DEFENSE_SYSTEM_PROMPT_BASE includes LETTER_PERSON_VOICE_RULES (irs-intelligence/index.js).
     const legacySystemPrompt = `${TAX_DEFENSE_SYSTEM_PROMPT_BASE}
 
 OUTPUT SCOPE FOR THIS REQUEST (LEGACY PATH):
@@ -160,7 +161,7 @@ Produce the complete deliverable in one response using these exact section headi
 5. Response Letter
 6. Action Checklist
 
-Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline. It must comply with all HARD RULES in the system prompt: seasoned tax attorney (25 years), authoritative and assertive voice, zero hedging, no banned phrases, active voice preferred, opening paragraph states the taxpayer's position immediately, body has minimum 5 substantive paragraphs each advancing the defense with factual rebuttal and IRC citations where applicable, closing states exactly what action the IRS must take (no "I look forward", no thanks-for-consideration). Placeholders only where taxpayer-specific facts are unknown.
+Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline. It must comply with all HARD RULES in the system prompt: seasoned tax attorney (25 years), authoritative and assertive voice, zero hedging, no banned phrases, active voice preferred, opening paragraph states the taxpayer's position immediately, body has minimum 5 substantive paragraphs each advancing the defense with factual rebuttal and IRC citations where applicable, closing states exactly what action the IRS must take (no "I look forward", no thanks-for-consideration). Section 5 must strictly obey PERSON/VOICE RULES above: written by the taxpayer to the IRS, first person (I/my/me) only in every sentence of that section; never "the taxpayer", "the filer", or "they" for the signer. Placeholders only where taxpayer-specific facts are unknown.
 
 MANDATORY OVERRIDE — STYLE PREFERENCES ARE SUBORDINATE:
 The following preferences must NOT weaken, soften, or hedge the letter. If they conflict with HARD RULES, ignore the preference in favor of the mandatory authoritative voice.

@@ -49,6 +49,24 @@ const { analyzeRisks, assessProfessionalReviewNeed, sanitizeText, generateRiskRe
 const { formatAnalysisOutput, formatResponseLetter, formatDisclaimer } = require('./output-formatter');
 
 /**
+ * First-person taxpayer voice — shared by intelligence and legacy letter generation (see generate-response.js).
+ */
+const LETTER_PERSON_VOICE_RULES = `PERSON/VOICE RULES — CRITICAL:
+- The letter is written BY the taxpayer TO the IRS
+- Always write in FIRST PERSON: "I", "my", "me"
+- NEVER use third person: "the taxpayer", "the filer", "they"
+- Wrong: "The taxpayer disputes the proposed balance"
+- Right: "I dispute the proposed balance"
+- Wrong: "The taxpayer's return accurately reflects"
+- Right: "My return accurately reflects"
+- Wrong: "The taxpayer demands that the IRS"
+- Right: "I demand that the IRS"
+- Wrong: "The taxpayer requests"
+- Right: "I hereby request" or "I demand"
+
+This is a hard rule. Every sentence in the response letter section must use first person. No exceptions.`;
+
+/**
  * Exact top-of-prompt enforcement for all response-letter generation (intelligence + legacy).
  */
 const LETTER_SYSTEM_PROMPT_ENFORCEMENT = `You are a seasoned tax attorney with 25 years of experience representing taxpayers before the IRS and state tax agencies. You write as that attorney would: with commanding authority, not as a tentative advisor.
@@ -58,6 +76,8 @@ MANDATORY TONE (HARD RULES — VIOLATING THESE INVALIDATES THE OUTPUT):
 - Every sentence must be declarative, confident, and grounded in fact or cited authority.
 - Prefer active voice whenever an actor is clear (taxpayer, IRS, documentation, return). Do not use passive voice when active voice states the same point more directly.
 - No filler, no courtesy padding: never write "I appreciate your attention", "I look forward to your prompt response", "Thank you for your consideration", "please feel free to contact me", "I hope", or any variation of "I look forward to".
+
+${LETTER_PERSON_VOICE_RULES}
 
 PHRASES YOU MUST NEVER USE (exactly or in close paraphrase):
 - "I believe there may be"
@@ -70,12 +90,12 @@ PHRASES YOU MUST NEVER USE (exactly or in close paraphrase):
 - Any variation of "I look forward to"
 - "please feel free to contact me"
 
-USE ASSERTIVE FRAMING SUCH AS (adapt to the facts):
+USE ASSERTIVE FRAMING SUCH AS (adapt to the facts; first person for the taxpayer per PERSON/VOICE RULES):
 - "The IRS's assessment is incorrect because..."
 - "The documentation establishes that..."
-- "The taxpayer's return accurately reflects..."
+- "My return accurately reflects..."
 - "The IRS has failed to account for..."
-- "Pursuant to IRC Section [cite the applicable section], the taxpayer is entitled to..."
+- "Pursuant to IRC Section [cite the applicable section], I am entitled to..."
 
 SUBSTANCE (HARD RULES):
 - Minimum 5 substantive paragraphs in the response letter body (excluding salutation/address block if present); each paragraph must advance the defense — no filler, no repetition for length.
@@ -112,7 +132,7 @@ const TAX_DEFENSE_FRAMEWORK_SECTIONS = `When analyzing a tax notice, you must:
    - Be specific — never generic
 
 5. RESPONSE LETTER
-   - Write a complete, formal, submission-ready letter in the voice of a 25-year tax attorney: declarative, confident, zero hedging (see HARD RULES above).
+   - Write a complete, formal, submission-ready letter in the voice of a 25-year tax attorney: declarative, confident, zero hedging (see HARD RULES above). The signer is the taxpayer: every sentence in this section must be first person (I/my/me) to the IRS — see PERSON/VOICE RULES.
    - Structure (mandatory):
        * Taxpayer name, address, SSN/EIN (use placeholders if unknown)
        * Notice number and tax year reference
@@ -420,7 +440,7 @@ function buildConstrainedSystemPrompt(classification, playbook, deadlineIntellig
   prompt += `\n\nOUTPUT SCOPE FOR THIS REQUEST (INTELLIGENCE PATH — LETTER BODY ONLY):\n`;
   prompt += `Output only the letter body that belongs after the salutation in formatResponseLetter(): substantive paragraphs only (no duplicate "Dear Sir or Madam:", no separate valediction or signature block — the wrapper supplies those). `;
   prompt += `Do not output numbered sections 1–4 or section 6; weave any necessary context into the body. `;
-  prompt += `Minimum 5 full substantive paragraphs in the body; opening states the taxpayer's position immediately; closing states the exact IRS action required; no emojis; enforce HARD RULES (no hedging, no banned phrases, active voice preferred, assertive attorney voice).\n\n`;
+  prompt += `Minimum 5 full substantive paragraphs in the body; opening states the taxpayer's position immediately in first person (I/my/me); closing states the exact IRS action required; no emojis; enforce HARD RULES and PERSON/VOICE RULES (no hedging, no banned phrases, active voice preferred, assertive attorney voice, every sentence first person as the taxpayer to the IRS).\n\n`;
 
   prompt += `CLASSIFIED NOTICE CONTEXT (anchor the letter to this plus the user message; reconcile with the actual notice text):\n`;
   prompt += `- Notice type: ${classification.noticeType} — ${classification.description}\n`;
@@ -497,7 +517,7 @@ function buildConstrainedUserPrompt(
     prompt += `REQUESTED ACTION: ${userPosition.requestedAction}\n\n`;
   }
   
-  prompt += `Ensure the response addresses all required elements, follows the prescribed structure, and strictly obeys the HARD RULES: authoritative 25-year tax attorney voice, no hedging or banned phrases, minimum 5 substantive body paragraphs with IRC citations where applicable, opening states the taxpayer position immediately, closing mandates the exact IRS action.`;
+  prompt += `Ensure the response addresses all required elements, follows the prescribed structure, and strictly obeys the HARD RULES and PERSON/VOICE RULES: authoritative 25-year tax attorney voice, no hedging or banned phrases, minimum 5 substantive body paragraphs with IRC citations where applicable, opening states the taxpayer position immediately in first person (I/my/me), closing mandates the exact IRS action, no third person for the taxpayer ("the taxpayer", "they", etc.).`;
   
   return prompt;
 }
@@ -509,6 +529,7 @@ module.exports = {
   buildConstrainedUserPrompt,
   TAX_DEFENSE_SYSTEM_PROMPT_BASE,
   LETTER_SYSTEM_PROMPT_ENFORCEMENT,
+  LETTER_PERSON_VOICE_RULES,
   formatNoticeFactsForPrompt
 };
 
