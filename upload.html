@@ -144,6 +144,10 @@
             white-space: normal;
         }
 
+        #responseResults {
+            margin-top: 1.5rem;
+        }
+
         #explanation,
         .analysis-section {
             padding: 20px 24px;
@@ -222,6 +226,45 @@
             cursor: not-allowed;
             pointer-events: none;
         }
+
+        #resultsContainer {
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 32px;
+            align-items: start;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            #resultsContainer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .results-panel {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #leftPanel {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+        }
+
+        .results-panel-heading {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin: 0 0 16px 0;
+        }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -258,23 +301,26 @@
                 <p id="statusText" style="color:#2d3748;"></p>
             </div>
             
-            <div id="analysisResults" style="margin-top: 2rem; display: none;">
-                <h3>Letter Analysis</h3>
-                <div id="explanation"></div>
-                
-                <h3>Generate Response</h3>
-                <div style="margin-bottom:1.5rem;">
-                    <label for="userData" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Your Information (Optional)</label>
-                    <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400; min-height:100px; resize:vertical;"></textarea>
+            <div id="resultsContainer" style="display: none;">
+                <div id="leftPanel" class="results-panel">
+                    <h2 class="results-panel-heading">NOTICE ANALYSIS</h2>
+                    <div id="analysisResults">
+                        <div id="explanation"></div>
+                    </div>
                 </div>
-                <button type="button" id="generateResponse" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">GENERATE RESPONSE LETTER</button>
-                
-                <div id="responseResults" style="margin-top: 2rem; display: none;">
-                    <h3>Generated Response</h3>
-                    <div id="responseLetter"></div>
-                    <div class="upload-download-row">
-                        <button id="downloadPDF" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as PDF</button>
-                        <button id="downloadDOCX" style="background:#6c757d; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as DOCX</button>
+                <div id="rightPanel" class="results-panel">
+                    <h2 class="results-panel-heading">RESPONSE LETTER</h2>
+                    <div style="margin-bottom:1.5rem;">
+                        <label for="userData" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Your Information (Optional)</label>
+                        <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400; min-height:100px; resize:vertical;"></textarea>
+                    </div>
+                    <button type="button" id="generateResponse" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">GENERATE RESPONSE LETTER</button>
+                    <div id="responseResults">
+                        <div id="responseLetter"></div>
+                        <div class="upload-download-row">
+                            <button id="downloadPDF" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as PDF</button>
+                            <button id="downloadDOCX" style="background:#6c757d; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Download as DOCX</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -519,7 +565,7 @@
             }
             
             // Verify all required elements exist
-            const requiredElements = ['uploadForm', 'uploadAnalyzeSubmit', 'explanation', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
+            const requiredElements = ['uploadForm', 'uploadAnalyzeSubmit', 'explanation', 'resultsContainer', 'leftPanel', 'rightPanel', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
             const missingElements = requiredElements.filter(id => !document.getElementById(id));
             
             if (missingElements.length > 0) {
@@ -562,7 +608,6 @@
                                 } else {
                                     responseElement.textContent = letterContent;
                                 }
-                                document.getElementById('responseResults').style.display = 'block';
                                 hideStatus();
                             }
                         } else {
@@ -717,7 +762,10 @@
                     const explanationElement = document.getElementById('explanation');
                     if (explanationElement) {
                         explanationElement.textContent = analysisData.summary || analysisData.explanation;
-                        document.getElementById('analysisResults').style.display = 'block';
+                        const resultsContainer = document.getElementById('resultsContainer');
+                        if (resultsContainer) {
+                            resultsContainer.style.display = 'grid';
+                        }
                         hideStatus();
                     } else {
                         showStatus('Error: Could not find explanation element');
