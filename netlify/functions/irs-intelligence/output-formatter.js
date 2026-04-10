@@ -13,6 +13,23 @@
  */
 
 /**
+ * Removes lines that consist only of decorative box-drawing / dash border characters (═ ─ = - etc.).
+ */
+function isBorderOnlyLine(line) {
+  const t = line.trim();
+  if (!t) return false;
+  return /^[═─=\-]+$/u.test(t);
+}
+
+function stripAsciiBorderLines(text) {
+  if (!text || typeof text !== 'string') return text;
+  return text
+    .split('\n')
+    .filter((line) => !isBorderOnlyLine(line))
+    .join('\n');
+}
+
+/**
  * Formats complete analysis output with all required sections
  * @param {Object} params - All analysis components
  * @returns {string} Formatted output text
@@ -48,7 +65,7 @@ function formatAnalysisOutput(params) {
   // Section 6: When Professional Help Becomes Necessary
   output += formatSection6_ProfessionalHelp(professionalHelpAssessment, classification, financialInfo);
   
-  return output;
+  return stripAsciiBorderLines(output);
 }
 
 /**

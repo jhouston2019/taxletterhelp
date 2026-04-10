@@ -268,6 +268,33 @@
             color: #64748b;
             margin: 0 0 16px 0;
         }
+
+        #uploadResultsSection {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .upload-another-btn {
+            display: inline-block;
+            margin-bottom: 16px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: #64748b;
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .upload-another-btn:hover {
+            color: #334155;
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -282,7 +309,7 @@
     </nav>
 
     <div class="upload-page-outer">
-        <div class="upload-main-card">
+        <div id="uploadFormCard" class="upload-main-card">
             <h2 class="upload-main-title">Upload Your IRS Letter</h2>
             <form id="uploadForm" enctype="multipart/form-data">
                 <div style="margin-bottom:1.5rem;">
@@ -303,7 +330,10 @@
             <div id="uploadStatus" style="margin-top: 1rem; display: none;">
                 <p id="statusText" style="color:#2d3748;"></p>
             </div>
-            
+        </div>
+
+        <div id="uploadResultsSection" style="display: none;">
+            <button type="button" id="uploadAnotherLetter" class="upload-another-btn">Upload Another Letter</button>
             <div id="resultsContainer" style="display: none;">
                 <div id="leftPanel" class="results-panel">
                     <h2 class="results-panel-heading">NOTICE ANALYSIS</h2>
@@ -378,6 +408,42 @@
                 btn.innerHTML = UPLOAD_SUBMIT_DEFAULT_HTML;
                 btn.classList.remove('btn-loading');
             }
+        }
+
+        function resetUploadFlowForNewLetter() {
+            letterText = '';
+            const fileInput = document.getElementById('file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            updateSelectedFileDisplay(null);
+            setDropError('');
+            const explanationEl = document.getElementById('explanation');
+            if (explanationEl) {
+                explanationEl.textContent = '';
+            }
+            const responseLetterEl = document.getElementById('responseLetter');
+            if (responseLetterEl) {
+                responseLetterEl.innerHTML = '';
+            }
+            const userDataEl = document.getElementById('userData');
+            if (userDataEl) {
+                userDataEl.value = '';
+            }
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer) {
+                resultsContainer.style.display = 'none';
+            }
+            const uploadResultsSection = document.getElementById('uploadResultsSection');
+            if (uploadResultsSection) {
+                uploadResultsSection.style.display = 'none';
+            }
+            const uploadFormCard = document.getElementById('uploadFormCard');
+            if (uploadFormCard) {
+                uploadFormCard.style.display = '';
+            }
+            setUploadSubmitLoading(null);
+            hideStatus();
         }
 
         const DROP_LABEL_DEFAULT = 'Drag & drop your letter here';
@@ -568,7 +634,7 @@
             }
             
             // Verify all required elements exist
-            const requiredElements = ['uploadForm', 'uploadAnalyzeSubmit', 'explanation', 'resultsContainer', 'leftPanel', 'rightPanel', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
+            const requiredElements = ['uploadForm', 'uploadFormCard', 'uploadResultsSection', 'uploadAnotherLetter', 'uploadAnalyzeSubmit', 'explanation', 'resultsContainer', 'leftPanel', 'rightPanel', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
             const missingElements = requiredElements.filter(id => !document.getElementById(id));
             
             if (missingElements.length > 0) {
@@ -576,6 +642,10 @@
                 alert('Error: Some required page elements are missing. Please refresh the page.');
                 return;
             }
+
+            document.getElementById('uploadAnotherLetter').addEventListener('click', () => {
+                resetUploadFlowForNewLetter();
+            });
 
             const generateBtn = document.getElementById('generateResponse');
             if (!generateBtn) {
@@ -799,6 +869,14 @@
                     const explanationElement = document.getElementById('explanation');
                     if (explanationElement) {
                         explanationElement.textContent = analysisData.summary || analysisData.explanation;
+                        const uploadFormCard = document.getElementById('uploadFormCard');
+                        const uploadResultsSection = document.getElementById('uploadResultsSection');
+                        if (uploadFormCard) {
+                            uploadFormCard.style.display = 'none';
+                        }
+                        if (uploadResultsSection) {
+                            uploadResultsSection.style.display = 'block';
+                        }
                         const resultsContainer = document.getElementById('resultsContainer');
                         if (resultsContainer) {
                             resultsContainer.style.display = 'grid';

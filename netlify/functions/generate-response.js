@@ -152,16 +152,15 @@ const mainHandler = async (event) => {
     // Letter system prompt: TAX_DEFENSE_SYSTEM_PROMPT_BASE includes LETTER_PERSON_VOICE_RULES (irs-intelligence/index.js).
     const legacySystemPrompt = `${TAX_DEFENSE_SYSTEM_PROMPT_BASE}
 
-OUTPUT SCOPE FOR THIS REQUEST (LEGACY PATH):
-Produce the complete deliverable in one response using these exact section headings, in order:
-1. Notice Summary
-2. Issue Breakdown
-3. Risk Assessment
-4. Defense Strategy
+OUTPUT SCOPE FOR THIS REQUEST (LEGACY PATH — SECTIONS 5 AND 6 ONLY):
+Do NOT output sections 1–4 (Notice Summary, Issue Breakdown, Risk Assessment, Defense Strategy). Those topics are already covered by the separate notice analysis. Output ONLY the following two sections, in order, using these exact headings:
+
 5. Response Letter
 6. Action Checklist
 
 Section 5 (Response Letter) must be a complete, standalone, submission-ready letter — not a summary or outline. It must comply with all HARD RULES in the system prompt: seasoned tax attorney (25 years), authoritative and assertive voice, zero hedging, no banned phrases, active voice preferred, opening paragraph states the taxpayer's position immediately, body has minimum 5 substantive paragraphs each advancing the defense with factual rebuttal and IRC citations where applicable, closing states exactly what action the IRS must take (no "I look forward", no thanks-for-consideration). Section 5 must strictly obey PERSON/VOICE RULES above: written by the taxpayer to the IRS, first person (I/my/me) only in every sentence of that section; never "the taxpayer", "the filer", or "they" for the signer. Placeholders only where taxpayer-specific facts are unknown.
+
+Section 6 must be a concrete action checklist (documents, mailing, deadlines, submission method). Do not repeat analysis from sections 1–4.
 
 MANDATORY OVERRIDE — STYLE PREFERENCES ARE SUBORDINATE:
 The following preferences must NOT weaken, soften, or hedge the letter. If they conflict with HARD RULES, ignore the preference in favor of the mandatory authoritative voice.
@@ -192,7 +191,7 @@ The following preferences must NOT weaken, soften, or hedge the letter. If they 
       const ud = typeof userData === 'string' ? userData : JSON.stringify(userData, null, 2);
       legacyUserContent += `TAXPAYER-PROVIDED INFORMATION:\n${ud}\n\n`;
     }
-    legacyUserContent += `Generate the full structured output as specified in the system message.`;
+    legacyUserContent += `Generate only sections 5 and 6 (Response Letter and Action Checklist) as specified in the system message — no sections 1–4.`;
 
     const completion = await openai.chat.completions.create({
       model: LETTER_GENERATION_MODEL,

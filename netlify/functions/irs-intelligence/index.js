@@ -83,12 +83,23 @@ PHRASES YOU MUST NEVER USE (exactly or in close paraphrase):
 - "I believe there may be"
 - "may have led to"
 - "it appears"
+- "appears to"
 - "potentially indicating"
+- "they believe may indicate"
+- "the IRS may proceed"
+- "which may indicate"
+- "suggesting potential"
+- "could indicate"
+- "seems to"
+- "it is possible"
+- "there may be"
 - "I hope"
 - "I appreciate"
 - "Thank you for your consideration"
 - Any variation of "I look forward to"
 - "please feel free to contact me"
+
+HEDGING BAN: Replace all tentative or speculative phrasing with direct assertions. The IRS either has a valid claim or it does not — state which, without "may", "might", "appears", "suggests", or possibility language.
 
 USE ASSERTIVE FRAMING SUCH AS (adapt to the facts; first person for the taxpayer per PERSON/VOICE RULES):
 - "The IRS's assessment is incorrect because..."
