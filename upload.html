@@ -201,6 +201,27 @@
             flex: 1 1 auto;
             box-sizing: border-box;
         }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .btn-loading {
+            opacity: 0.85;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -230,7 +251,7 @@
                     <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400;">
                     <small style="color:#64748b; font-size:0.9rem;">Supported formats: PDF, JPG, PNG (Max 10MB)</small>
                 </div>
-                <button type="submit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">Upload & Analyze</button>
+                <button type="submit" id="uploadAnalyzeSubmit" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; width:100%;">UPLOAD & ANALYZE</button>
             </form>
             
             <div id="uploadStatus" style="margin-top: 1rem; display: none;">
@@ -246,7 +267,7 @@
                     <label for="userData" style="display:block; margin-bottom:0.5rem; font-weight:bold; color:#2d3748;">Your Information (Optional)</label>
                     <textarea id="userData" placeholder="Include any relevant personal information that should be in your response letter..." style="width:100%; padding:14px 16px; border:2px solid #e2e8f0; border-radius:10px; font-family:'Inter',sans-serif; font-size:1rem; transition:all 0.3s ease; background:#ffffff; color:#2d3748; font-weight:400; min-height:100px; resize:vertical;"></textarea>
                 </div>
-                <button type="button" id="generateResponse" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">Generate Response Letter</button>
+                <button type="button" id="generateResponse" style="background:#334155; color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px;">GENERATE RESPONSE LETTER</button>
                 
                 <div id="responseResults" style="margin-top: 2rem; display: none;">
                     <h3>Generated Response</h3>
@@ -285,6 +306,29 @@
                 .replace(/\*(.*?)\*/g, '$1')
                 .replace(/^-\s+/gm, '• ')
                 .trim();
+        }
+
+        const UPLOAD_SUBMIT_DEFAULT_HTML = 'UPLOAD & ANALYZE';
+        const GENERATE_BTN_DEFAULT_HTML = 'GENERATE RESPONSE LETTER';
+
+        function getUploadSubmitBtn() {
+            return document.getElementById('uploadAnalyzeSubmit')
+                || document.querySelector('#uploadForm button[type="submit"]');
+        }
+
+        function setUploadSubmitLoading(phase) {
+            const btn = getUploadSubmitBtn();
+            if (!btn) return;
+            if (phase === 'upload') {
+                btn.innerHTML = '<span class="spinner"></span>Uploading...';
+                btn.classList.add('btn-loading');
+            } else if (phase === 'analyze') {
+                btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+                btn.classList.add('btn-loading');
+            } else {
+                btn.innerHTML = UPLOAD_SUBMIT_DEFAULT_HTML;
+                btn.classList.remove('btn-loading');
+            }
         }
 
         const DROP_LABEL_DEFAULT = 'Drag & drop your letter here';
@@ -475,7 +519,7 @@
             }
             
             // Verify all required elements exist
-            const requiredElements = ['uploadForm', 'explanation', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
+            const requiredElements = ['uploadForm', 'uploadAnalyzeSubmit', 'explanation', 'analysisResults', 'responseLetter', 'responseResults', 'generateResponse', 'downloadPDF', 'downloadDOCX'];
             const missingElements = requiredElements.filter(id => !document.getElementById(id));
             
             if (missingElements.length > 0) {
@@ -491,6 +535,9 @@
                 generateBtn.addEventListener('click', async () => {
                     console.log('Generate button clicked');
                     const userData = document.getElementById('userData').value;
+
+                    generateBtn.innerHTML = '<span class="spinner"></span>Generating Letter...';
+                    generateBtn.classList.add('btn-loading');
 
                     try {
                         showStatus('Generating response letter...');
@@ -523,6 +570,9 @@
                         }
                     } catch (error) {
                         showStatus('Response generation failed: ' + error.message);
+                    } finally {
+                        generateBtn.innerHTML = GENERATE_BTN_DEFAULT_HTML;
+                        generateBtn.classList.remove('btn-loading');
                     }
                 });
             }
@@ -544,6 +594,8 @@
                 return;
             }
             
+            setUploadSubmitLoading('upload');
+
             try {
                 showStatus('Uploading file...');
                 
@@ -579,9 +631,11 @@
                                 await analyzeLetter();
                             } else {
                                 showStatus('Failed to extract text from image: ' + (ocrData.error || 'Unknown error'));
+                                setUploadSubmitLoading(null);
                             }
                         } catch (error) {
                             showStatus('OCR failed: ' + error.message);
+                            setUploadSubmitLoading(null);
                         }
                     };
                     reader.readAsDataURL(file);
@@ -606,9 +660,11 @@
                                 await analyzeLetter();
                             } else {
                                 showStatus('Failed to extract text: ' + (ocrData.error || 'Unknown error'));
+                                setUploadSubmitLoading(null);
                             }
                         } catch (error) {
                             showStatus('Extraction failed: ' + error.message);
+                            setUploadSubmitLoading(null);
                         }
                     };
                     reader.readAsDataURL(file);
@@ -621,10 +677,12 @@
                 
             } catch (error) {
                 showStatus('Upload failed: ' + error.message);
+                setUploadSubmitLoading(null);
             }
         });
         
         async function analyzeLetter() {
+            setUploadSubmitLoading('analyze');
             try {
                 // Check usage limits before proceeding
                 const usageResponse = await fetch('/.netlify/functions/track-usage', {
@@ -669,6 +727,8 @@
                 }
             } catch (error) {
                 showStatus('Analysis failed: ' + error.message);
+            } finally {
+                setUploadSubmitLoading(null);
             }
         }
         
