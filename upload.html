@@ -291,8 +291,103 @@
             gap: 16px;
             margin: 20px 0;
         }
+        .strategy-card--wide {
+            grid-column: 1 / -1;
+        }
         @media (max-width: 640px) {
             .strategy-grid { grid-template-columns: 1fr; }
+            .strategy-card--wide { grid-column: auto; }
+        }
+
+        #strategyCustomWrap {
+            display: none;
+            margin-top: 16px;
+        }
+        #strategyCustomWrap.is-visible { display: block; }
+        #strategyCustomText {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        #strategyCustomWrap label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .analysis-section-block {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .analysis-section-block:last-of-type {
+            border-bottom: none;
+        }
+        .analysis-section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 10px 0;
+            letter-spacing: 0.02em;
+        }
+        .analysis-section-body {
+            font-size: 0.9rem;
+            line-height: 1.65;
+            color: #334155;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .what-irs-says-box {
+            padding: 16px 18px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            color: #1e293b;
+        }
+
+        .full-analysis-details {
+            margin-top: 28px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fafafa;
+            padding: 0 16px 16px;
+        }
+        .full-analysis-details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            padding: 14px 0;
+            list-style: none;
+        }
+        .full-analysis-details summary::-webkit-details-marker { display: none; }
+        .full-analysis-details[open] .fa-collapsed { display: none; }
+        .full-analysis-details:not([open]) .fa-expanded { display: none; }
+        .full-analysis-pre {
+            margin: 0;
+            padding: 14px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            max-height: 420px;
+            overflow-y: auto;
+            color: #334155;
         }
 
         .strategy-card {
@@ -572,13 +667,21 @@
             </div>
 
             <h3 style="margin:0 0 8px; font-size:1.1rem;">What the IRS is saying</h3>
-            <div id="analysisWhatIrsSays"></div>
+            <div id="analysisWhatIrsSays" class="what-irs-says-box"></div>
+
+            <h3 style="margin:24px 0 8px; font-size:1.1rem;">Analysis sections</h3>
+            <div id="analysisStructuredSections"></div>
 
             <h3 style="margin:24px 0 8px; font-size:1.1rem;">What you must do</h3>
             <div id="analysisChecklist"></div>
 
             <h3 style="margin:24px 0 8px; font-size:1.1rem;">Gather these before responding</h3>
             <ul class="doc-icon-list" id="analysisDocList"></ul>
+
+            <details class="full-analysis-details" id="fullAnalysisDetails">
+                <summary><span class="fa-collapsed">Show full analysis ▼</span><span class="fa-expanded">Hide full analysis ▲</span></summary>
+                <pre id="fullAnalysisRaw" class="full-analysis-pre"></pre>
+            </details>
 
             <div id="explanation" style="display:none;"></div>
 
@@ -622,6 +725,18 @@
                     <span class="sc-risk">Risk: MODERATE</span>
                     <p class="sc-meta">Outcome: Often 30–60 days; interest may continue</p>
                 </button>
+                <button type="button" class="strategy-card strategy-card--wide" data-strategy="CUSTOM">
+                    <h3>OTHER / CUSTOM</h3>
+                    <p style="margin:0; font-size:0.9rem; color:#475569;">Describe your specific situation and defense approach</p>
+                    <p class="sc-meta">Use when: Your situation doesn't fit the standard options</p>
+                    <span class="sc-risk">Risk: VARIES</span>
+                    <p class="sc-meta">Outcome: Letter will be tailored to your described strategy</p>
+                </button>
+            </div>
+
+            <div id="strategyCustomWrap">
+                <label for="strategyCustomText">Your strategy &amp; circumstances</label>
+                <textarea id="strategyCustomText" rows="4" placeholder="Describe your defense strategy or special circumstances. For example: 'I already paid this balance on March 3rd and have the confirmation number' or 'This income was from a retirement distribution that is not taxable due to a disability exemption'"></textarea>
             </div>
 
             <p style="margin-top:16px;"><strong>Why this strategy:</strong> <span id="strategyWhyText">—</span></p>
@@ -687,6 +802,7 @@
         let selectedStrategy = 'DISPUTE';
         let generatedLetter = '';
         let currentStep = 1;
+        let lastFullAnalysisText = '';
 
         const UPLOAD_SUBMIT_DEFAULT_HTML = 'Analyze My Notice →';
         const GENERATE_BTN_DEFAULT_HTML = 'Generate My Response Letter →';
@@ -765,9 +881,102 @@
             return '$' + Number(n).toLocaleString('en-US');
         }
 
+        function isSectionHeaderLine(line) {
+            const t = line.trim();
+            if (t.length < 6 || t.length > 140) return false;
+            if (/^(NOTICE CLASSIFICATION|YOUR REQUIRED ACTION|REQUIRED RESPONSE PROCEDURE|WHAT HAPPENS NEXT|FINANCIAL IMPACT|RISK ASSESSMENT|PROFESSIONAL REPRESENTATION|PROFESSIONAL REPRESENTATION THRESHOLD|LEGAL NOTICE)\b/i.test(t)) return true;
+            if (/^SECTION\s+\d+/i.test(t)) return true;
+            return false;
+        }
+
+        function formatSectionHeading(raw) {
+            const t = raw.replace(/^[═─\s]+|[═─\s]+$/g, '').trim();
+            if (!t) return 'Section';
+            if (t.length > 100) return t.slice(0, 97) + '…';
+            return t.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
+        }
+
+        function splitAnalysisIntoSections(raw) {
+            const lines = (raw || '').replace(/\r/g, '').split('\n');
+            const sections = [];
+            let cur = null;
+            for (const line of lines) {
+                if (isSectionHeaderLine(line)) {
+                    if (cur) sections.push(cur);
+                    cur = { title: line.trim(), body: [] };
+                } else if (cur) {
+                    cur.body.push(line);
+                } else {
+                    if (!cur) cur = { title: 'Overview', body: [line] };
+                    else cur.body.push(line);
+                }
+            }
+            if (cur) sections.push(cur);
+            return sections
+                .map((s) => ({
+                    title: formatSectionHeading(s.title),
+                    body: (Array.isArray(s.body) ? s.body.join('\n') : String(s.body || '')).trim()
+                }))
+                .filter((s) => s.title && s.body.length > 0);
+        }
+
+        function extractFirstMeaningfulParagraph(raw) {
+            const t = (raw || '').replace(/\r/g, '').trim();
+            if (!t) return '—';
+            const paras = t.split(/\n\s*\n+/);
+            for (const p of paras) {
+                const s = p.replace(/\n/g, ' ').trim();
+                if (s.length < 50) continue;
+                if (/^(NOTICE CLASSIFICATION|SECTION\s+\d|═|─){3,}/i.test(s)) continue;
+                if (/^[A-Z0-9\s\-–—:]+$/.test(s) && s.length < 120) continue;
+                return s.length > 700 ? s.slice(0, 697) + '…' : s;
+            }
+            const one = t.split('\n').map((l) => l.trim()).find((l) => l.length > 50);
+            return one ? (one.length > 700 ? one.slice(0, 697) + '…' : one) : t.slice(0, 600);
+        }
+
+        function extractProcedureChecklist(raw, analysis) {
+            const text = raw || '';
+            const procMatch = text.match(/REQUIRED RESPONSE PROCEDURE[\s\S]*?(?=\n\s*(?:SECTION\s+\d|NOTICE\s|PROFESSIONAL REPRESENTATION|LEGAL NOTICE|RISK ASSESSMENT|WHAT HAPPENS NEXT)\b)/i);
+            const block = procMatch ? procMatch[0] : '';
+            const items = [];
+            for (const line of block.split('\n')) {
+                const m = line.match(/^\s*(\d+)\.\s*(.+)/);
+                if (m && m[2].trim().length > 3) items.push(m[2].trim());
+            }
+            if (items.length >= 2) return items;
+            const fallbackNum = [];
+            for (const line of text.split('\n')) {
+                const m = line.match(/^\s*(\d+)\.\s*(.+)/);
+                if (m && m[2].trim().length > 5) fallbackNum.push(m[2].trim());
+            }
+            if (fallbackNum.length >= 2) return fallbackNum.slice(0, 12);
+            return buildChecklistItems(analysis, raw);
+        }
+
+        function extractDocumentMentions(raw) {
+            const kw = /(Form\s+[\d\-A-Za-z]+|IRS\s+Form|1099|W-2|\bW2\b|receipt|record|documentation|document|documents|bank\s+statement|enclos|attach|proof|supporting)/i;
+            const seen = new Set();
+            const out = [];
+            for (const line of (raw || '').split('\n')) {
+                const t = line.trim();
+                if (t.length < 10) continue;
+                if (!kw.test(t)) continue;
+                const cleaned = t.replace(/^[\-\•\*\d\.\)\s]+/, '').replace(/^[─┼│\s]+/, '').trim();
+                if (cleaned.length < 12) continue;
+                const key = cleaned.slice(0, 120);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    out.push(cleaned);
+                }
+            }
+            return out.length ? out : buildDocList(currentAnalysis);
+        }
+
         function populateStep2(apiPayload, fullText) {
             currentAnalysis = apiPayload.analysis || {};
             const summaryText = fullText || apiPayload.summary || '';
+            lastFullAnalysisText = summaryText;
             const overrideNt = document.getElementById('noticeTypeOverride')?.value?.trim();
             const nt = (overrideNt || currentAnalysis.letterType || 'UNKNOWN').toUpperCase();
             const displayType = overrideNt || currentAnalysis.letterType || '—';
@@ -795,24 +1004,42 @@
             document.getElementById('metaDeadline').textContent = deadlineStr;
 
             const whatEl = document.getElementById('analysisWhatIrsSays');
+            const shortSummary = extractFirstMeaningfulParagraph(summaryText);
+            let whatHtml = '<p style="margin:0;">' + escapeHtml(shortSummary) + '</p>';
             const showTable = ['CP2000', 'CP2501', 'AUDIT_LETTER'].includes((currentAnalysis.letterType || '').toUpperCase()) ||
                 ['CP2000', 'CP2501', 'AUDIT_LETTER'].includes(nt);
             if (showTable) {
-                const parsed = tryParseDiscrepancyTable(summaryText);
-                if (parsed) {
-                    whatEl.innerHTML = parsed;
-                } else {
-                    whatEl.innerHTML = '<div class="analysis-section" style="padding:16px; background:#f8fafc; border-radius:10px; font-size:0.9rem;">' + escapeHtml(summaryText) + '</div>';
+                const parsedTable = tryParseDiscrepancyTable(summaryText);
+                if (parsedTable) {
+                    whatHtml += '<div style="margin-top:16px;">' + parsedTable + '</div>';
                 }
+            }
+            whatEl.innerHTML = whatHtml;
+
+            const structured = splitAnalysisIntoSections(summaryText);
+            const secEl = document.getElementById('analysisStructuredSections');
+            if (structured.length === 0) {
+                secEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No labeled sections were detected in this analysis. Use “Full analysis” below for the complete text.</p>';
             } else {
-                whatEl.innerHTML = '<div class="analysis-section" style="padding:16px; background:#f8fafc; border-radius:10px; font-size:0.9rem; white-space:pre-wrap;">' + escapeHtml(summaryText) + '</div>';
+                secEl.innerHTML = structured.map((s) =>
+                    '<div class="analysis-section-block">' +
+                    '<div class="analysis-section-title">' + escapeHtml(s.title) + '</div>' +
+                    '<div class="analysis-section-body">' + escapeHtml(s.body) + '</div>' +
+                    '</div>'
+                ).join('');
             }
 
             const checklistEl = document.getElementById('analysisChecklist');
-            const items = buildChecklistItems(currentAnalysis, summaryText);
-            checklistEl.innerHTML = items.map((t) => '<div class="checklist-row"><input type="checkbox" checked tabindex="-1" aria-hidden="true"><span>' + escapeHtml(t) + '</span></div>').join('');
+            const procItems = extractProcedureChecklist(summaryText, currentAnalysis);
+            checklistEl.innerHTML = procItems.map((t) => '<div class="checklist-row"><input type="checkbox" checked tabindex="-1" aria-hidden="true"><span>' + escapeHtml(t) + '</span></div>').join('');
 
-            document.getElementById('analysisDocList').innerHTML = buildDocList(currentAnalysis).map((t) => '<li>' + escapeHtml(t) + '</li>').join('');
+            const docItems = extractDocumentMentions(summaryText);
+            document.getElementById('analysisDocList').innerHTML = docItems.map((t) => '<li>' + escapeHtml(t) + '</li>').join('');
+
+            const rawPre = document.getElementById('fullAnalysisRaw');
+            if (rawPre) rawPre.textContent = summaryText;
+            const fad = document.getElementById('fullAnalysisDetails');
+            if (fad) fad.removeAttribute('open');
 
             const hiddenExpl = document.getElementById('explanation');
             if (hiddenExpl) hiddenExpl.textContent = summaryText;
@@ -896,12 +1123,18 @@
             return 'DISPUTE';
         }
 
+        function toggleStrategyCustomVisibility() {
+            const wrap = document.getElementById('strategyCustomWrap');
+            if (!wrap) return;
+            wrap.classList.toggle('is-visible', selectedStrategy === 'CUSTOM');
+        }
+
         function refreshStrategyUI() {
             const rec = computeRecommendedStrategy();
             document.querySelectorAll('#strategyGrid .strategy-card').forEach((card) => {
                 card.classList.toggle('strategy-card--selected', card.dataset.strategy === selectedStrategy);
                 let badge = card.querySelector('.badge-recommended');
-                if (card.dataset.strategy === rec) {
+                if (card.dataset.strategy === rec && card.dataset.strategy !== 'CUSTOM') {
                     if (!badge) {
                         badge = document.createElement('span');
                         badge.className = 'badge-recommended';
@@ -916,16 +1149,19 @@
                 DISPUTE: 'You are challenging the IRS position with documentation and legal argument.',
                 AGREE: 'You are accepting the balance and resolving collection to stop additional penalties.',
                 PENALTY_ABATEMENT: 'You are paying the underlying tax while requesting penalty relief.',
-                EXTENSION: 'You need additional time to prepare a complete response.'
+                EXTENSION: 'You need additional time to prepare a complete response.',
+                CUSTOM: 'Your letter will reflect the specific facts and strategy you describe below.'
             };
             const legal = {
                 DISPUTE: 'IRC §§ 6212, 6402; IRS administrative appeal and deficiency procedures as applicable.',
                 AGREE: 'IRC § 6151; collection and payment procedures.',
                 PENALTY_ABATEMENT: 'IRC § 6651; first-time abatement and reasonable cause under IRS guidance.',
-                EXTENSION: 'IRM and notice-specific extension procedures; interest continues under IRC § 6601.'
+                EXTENSION: 'IRM and notice-specific extension procedures; interest continues under IRC § 6601.',
+                CUSTOM: 'Tailored to your stated circumstances; cite applicable IRC sections where relevant.'
             };
             document.getElementById('strategyWhyText').textContent = why[selectedStrategy] || why.DISPUTE;
             document.getElementById('strategyLegalText').textContent = legal[selectedStrategy] || legal.DISPUTE;
+            toggleStrategyCustomVisibility();
         }
 
         function resetWizard() {
@@ -934,6 +1170,8 @@
             analysisData = {};
             selectedStrategy = 'DISPUTE';
             generatedLetter = '';
+            const sct = document.getElementById('strategyCustomText');
+            if (sct) sct.value = '';
             document.getElementById('pasteNoticeText').value = '';
             const fileInput = document.getElementById('file');
             if (fileInput) fileInput.value = '';
@@ -1347,6 +1585,13 @@
 
         document.getElementById('footerNext3').addEventListener('click', async () => {
             const btn = document.getElementById('footerNext3');
+            if (selectedStrategy === 'CUSTOM') {
+                const customTxt = document.getElementById('strategyCustomText')?.value?.trim() || '';
+                if (!customTxt) {
+                    alert('Please describe your defense strategy or circumstances.');
+                    return;
+                }
+            }
             btn.innerHTML = '<span class="spinner"></span>Generating your letter...';
             btn.classList.add('btn-loading');
             try {
@@ -1357,6 +1602,9 @@
                     taxYear: document.getElementById('taxYearOverride')?.value || '',
                     advanced: true
                 };
+                if (selectedStrategy === 'CUSTOM') {
+                    userDataPayload.customStrategy = document.getElementById('strategyCustomText').value.trim();
+                }
                 const response = await fetch('/.netlify/functions/generate-response', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1383,7 +1631,7 @@
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
                     const ty = document.getElementById('taxYearOverride')?.value || '—';
-                    const stratLabels = { DISPUTE: 'Dispute', AGREE: 'Agree & resolve', PENALTY_ABATEMENT: 'Penalty abatement', EXTENSION: 'Extension' };
+                    const stratLabels = { DISPUTE: 'Dispute', AGREE: 'Agree & resolve', PENALTY_ABATEMENT: 'Penalty abatement', EXTENSION: 'Extension', CUSTOM: 'Other / custom' };
                     document.getElementById('letterSubheading').textContent = nt + ' | Tax year ' + ty + ' | Strategy: ' + (stratLabels[selectedStrategy] || selectedStrategy);
                     hideStatus();
                     goToStep(4);
