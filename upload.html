@@ -1685,11 +1685,12 @@
         function buildPlaceholderReplacementPairs(values) {
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
+            const ssnEINLine = ssn4 ? ('SSN/EIN: XXX-XX-' + ssn4) : 'SSN/EIN: XXX-XX-XXXX';
             const irsAddrMsg = 'See notice for IRS address';
             const irsCszMsg = 'See notice for city/state';
             const contactCombo = [phone, email].filter(Boolean).join(' | ');
             return [
-                [/\[SSN\/EIN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
+                [/\[SSN\/EIN:\s*XXX-XX-XXXX\]/gi, ssnEINLine],
                 [/\[SSN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
                 [/\[Taxpayer SSN\/EIN\]/gi, ssnMasked],
                 [/\[YOUR SSN\]/gi, ssnMasked],
@@ -1769,10 +1770,12 @@
             const phone = document.getElementById('fillPhone').value.trim();
             const email = document.getElementById('fillEmail').value.trim();
             const dateVal = document.getElementById('fillDate').value;
-            const dateShow = dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const formattedDate = dateVal
+                ? new Date(dateVal + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
             let md = generatedLetter;
-            const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow });
+            const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow: formattedDate });
             pairs.forEach(([re, val]) => {
                 md = md.replace(re, () => val);
             });

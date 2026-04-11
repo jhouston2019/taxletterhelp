@@ -368,10 +368,11 @@ function formatResponseLetter(params) {
   
   let letter = "";
   
-  // Header
-  letter += "[YOUR NAME]\n";
-  letter += "[YOUR ADDRESS]\n";
-  letter += "[CITY, STATE ZIP]\n";
+  // Header — taxpayer block (four mandatory lines), then contact
+  letter += "[TAXPAYER NAME]\n";
+  letter += "[ADDRESS]\n";
+  letter += "[CITY, STATE, ZIP Code]\n";
+  letter += "[SSN/EIN: XXX-XX-XXXX]\n";
   letter += "[YOUR PHONE NUMBER]\n";
   letter += "[YOUR EMAIL]\n\n";
   letter += `Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
