@@ -1,4 +1,5 @@
 const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require("docx");
+const { stripDisclaimerLinesFromLetter } = require("./_strip-letter-disclaimer.js");
 
 /** Remove inline **bold** and *italic* markers (non-greedy, line-safe). */
 function stripInlineMarkdown(segment) {
@@ -73,7 +74,8 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, fileName = "response-letter.docx" } = JSON.parse(event.body || "{}");
+    const { text: rawText, fileName = "response-letter.docx" } = JSON.parse(event.body || "{}");
+    const text = stripDisclaimerLinesFromLetter(rawText);
 
     if (!text) {
       return {

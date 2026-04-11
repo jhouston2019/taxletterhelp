@@ -149,7 +149,7 @@ const mainHandler = async (event) => {
     // Fallback: legacy path (e.g. upload flow without structured userPosition) — full sections 1–6 in one response
     console.log('Using legacy response generation with enhanced prompting');
 
-    // Letter system prompt: TAX_DEFENSE_SYSTEM_PROMPT_BASE includes LETTER_PERSON_VOICE_RULES (irs-intelligence/index.js).
+    // Letter system prompt: TAX_DEFENSE_SYSTEM_PROMPT_BASE includes closing, dollar-decimal, and IRS-address rules (irs-intelligence/index.js LETTER_SYSTEM_PROMPT_ENFORCEMENT).
     const legacySystemPrompt = `${TAX_DEFENSE_SYSTEM_PROMPT_BASE}
 
 OUTPUT SCOPE FOR THIS REQUEST (LEGACY PATH — SECTIONS 5 AND 6 ONLY):

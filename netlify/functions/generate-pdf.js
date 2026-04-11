@@ -1,4 +1,5 @@
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
+const { stripDisclaimerLinesFromLetter } = require("./_strip-letter-disclaimer.js");
 
 /**
  * Standard PDF fonts use WinAnsi; unmapped Unicode throws (common Netlify failure for “smart” quotes / em dash).
@@ -78,7 +79,8 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, fileName = "response-letter.pdf" } = JSON.parse(event.body || "{}");
+    const { text: rawText, fileName = "response-letter.pdf" } = JSON.parse(event.body || "{}");
+    const text = stripDisclaimerLinesFromLetter(rawText);
 
     if (!text) {
       return {

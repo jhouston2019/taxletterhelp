@@ -1669,10 +1669,24 @@
 
         document.getElementById('footerBack4').addEventListener('click', () => goToStep(3));
 
+        function stripLetterDisclaimerLines(responseText) {
+            return responseText
+                .split('\n')
+                .filter(line =>
+                    !line.includes('This tool generates draft') &&
+                    !line.includes('does not constitute legal') &&
+                    !line.includes('attorney-client') &&
+                    !line.includes('For complex matters') &&
+                    !line.includes('Full disclaimer')
+                )
+                .join('\n');
+        }
+
         function buildPlaceholderReplacementPairs(values) {
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
             const irsAddrMsg = 'See notice for IRS address';
+            const irsCszMsg = 'See notice for city/state';
             const contactCombo = [phone, email].filter(Boolean).join(' | ');
             return [
                 [/\[SSN\/EIN:\s*XXX-XX-XXXX\]/gi, ssnMasked],
@@ -1688,6 +1702,9 @@
                 [/\[IRS ADDRESS ON NOTICE\]/gi, irsAddrMsg],
                 [/\[IRS ADDRESS\]/gi, irsAddrMsg],
                 [/\[IRS Address\]/gi, irsAddrMsg],
+                [/\[IRS City, State, ZIP\]/gi, irsCszMsg],
+                [/\[IRS CITY, STATE, ZIP\]/gi, irsCszMsg],
+                [/\[IRS City, State, Zip\]/gi, irsCszMsg],
                 [/\[Today's Date\]/gi, dateShow],
                 [/\[TODAY'S DATE\]/gi, dateShow],
                 [/\[Current Date\]/gi, dateShow],
@@ -1783,7 +1800,7 @@
         document.getElementById('downloadPDF').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const responseText = stripMarkdown(responseElement.innerText || responseElement.textContent);
+            const responseText = stripLetterDisclaimerLines(stripMarkdown(responseElement.innerText || responseElement.textContent));
             try {
                 const response = await fetch('/.netlify/functions/generate-pdf', {
                     method: 'POST',
@@ -1812,7 +1829,7 @@
         document.getElementById('downloadDOCX').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const responseText = stripMarkdown(responseElement.innerText || responseElement.textContent);
+            const responseText = stripLetterDisclaimerLines(stripMarkdown(responseElement.innerText || responseElement.textContent));
             try {
                 const response = await fetch('/.netlify/functions/generate-docx', {
                     method: 'POST',

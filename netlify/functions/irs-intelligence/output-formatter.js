@@ -376,7 +376,8 @@ function formatResponseLetter(params) {
   letter += "[YOUR EMAIL]\n\n";
   letter += `Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
   letter += "Internal Revenue Service\n";
-  letter += "[IRS ADDRESS FROM NOTICE]\n\n";
+  letter += "[IRS Address]\n";
+  letter += "[IRS City, State, ZIP]\n\n";
   letter += `RE: Response to ${classification.noticeType}\n`;
   letter += "    Notice Date: [DATE FROM NOTICE]\n";
   letter += "    Tax Year: [TAX YEAR]\n";
@@ -399,10 +400,8 @@ function formatResponseLetter(params) {
   // Closing
   letter += "I request that you review this information and adjust your records accordingly. ";
   letter += "Please confirm receipt of this correspondence and advise of any additional information required.\n\n";
-  letter += "Thank you for your attention to this matter.\n\n";
   letter += "Sincerely,\n\n";
-  letter += "[YOUR SIGNATURE]\n";
-  letter += "[YOUR PRINTED NAME]\n";
+  letter += "[TAXPAYER NAME]\n";
   letter += "[YOUR SSN OR EIN - LAST 4 DIGITS ONLY]\n\n";
   
   // Enclosures

@@ -113,7 +113,16 @@ SUBSTANCE (HARD RULES):
 - Specific: anchor every material point to the exact notice type, tax year, and dollar amounts from the notice.
 - Legally grounded: cite IRC sections, IRS publications, or Revenue Procedures where applicable; integrate citations into declarative sentences.
 
-Never produce a short, vague, or boilerplate letter under any circumstances.`;
+Never produce a short, vague, or boilerplate letter under any circumstances.
+
+LETTER FORMAT (HARD RULES — CLOSING, AMOUNTS, IRS ADDRESS):
+- CLOSING SIGNATURE: The closing must be "Sincerely," followed by one blank line and [TAXPAYER NAME] once. Never add a second [Taxpayer Printed Name], [Printed Name], or any duplicate printed-name line below the signature; the single name line after "Sincerely," is sufficient.
+- DOLLAR AMOUNTS: Always format dollar amounts with exactly two decimal places (e.g. $990.20, never $990.2).
+- IRS ADDRESS BLOCK: The IRS address block must use exactly:
+  Internal Revenue Service
+  [IRS Address]
+  [IRS City, State, ZIP]
+  Use [IRS Address] and [IRS City, State, ZIP] as separate placeholders — never use the taxpayer's city, state, or ZIP for the IRS address block.`;
 
 /**
  * Extended framework after enforcement (used in full system prompts).
@@ -410,12 +419,11 @@ async function generateIRSResponse(analysisResult, userPosition, aiGenerateFunct
     analysisResult.financialInfo.balanceDue || 0
   );
   
-  // STEP 10: ADD DISCLAIMER (Safety Layer)
-  const disclaimer = formatDisclaimer(classification, aiRiskAnalysis);
-  
+  // Disclaimer is not appended to the response letter body (exports stay clean for PDF/DOCX).
+
   return {
     success: true,
-    responseLetter: responseLetter + disclaimer,
+    responseLetter,
     
     // Safety Information
     riskAnalysis: aiRiskAnalysis,
