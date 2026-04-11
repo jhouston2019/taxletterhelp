@@ -1721,6 +1721,11 @@
                 .join('\n');
         }
 
+        function getExportedLetterPlainText() {
+            const cleanedText = stripLetterDisclaimerLines(stripMarkdown(getLetterPlainTextForDownload()));
+            return stripActionChecklistForDownload(cleanedText);
+        }
+
         function buildPlaceholderReplacementPairs(values) {
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
@@ -1823,10 +1828,9 @@
         });
 
         document.getElementById('btnCopyLetter').addEventListener('click', async () => {
-            const el = document.getElementById('responseLetter');
-            const t = stripMarkdown(el.innerText || el.textContent || '');
             try {
-                await navigator.clipboard.writeText(t);
+                const copyText = getExportedLetterPlainText();
+                await navigator.clipboard.writeText(copyText);
                 alert('Letter copied to clipboard.');
             } catch (e) {
                 alert('Could not copy.');
@@ -1842,8 +1846,7 @@
         document.getElementById('downloadPDF').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const cleanedText = stripLetterDisclaimerLines(stripMarkdown(getLetterPlainTextForDownload()));
-            const letterOnly = stripActionChecklistForDownload(cleanedText);
+            const letterOnly = getExportedLetterPlainText();
             try {
                 const response = await fetch('/.netlify/functions/generate-pdf', {
                     method: 'POST',
@@ -1872,8 +1875,7 @@
         document.getElementById('downloadDOCX').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const cleanedText = stripLetterDisclaimerLines(stripMarkdown(getLetterPlainTextForDownload()));
-            const letterOnly = stripActionChecklistForDownload(cleanedText);
+            const letterOnly = getExportedLetterPlainText();
             try {
                 const response = await fetch('/.netlify/functions/generate-docx', {
                     method: 'POST',
