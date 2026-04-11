@@ -162,6 +162,16 @@
         #responseLetter p { margin-bottom: 12px; }
         #responseLetter ul, #responseLetter ol { margin-left: 20px; margin-bottom: 12px; }
 
+        #responseLetter .checklist-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-top: 32px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
         .file-drop-zone {
             box-sizing: border-box;
             width: 100%;
@@ -1544,11 +1554,39 @@
             return text
                 .replace(/^\s*#+\s*5\.\s*Response Letter\s*/im, '')
                 .replace(/^\s*5\.\s*Response Letter\s*/im, '')
-                .replace(/^\s*#+\s*6\.\s*Action Checklist\s*/im, '')
-                .replace(/^\s*6\.\s*Action Checklist\s*/im, '')
-                .replace(/\n\s*#+\s*6\.\s*Action Checklist\s*(?=\n)/gi, '\n')
-                .replace(/\n\s*6\.\s*Action Checklist\s*(?=\n)/gi, '\n')
                 .trim();
+        }
+
+        function insertChecklistReferenceLabel() {
+            const el = document.getElementById('responseLetter');
+            if (!el) return;
+            el.querySelectorAll('.checklist-label').forEach((n) => n.remove());
+            const candidates = el.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            for (const node of candidates) {
+                const t = (node.textContent || '').trim();
+                if (/^6\.\s*Action Checklist$/i.test(t) || /^Action Checklist$/i.test(t)) {
+                    const label = document.createElement('div');
+                    label.className = 'checklist-label';
+                    label.textContent = 'FOR YOUR REFERENCE ONLY — NOT INCLUDED IN DOWNLOADS';
+                    node.parentNode.insertBefore(label, node);
+                    return;
+                }
+            }
+        }
+
+        function stripActionChecklistForDownload(cleanedText) {
+            return cleanedText
+                .replace(/#{0,3}\s*6\.\s*Action Checklist[\s\S]*$/im, '')
+                .replace(/#{0,3}\s*Action Checklist[\s\S]*$/im, '')
+                .trim();
+        }
+
+        function getLetterPlainTextForDownload() {
+            const el = document.getElementById('responseLetter');
+            if (!el) return '';
+            const clone = el.cloneNode(true);
+            clone.querySelectorAll('.checklist-label').forEach((n) => n.remove());
+            return clone.innerText || clone.textContent || '';
         }
 
         function renderLetterMarkdown(md) {
@@ -1557,6 +1595,7 @@
             const cleaned = cleanGeneratedLetterMarkdown(md);
             if (globalThis.marked?.parse) {
                 el.innerHTML = highlightPlaceholdersInLetterHtml(globalThis.marked.parse(cleaned));
+                insertChecklistReferenceLabel();
             } else {
                 el.textContent = cleaned;
             }
@@ -1803,13 +1842,14 @@
         document.getElementById('downloadPDF').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const responseText = stripLetterDisclaimerLines(stripMarkdown(responseElement.innerText || responseElement.textContent));
+            const cleanedText = stripLetterDisclaimerLines(stripMarkdown(getLetterPlainTextForDownload()));
+            const letterOnly = stripActionChecklistForDownload(cleanedText);
             try {
                 const response = await fetch('/.netlify/functions/generate-pdf', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: responseText,
+                        text: letterOnly,
                         fileName: 'response-letter.pdf'
                     })
                 });
@@ -1832,13 +1872,14 @@
         document.getElementById('downloadDOCX').addEventListener('click', async () => {
             const responseElement = document.getElementById('responseLetter');
             if (!responseElement) return;
-            const responseText = stripLetterDisclaimerLines(stripMarkdown(responseElement.innerText || responseElement.textContent));
+            const cleanedText = stripLetterDisclaimerLines(stripMarkdown(getLetterPlainTextForDownload()));
+            const letterOnly = stripActionChecklistForDownload(cleanedText);
             try {
                 const response = await fetch('/.netlify/functions/generate-docx', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: responseText,
+                        text: letterOnly,
                         fileName: 'response-letter.docx'
                     })
                 });
