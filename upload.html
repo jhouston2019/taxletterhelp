@@ -167,9 +167,45 @@
             color: #64748b;
             font-weight: 600;
             letter-spacing: 0.05em;
-            margin-top: 32px;
+            margin-top: 0;
             margin-bottom: 8px;
             text-transform: uppercase;
+        }
+
+        #responseLetter .action-checklist-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e2e8f0;
+        }
+        #responseLetter .action-checklist-section h2,
+        #responseLetter .action-checklist-section h3,
+        #responseLetter .action-checklist-section h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        #responseLetter .action-checklist-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #responseLetter .action-checklist-section ul li {
+            padding: 10px 0 10px 28px;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+        #responseLetter .action-checklist-section ul li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: 700;
         }
 
         .file-drop-zone {
@@ -821,6 +857,7 @@
         let generatedLetter = '';
         let currentStep = 1;
         let lastFullAnalysisText = '';
+        let currentTaxYear = '';
 
         const UPLOAD_SUBMIT_DEFAULT_HTML = 'Analyze My Notice →';
         const GENERATE_BTN_DEFAULT_HTML = 'Generate My Response Letter →';
@@ -915,31 +952,24 @@
             return false;
         }
 
-        const TAX_YEAR_PATTERNS_CLIENT = [
-            /tax year[:\s]+(\d{4})/i,
-            /tax year\s+(\d{4})/i,
-            /for\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})/i,
-            /(?:tax\s+)?period\s+(?:ending\s+)?(\d{4})/i,
-            /(\d{4})\s+tax\s+(?:year|return)/i,
-            /(?:your\s+)?(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax/i,
-            /tax\s+return.*?(\d{4})/i,
-            /(?:Form\s+1040.*?)(\d{4})/i,
-            /notice.*?(\d{4})\s+tax/i
-        ];
-
-        function extractTaxYearFromTextClient(text) {
-            const src = (text || '').trim();
-            if (!src) return '';
-            const maxY = new Date().getFullYear();
-            const minY = 2010;
-            for (const re of TAX_YEAR_PATTERNS_CLIENT) {
-                const m = src.match(re);
+        function extractTaxYearFromText(text) {
+            if (!text) return null;
+            const patterns = [
+                /tax\s+year\s*:?\s*(\d{4})/i,
+                /for\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})/i,
+                /(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax/i,
+                /your\s+(\d{4})\s+(?:tax|return|Form)/i,
+                /period\s+(?:ending\s+)?\w+\s+\d+,?\s+(\d{4})/i,
+                /\b(20[12]\d)\b/,
+            ];
+            for (const re of patterns) {
+                const m = text.match(re);
                 if (m && m[1]) {
-                    const y = parseInt(m[1], 10);
-                    if (!Number.isNaN(y) && y >= minY && y <= maxY) return String(y);
+                    const yr = parseInt(m[1], 10);
+                    if (yr >= 2010 && yr <= 2030) return String(yr);
                 }
             }
-            return '';
+            return null;
         }
 
         function formatSectionHeading(raw) {
@@ -1078,14 +1108,17 @@
 
             const fi = currentAnalysis.financialInfo || {};
             const overrideTy = document.getElementById('taxYearOverride')?.value?.trim();
-            const clientTy = extractTaxYearFromTextClient(fullText || '') || extractTaxYearFromTextClient(letterText || '');
-            const taxY = overrideTy || apiPayload.taxYear || apiPayload.analysis?.taxYear || fi.taxYear || fi.taxYears || clientTy || '—';
+            const textTy =
+                extractTaxYearFromText(fullText || '') ||
+                extractTaxYearFromText(letterText || '');
+            const taxY = overrideTy || apiPayload.taxYear || apiPayload.analysis?.taxYear || fi.taxYear || fi.taxYears || textTy || '—';
             document.getElementById('metaTaxYear').textContent = taxY || '—';
             if (taxY && taxY !== '—' && !overrideTy) {
                 const tyInput = document.getElementById('taxYearOverride');
                 if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = taxY;
             }
             currentAnalysis.resolvedTaxYear = taxY !== '—' ? taxY : '';
+            currentTaxYear = taxY !== '—' ? String(taxY) : '';
 
             const amt = fi.proposedChange != null ? fi.proposedChange : fi.balanceDue != null ? fi.balanceDue : fi.largestAmount;
             document.getElementById('metaAmount').textContent = formatMoney(amt);
@@ -1264,6 +1297,7 @@
             analysisData = {};
             selectedStrategy = 'DISPUTE';
             generatedLetter = '';
+            currentTaxYear = '';
             const sct = document.getElementById('strategyCustomText');
             if (sct) sct.value = '';
             document.getElementById('pasteNoticeText').value = '';
@@ -1598,6 +1632,18 @@
 
                 if (summaryText || parsed.analysis) {
                     populateStep2(parsed, summaryText);
+                    const extractedYear =
+                        analysisData.taxYear ||
+                        currentAnalysis?.taxYear ||
+                        extractTaxYearFromText(letterText);
+                    currentTaxYear = (extractedYear ? String(extractedYear) : '') || currentTaxYear || '';
+                    if (currentTaxYear) {
+                        const metaTy = document.getElementById('metaTaxYear');
+                        if (metaTy) metaTy.textContent = currentTaxYear;
+                        const tyInput = document.getElementById('taxYearOverride');
+                        if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = currentTaxYear;
+                        currentAnalysis.resolvedTaxYear = currentTaxYear;
+                    }
                     hideStatus();
                     goToStep(2);
                 } else {
@@ -1636,6 +1682,12 @@
         function insertChecklistReferenceLabel() {
             const el = document.getElementById('responseLetter');
             if (!el) return;
+            el.querySelectorAll('.action-checklist-section').forEach((sec) => {
+                const p = sec.parentNode;
+                if (!p) return;
+                while (sec.firstChild) p.insertBefore(sec.firstChild, sec);
+                sec.remove();
+            });
             el.querySelectorAll('.checklist-label, hr.checklist-label-fallback-hr').forEach((n) => n.remove());
 
             const label = document.createElement('div');
@@ -1646,7 +1698,24 @@
             for (const node of candidates) {
                 const t = ((node.textContent || '').trim()).replace(/\s+/g, ' ');
                 if (/^(#{1,6}\s*)?(6\.\s*)?Action Checklist\b/i.test(t)) {
-                    node.parentNode.insertBefore(label, node);
+                    const parent = node.parentNode;
+                    if (!parent) continue;
+                    parent.insertBefore(label, node);
+                    const section = document.createElement('div');
+                    section.className = 'action-checklist-section';
+                    parent.insertBefore(section, node);
+                    let n = node;
+                    while (n) {
+                        const next = n.nextSibling;
+                        section.appendChild(n);
+                        if (!next) break;
+                        const tag = next.nodeType === 1 ? (next.tagName || '').toLowerCase() : '';
+                        if (tag === 'h1' || tag === 'h2' || tag === 'h3') {
+                            const nt = ((next.textContent || '').trim()).replace(/\s+/g, ' ');
+                            if (/^(#{1,6}\s*)?7\.\s/i.test(nt) || /^(#{1,6}\s*)?(disclaimer|legal notice)\b/i.test(nt)) break;
+                        }
+                        n = next;
+                    }
                     return;
                 }
             }
@@ -1671,7 +1740,7 @@
             const el = document.getElementById('responseLetter');
             if (!el) return '';
             const clone = el.cloneNode(true);
-            clone.querySelectorAll('.checklist-label, hr.checklist-label-fallback-hr').forEach((n) => n.remove());
+            clone.querySelectorAll('.checklist-label, hr.checklist-label-fallback-hr, .action-checklist-section').forEach((n) => n.remove());
             return clone.innerText || clone.textContent || '';
         }
 
@@ -1743,11 +1812,11 @@
             try {
                 showStatus('Generating your letter...');
                 const overrideTy = document.getElementById('taxYearOverride')?.value?.trim();
-                const resolvedTy = overrideTy || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.taxYear || currentAnalysis.financialInfo?.taxYear || extractTaxYearFromTextClient(letterText || '');
+                const resolvedTy = overrideTy || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.taxYear || currentAnalysis.financialInfo?.taxYear || currentTaxYear || extractTaxYearFromText(letterText || '');
                 const userDataPayload = {
                     strategy: selectedStrategy,
                     noticeType: currentAnalysis.letterType || document.getElementById('noticeTypeOverride')?.value || '',
-                    taxYear: resolvedTy || '',
+                    taxYear: resolvedTy || currentTaxYear || '',
                     advanced: true
                 };
                 if (selectedStrategy === 'CUSTOM') {
@@ -1778,7 +1847,7 @@
                     generatedLetter = cleanGeneratedLetterMarkdown(letterContent);
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
-                    const ty = document.getElementById('taxYearOverride')?.value?.trim() || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.financialInfo?.taxYear || extractTaxYearFromTextClient(letterText || '') || '—';
+                    const ty = document.getElementById('taxYearOverride')?.value?.trim() || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.financialInfo?.taxYear || currentTaxYear || extractTaxYearFromText(letterText || '') || '—';
                     const stratLabels = { DISPUTE: 'Dispute', AGREE: 'Agree & resolve', PENALTY_ABATEMENT: 'Penalty abatement', EXTENSION: 'Extension', CUSTOM: 'Other / custom' };
                     document.getElementById('letterSubheading').textContent = nt + ' | Tax year ' + ty + ' | Strategy: ' + (stratLabels[selectedStrategy] || selectedStrategy);
                     hideStatus();
@@ -1816,6 +1885,7 @@
 
         function buildPlaceholderReplacementPairs(values) {
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
+            const tyDisp = currentTaxYear || 'See notice';
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
             const ssnEINLine = ssn4 ? ('SSN/EIN: XXX-XX-' + ssn4) : 'SSN/EIN: XXX-XX-XXXX';
             const irsAddrMsg = 'See notice for IRS address';
@@ -1845,6 +1915,10 @@
                 [/\[DATE FROM NOTICE\]/gi, dateShow],
                 [/\[DATE\]/gi, dateShow],
                 [/\[date\]/gi, dateShow],
+                [/\[TAX YEAR\]/gi, tyDisp],
+                [/\[Tax Year\]/gi, tyDisp],
+                [/\[tax year\]/gi, tyDisp],
+                [/\[YEAR\]/gi, tyDisp],
                 [/\[Your Email Address\]/gi, email],
                 [/\[your email address\]/gi, email],
                 [/\[your phone number\]/gi, phone],
