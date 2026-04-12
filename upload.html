@@ -30,7 +30,7 @@
         .wizard-steps {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             gap: 8px;
             margin-bottom: 28px;
             flex-wrap: nowrap;
@@ -42,14 +42,14 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            gap: 6px;
+            gap: 0;
             min-width: 0;
         }
 
         .wizard-step-pill {
             width: 100%;
-            max-width: 140px;
-            padding: 8px 10px;
+            max-width: 168px;
+            padding: 8px 12px;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
@@ -57,6 +57,24 @@
             color: #94a3b8;
             background: transparent;
             transition: background 0.2s, color 0.2s, border-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35em;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        .wizard-step-lead {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .wizard-step-name {
+            letter-spacing: 0.01em;
         }
 
         .wizard-step--active .wizard-step-pill {
@@ -71,21 +89,33 @@
             color: #334155;
         }
 
-        .wizard-step-label {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            line-height: 1.2;
+        .wizard-step-check {
+            display: none;
+            font-size: 0.8rem;
+            line-height: 1;
+        }
+
+        .wizard-step--complete .wizard-step-check {
+            display: inline;
+        }
+
+        .wizard-step--complete .wizard-step-num {
+            display: none;
         }
 
         @media (max-width: 640px) {
-            .wizard-step-label { display: none; }
-            .wizard-step-pill { font-size: 0; padding: 10px; max-width: 44px; }
-            .wizard-step-num { font-size: 0.85rem; display: inline; }
+            .wizard-steps {
+                gap: 4px;
+            }
+            .wizard-step-pill {
+                font-size: 0.62rem;
+                padding: 7px 6px;
+                max-width: none;
+            }
+            .wizard-step-check {
+                font-size: 0.72rem;
+            }
         }
-
-        .wizard-step-check { display: none; font-size: 0.85rem; }
-        .wizard-step--complete .wizard-step-check { display: inline; }
-        .wizard-step--complete .wizard-step-num { display: none; }
 
         .step-panel {
             background: #ffffff;
@@ -636,20 +666,24 @@
     <div class="wizard-page-wrap">
         <div class="wizard-steps" id="wizardSteps" aria-label="Progress">
             <div class="wizard-step wizard-step--active" data-step="1">
-                <div class="wizard-step-pill"><span class="wizard-step-num">1</span><span class="wizard-step-check">✓</span></div>
-                <span class="wizard-step-label">1. Input</span>
+                <div class="wizard-step-pill">
+                    <span class="wizard-step-lead"><span class="wizard-step-num">1</span><span class="wizard-step-check" aria-hidden="true">✓</span></span><span class="wizard-step-name">Input</span>
+                </div>
             </div>
             <div class="wizard-step" data-step="2">
-                <div class="wizard-step-pill"><span class="wizard-step-num">2</span><span class="wizard-step-check">✓</span></div>
-                <span class="wizard-step-label">2. Analysis</span>
+                <div class="wizard-step-pill">
+                    <span class="wizard-step-lead"><span class="wizard-step-num">2</span><span class="wizard-step-check" aria-hidden="true">✓</span></span><span class="wizard-step-name">Analysis</span>
+                </div>
             </div>
             <div class="wizard-step" data-step="3">
-                <div class="wizard-step-pill"><span class="wizard-step-num">3</span><span class="wizard-step-check">✓</span></div>
-                <span class="wizard-step-label">3. Strategy</span>
+                <div class="wizard-step-pill">
+                    <span class="wizard-step-lead"><span class="wizard-step-num">3</span><span class="wizard-step-check" aria-hidden="true">✓</span></span><span class="wizard-step-name">Strategy</span>
+                </div>
             </div>
             <div class="wizard-step" data-step="4">
-                <div class="wizard-step-pill"><span class="wizard-step-num">4</span><span class="wizard-step-check">✓</span></div>
-                <span class="wizard-step-label">4. Letter</span>
+                <div class="wizard-step-pill">
+                    <span class="wizard-step-lead"><span class="wizard-step-num">4</span><span class="wizard-step-check" aria-hidden="true">✓</span></span><span class="wizard-step-name">Letter</span>
+                </div>
             </div>
         </div>
 
@@ -905,6 +939,8 @@ You must respond by April 30, 2024.`;
                 if (stepEl) {
                     stepEl.classList.toggle('wizard-step--active', i === n);
                     stepEl.classList.toggle('wizard-step--complete', i < n);
+                    if (i === n) stepEl.setAttribute('aria-current', 'step');
+                    else stepEl.removeAttribute('aria-current');
                 }
             }
             if (n === 3) {
