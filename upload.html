@@ -1844,7 +1844,7 @@
                 }
                 const letterContent = data.responseLetter || data.letter;
                 if (letterContent) {
-                    generatedLetter = cleanGeneratedLetterMarkdown(letterContent);
+                    generatedLetter = applyDateAndTaxYearPlaceholders(cleanGeneratedLetterMarkdown(letterContent));
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
                     const ty = document.getElementById('taxYearOverride')?.value?.trim() || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.financialInfo?.taxYear || currentTaxYear || extractTaxYearFromText(letterText || '') || '—';
@@ -1885,7 +1885,7 @@
 
         function buildPlaceholderReplacementPairs(values) {
             const { name, street, csz, ssn4, phone, email, dateShow } = values;
-            const tyDisp = currentTaxYear || 'See notice';
+            const tyDisp = currentTaxYear || extractTaxYearFromText(letterText || '') || 'See notice';
             const ssnMasked = ssn4 ? ('XXX-XX-' + ssn4) : 'XXX-XX-XXXX';
             const ssnEINLine = ssn4 ? ('SSN/EIN: XXX-XX-' + ssn4) : 'SSN/EIN: XXX-XX-XXXX';
             const irsAddrMsg = 'See notice for IRS address';
@@ -1914,6 +1914,7 @@
                 [/\[CURRENT DATE\]/gi, dateShow],
                 [/\[DATE FROM NOTICE\]/gi, dateShow],
                 [/\[DATE\]/gi, dateShow],
+                [/\[Date\]/gi, dateShow],
                 [/\[date\]/gi, dateShow],
                 [/\[TAX YEAR\]/gi, tyDisp],
                 [/\[Tax Year\]/gi, tyDisp],
@@ -1968,6 +1969,38 @@
             ];
         }
 
+        function getLetterDateDisplay() {
+            const dateVal = document.getElementById('fillDate').value;
+            return dateVal
+                ? new Date(dateVal + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        /** Date + tax year only — safe to run after generation without clearing name/address fields. */
+        function applyDateAndTaxYearPlaceholders(md) {
+            const dateShow = getLetterDateDisplay();
+            const tyDisp = currentTaxYear || extractTaxYearFromText(letterText || '') || 'See notice';
+            const pairs = [
+                [/\[Today's Date\]/gi, dateShow],
+                [/\[TODAY'S DATE\]/gi, dateShow],
+                [/\[Current Date\]/gi, dateShow],
+                [/\[CURRENT DATE\]/gi, dateShow],
+                [/\[DATE FROM NOTICE\]/gi, dateShow],
+                [/\[DATE\]/gi, dateShow],
+                [/\[Date\]/gi, dateShow],
+                [/\[date\]/gi, dateShow],
+                [/\[TAX YEAR\]/gi, tyDisp],
+                [/\[Tax Year\]/gi, tyDisp],
+                [/\[tax year\]/gi, tyDisp],
+                [/\[YEAR\]/gi, tyDisp]
+            ];
+            let out = md;
+            pairs.forEach(([re, val]) => {
+                out = out.replace(re, () => val);
+            });
+            return out;
+        }
+
         document.getElementById('btnFillPlaceholders').addEventListener('click', () => {
             const name = document.getElementById('fillFullName').value.trim();
             const street = document.getElementById('fillStreet').value.trim();
@@ -1975,10 +2008,7 @@
             const ssn4 = document.getElementById('fillSsn4').value.trim();
             const phone = document.getElementById('fillPhone').value.trim();
             const email = document.getElementById('fillEmail').value.trim();
-            const dateVal = document.getElementById('fillDate').value;
-            const formattedDate = dateVal
-                ? new Date(dateVal + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const formattedDate = getLetterDateDisplay();
 
             let md = generatedLetter;
             const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow: formattedDate });
