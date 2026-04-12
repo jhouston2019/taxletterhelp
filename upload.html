@@ -862,6 +862,31 @@
         const UPLOAD_SUBMIT_DEFAULT_HTML = 'Analyze My Notice →';
         const GENERATE_BTN_DEFAULT_HTML = 'Generate My Response Letter →';
 
+        const DEMO_CP2000 = `Department of the Treasury — Internal Revenue Service
+Ogden, UT 84201-0040
+
+Notice: CP2000
+Tax Year: 2022
+Notice Date: March 15, 2024
+Social Security Number: XXX-XX-7291
+Amount Due: $6,284.00
+Response Deadline: April 30, 2024
+
+Dear Taxpayer,
+
+We received information from third parties that doesn't
+match what you reported on your 2022 tax return.
+The income or payment information we received from these
+sources is listed below.
+
+Discrepancies:
+- Robinhood Markets Inc. (1099-B): $31,200 not reported
+- Upwork Global Inc. (1099-NEC): $14,800 not reported
+- Coinbase Inc. (1099-MISC): $3,100 not reported
+
+Total proposed amount due: $6,284.00
+You must respond by April 30, 2024.`;
+
         function stripMarkdown(text) {
             return text
                 .replace(/^#{1,6}\s+/gm, '')
@@ -2111,6 +2136,12 @@
 
             const dateEl = document.getElementById('fillDate');
             if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
+
+            if (new URLSearchParams(window.location.search).get('demo') === 'cp2000') {
+                const ta = document.getElementById('pasteNoticeText');
+                if (ta) ta.value = DEMO_CP2000;
+                letterText = DEMO_CP2000.trim();
+            }
 
             syncAnalyzeButtonState();
             goToStep(1);

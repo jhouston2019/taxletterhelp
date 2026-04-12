@@ -78,6 +78,21 @@
         box-sizing: border-box;
       }
     }
+    .how-it-works-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .how-it-works-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .how-it-works-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 </head>
 
@@ -108,6 +123,312 @@
                     <p style="font-size:clamp(0.9rem, 1.1vw, 1rem); color:#ffffff; margin:16px auto 0 auto; text-align:center; display:block; width:100%; opacity:0.85;">You don't need to figure out what to say — the system handles the structure for you.</p>
                 </div>
             </div>
+        </section>
+
+        <!-- Live demo preview -->
+        <section style="background:#0f172a; padding:72px 20px;">
+          <div style="width:min(1120px,92%); margin-inline:auto;">
+
+            <p style="text-align:center; font-size:0.85rem;
+              font-weight:700; letter-spacing:0.12em; color:#64748b;
+              text-transform:uppercase; margin-bottom:12px;">
+              SAMPLE OUTPUT
+            </p>
+            <h2 style="text-align:center; font-size:2.2rem;
+              font-weight:800; color:#ffffff; margin-bottom:8px;">
+              This is what you receive
+            </h2>
+            <p style="text-align:center; color:#94a3b8;
+              font-size:1.05rem; margin-bottom:48px;">
+              A complete, professionally formatted IRS response letter
+              — ready to print, sign, and mail.
+            </p>
+
+            <div style="background:#1e293b; border-radius:12px;
+              padding:24px; margin-bottom:32px; max-width:800px;
+              margin-inline:auto;">
+              <div style="display:flex; justify-content:space-between;
+                align-items:center; margin-bottom:20px;">
+                <span style="font-size:0.75rem; font-weight:700;
+                  letter-spacing:0.1em; color:#64748b;
+                  text-transform:uppercase;">
+                  SAMPLE — CP2000 FULL DISPUTE
+                </span>
+                <span style="background:#ef4444; color:white;
+                  font-size:0.75rem; font-weight:700; padding:4px 12px;
+                  border-radius:20px; letter-spacing:0.05em;">
+                  REDACTED EXAMPLE
+                </span>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr;
+                gap:12px; margin-bottom:24px;">
+                <div style="background:#0f172a; border-radius:8px;
+                  padding:16px;">
+                  <div style="font-size:0.7rem; color:#64748b;
+                    text-transform:uppercase; letter-spacing:0.08em;
+                    margin-bottom:4px;">NOTICE TYPE</div>
+                  <div style="font-size:1.4rem; font-weight:700;
+                    color:#ffffff;">CP2000</div>
+                </div>
+                <div style="background:#0f172a; border-radius:8px;
+                  padding:16px;">
+                  <div style="font-size:0.7rem; color:#64748b;
+                    text-transform:uppercase; letter-spacing:0.08em;
+                    margin-bottom:4px;">TAX YEAR</div>
+                  <div style="font-size:1.4rem; font-weight:700;
+                    color:#ffffff;">2022</div>
+                </div>
+                <div style="background:#0f172a; border-radius:8px;
+                  padding:16px;">
+                  <div style="font-size:0.7rem; color:#64748b;
+                    text-transform:uppercase; letter-spacing:0.08em;
+                    margin-bottom:4px;">PROPOSED AMOUNT</div>
+                  <div style="font-size:1.4rem; font-weight:700;
+                    color:#ef4444;">$6,284.00</div>
+                </div>
+                <div style="background:#0f172a; border-radius:8px;
+                  padding:16px;">
+                  <div style="font-size:0.7rem; color:#64748b;
+                    text-transform:uppercase; letter-spacing:0.08em;
+                    margin-bottom:4px;">RESPONSE DEADLINE</div>
+                  <div style="font-size:1.4rem; font-weight:700;
+                    color:#f59e0b;">30 days</div>
+                </div>
+              </div>
+
+              <div style="background:#0f172a; border-radius:8px;
+                padding:16px; font-size:0.9rem; color:#94a3b8;
+                line-height:1.6;">
+                <strong style="color:#3b82f6;">What the IRS is saying —</strong>
+                The IRS found discrepancies between the income you reported
+                and what was reported by third parties. They propose you owe
+                an additional $6,284 due to unreported income from Robinhood,
+                Upwork, and Coinbase. You must respond by April 30, 2024 to
+                avoid further action.
+              </div>
+            </div>
+
+            <div style="background:white; border-radius:12px;
+              padding:40px; max-width:800px; margin-inline:auto;
+              color:#1e293b; font-family:'Courier New',monospace;
+              font-size:0.82rem; line-height:1.8;
+              box-shadow:0 40px 100px rgba(0,0,0,0.6);">
+
+              <div style="font-size:0.7rem; font-weight:700;
+                letter-spacing:0.1em; color:#64748b;
+                text-transform:uppercase; margin-bottom:20px;
+                font-family:'Inter',sans-serif;">
+                SAMPLE — CP2000 FULL DISPUTE &nbsp;&nbsp;
+                <span style="background:#f1f5f9; padding:2px 8px;
+                  border-radius:4px; color:#94a3b8;">
+                  Redacted example
+                </span>
+              </div>
+
+              <p>[Date]</p>
+              <p>[Taxpayer Name]<br>[Address]<br>SSN: XXX-XX-7291</p>
+              <p>Internal Revenue Service<br>Ogden, UT 84201-0040</p>
+              <p><strong>Re: CP2000 Notice, Tax Year 2022, SSN: XXX-XX-7291</strong></p>
+              <p>Dear Internal Revenue Service,</p>
+              <p>I am writing in response to the CP2000 notice dated March 15,
+              2024, regarding proposed adjustments to my 2022 tax return.
+              I respectfully disagree with the IRS position and wish to
+              contest the proposed adjustments.</p>
+              <p>I assert my rights under the Taxpayer Bill of Rights, including
+              the right to challenge the IRS position and be heard. The IRS
+              bears the burden of assessment under IRC § 6201.</p>
+              <p><strong>Discrepancy Analysis:</strong></p>
+              <p>1. Robinhood Markets Inc. (1099-B) — $31,200: I maintain that
+              transactions were accurately reported. I assert my right to cost
+              basis adjustments under IRC § 1012.</p>
+              <p>2. Upwork Global Inc. (1099-NEC) — $14,800: This income was
+              included in my self-employment income and accounted for with
+              allowable deductions under IRC § 162.</p>
+              <p>3. Coinbase Inc. (1099-MISC) — $3,100: I request the IRS
+              verify the accuracy of this information and provide
+              substantiation.</p>
+              <p>I demand that the IRS recalculate the proposed tax liability.
+              Should the IRS maintain its position, I request consideration
+              for an Appeals conference under IRC § 7803(e).</p>
+              <p>Sincerely,<br>[Taxpayer Signature]<br>[Printed Name]</p>
+
+              <div style="margin-top:24px; padding-top:16px;
+                border-top:1px solid #e2e8f0; font-size:0.75rem;
+                color:#94a3b8; font-family:'Inter',sans-serif;
+                font-style:italic;">
+                Note: Given the urgency of this matter, you may wish to
+                have a licensed tax professional review this letter
+                before mailing.
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- How it works — 4 steps -->
+        <section style="background:#f8fafc; padding:72px 20px;
+          border-top:1px solid #e2e8f0;">
+          <div style="width:min(1120px,92%); margin-inline:auto;">
+
+            <p style="text-align:center; font-size:0.85rem;
+              font-weight:700; letter-spacing:0.12em; color:#64748b;
+              text-transform:uppercase; margin-bottom:12px;">
+              HOW IT WORKS
+            </p>
+            <h2 style="text-align:center; font-size:2.2rem;
+              font-weight:800; color:#1e293b; margin-bottom:48px;">
+              Four steps to a submission-ready letter
+            </h2>
+
+            <div class="how-it-works-grid">
+
+              <div style="background:#1e293b; border-radius:12px;
+                padding:24px; color:white;">
+                <div style="background:#3b82f6; color:white;
+                  width:28px; height:28px; border-radius:50%;
+                  display:flex; align-items:center;
+                  justify-content:center; font-size:0.8rem;
+                  font-weight:700; margin-bottom:16px;">1</div>
+                <div style="font-size:0.85rem; font-weight:700;
+                  margin-bottom:12px;">Paste or upload notice</div>
+                <div style="background:#0f172a; border-radius:6px;
+                  padding:10px; font-size:0.7rem; color:#64748b;
+                  font-family:'Courier New',monospace;
+                  line-height:1.6; margin-bottom:12px;">
+                  DEPARTMENT OF THE TREASURY<br>
+                  Notice: CP2000<br>
+                  Amount Due: $6,284.00<br>
+                  Deadline: April 30, 2024...
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                  Paste text or upload PDF, JPG, or PNG
+                </div>
+              </div>
+
+              <div style="background:#1e293b; border-radius:12px;
+                padding:24px; color:white;">
+                <div style="background:#3b82f6; color:white;
+                  width:28px; height:28px; border-radius:50%;
+                  display:flex; align-items:center;
+                  justify-content:center; font-size:0.8rem;
+                  font-weight:700; margin-bottom:16px;">2</div>
+                <div style="font-size:0.85rem; font-weight:700;
+                  margin-bottom:12px;">AI analysis</div>
+                <div style="background:#0f172a; border-radius:6px;
+                  padding:10px; margin-bottom:12px;">
+                  <div style="display:flex; justify-content:space-between;
+                    align-items:center; margin-bottom:8px;">
+                    <div>
+                      <div style="font-size:0.65rem; color:#64748b;">
+                        NOTICE</div>
+                      <div style="font-size:1rem; font-weight:700;
+                        color:white;">CP2000</div>
+                    </div>
+                    <div>
+                      <div style="font-size:0.65rem; color:#64748b;">
+                        AMOUNT</div>
+                      <div style="font-size:1rem; font-weight:700;
+                        color:#ef4444;">$6,284</div>
+                    </div>
+                  </div>
+                  <div style="display:flex; justify-content:space-between;">
+                    <div>
+                      <div style="font-size:0.65rem; color:#64748b;">
+                        YEAR</div>
+                      <div style="font-size:0.9rem; font-weight:600;
+                        color:white;">2022</div>
+                    </div>
+                    <div>
+                      <div style="font-size:0.65rem; color:#64748b;">
+                        RISK</div>
+                      <div style="background:#ef4444; color:white;
+                        font-size:0.7rem; font-weight:700;
+                        padding:2px 8px; border-radius:4px;">HIGH</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                  Plain-English explanation + discrepancy table
+                </div>
+              </div>
+
+              <div style="background:#1e293b; border-radius:12px;
+                padding:24px; color:white;">
+                <div style="background:#3b82f6; color:white;
+                  width:28px; height:28px; border-radius:50%;
+                  display:flex; align-items:center;
+                  justify-content:center; font-size:0.8rem;
+                  font-weight:700; margin-bottom:16px;">3</div>
+                <div style="font-size:0.85rem; font-weight:700;
+                  margin-bottom:12px;">Choose strategy</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr;
+                  gap:6px; margin-bottom:12px;">
+                  <div style="background:#0f172a; border-radius:4px;
+                    padding:8px; font-size:0.7rem; color:#94a3b8;
+                    text-align:center;">Full Agreement</div>
+                  <div style="background:#3b82f6; border-radius:4px;
+                    padding:8px; font-size:0.7rem; color:white;
+                    text-align:center; font-weight:700;">
+                    Dispute ← REC.
+                  </div>
+                  <div style="background:#0f172a; border-radius:4px;
+                    padding:8px; font-size:0.7rem; color:#94a3b8;
+                    text-align:center;">Penalty Abatement</div>
+                  <div style="background:#0f172a; border-radius:4px;
+                    padding:8px; font-size:0.7rem; color:#94a3b8;
+                    text-align:center;">Extension</div>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                  AI recommends best approach for your notice
+                </div>
+              </div>
+
+              <div style="background:#1e293b; border-radius:12px;
+                padding:24px; color:white;">
+                <div style="background:#3b82f6; color:white;
+                  width:28px; height:28px; border-radius:50%;
+                  display:flex; align-items:center;
+                  justify-content:center; font-size:0.8rem;
+                  font-weight:700; margin-bottom:16px;">4</div>
+                <div style="font-size:0.85rem; font-weight:700;
+                  margin-bottom:12px;">Download letter</div>
+                <div style="background:#0f172a; border-radius:6px;
+                  padding:10px; font-size:0.72rem; color:#94a3b8;
+                  line-height:1.7; margin-bottom:12px;">
+                  Re: CP2000, Tax Year 2022<br>
+                  IRC § 6201 · § 7491 · § 1012<br>
+                  Cohan v. Commissioner...<br>
+                  <span style="color:#22c55e;">✓ Submission ready</span>
+                </div>
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                  <div style="background:#3b82f6; color:white;
+                    padding:6px 12px; border-radius:4px;
+                    font-size:0.75rem; font-weight:600;">PDF</div>
+                  <div style="background:#475569; color:white;
+                    padding:6px 12px; border-radius:4px;
+                    font-size:0.75rem; font-weight:600;">Word</div>
+                  <div style="background:#475569; color:white;
+                    padding:6px 12px; border-radius:4px;
+                    font-size:0.75rem; font-weight:600;">Copy</div>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                  Print, sign, and mail to the IRS
+                </div>
+              </div>
+
+            </div>
+
+            <div style="text-align:center; margin-top:48px;">
+              <a href="/upload.html?demo=cp2000" style="background:#1e293b;
+                color:white; padding:16px 32px; border-radius:8px;
+                text-decoration:none; font-weight:700; font-size:1rem;
+                border:2px solid #3b82f6; display:inline-block;">
+                Try it now — Load a demo notice →
+              </a>
+            </div>
+
+          </div>
         </section>
 
         <!-- Why taxpayers use Tax Letter Defense Pro -->
