@@ -545,6 +545,37 @@ function extractDeadlineInfo(inputText) {
   };
 }
 
+const TAX_YEAR_PATTERNS = [
+  /tax year[:\s]+(\d{4})/i,
+  /tax year\s+(\d{4})/i,
+  /for\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})/i,
+  /(?:tax\s+)?period\s+(?:ending\s+)?(\d{4})/i,
+  /(\d{4})\s+tax\s+(?:year|return)/i,
+  /(?:your\s+)?(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax/i,
+  /tax\s+return.*?(\d{4})/i,
+  /(?:Form\s+1040.*?)(\d{4})/i,
+  /notice.*?(\d{4})\s+tax/i
+];
+
+/**
+ * First plausible tax year on the notice (2010 … current calendar year).
+ * @param {string} inputText
+ * @returns {string|null}
+ */
+function extractPrimaryTaxYearFromText(inputText) {
+  if (!inputText || typeof inputText !== "string") return null;
+  const maxY = new Date().getFullYear();
+  const minY = 2010;
+  for (const re of TAX_YEAR_PATTERNS) {
+    const m = inputText.match(re);
+    if (m && m[1]) {
+      const y = parseInt(m[1], 10);
+      if (!Number.isNaN(y) && y >= minY && y <= maxY) return String(y);
+    }
+  }
+  return null;
+}
+
 /**
  * Extracts dollar amounts from notice text
  * @param {string} inputText - Raw text from the IRS letter
@@ -588,6 +619,8 @@ function extractFinancialInfo(inputText) {
     penaltiesAndInterest = parseFloat(penaltyMatch[1].replace(/,/g, ''));
   }
   
+  const taxYear = extractPrimaryTaxYearFromText(inputText);
+
   return {
     allAmounts: amounts,
     largestAmount: amounts.length > 0 ? Math.max(...amounts) : null,
@@ -595,13 +628,15 @@ function extractFinancialInfo(inputText) {
     proposedChange: proposedChange,
     penaltiesAndInterest: penaltiesAndInterest,
     financialImpact: balanceDue && balanceDue > 25000 ? "HIGH" : 
-                     balanceDue && balanceDue > 5000 ? "MEDIUM" : "LOW"
+                     balanceDue && balanceDue > 5000 ? "MEDIUM" : "LOW",
+    taxYear
   };
 }
 
 module.exports = {
   classifyIRSNotice,
   extractDeadlineInfo,
-  extractFinancialInfo
+  extractFinancialInfo,
+  extractPrimaryTaxYearFromText
 };
 

@@ -141,7 +141,8 @@ const mainHandler = async (event) => {
     console.log('Starting IRS Intelligence System analysis...');
     
     const { analyzeIRSLetter } = require('./irs-intelligence/index.js');
-    
+    const { extractPrimaryTaxYearFromText } = require('./irs-intelligence/classification-engine.js');
+
     let structuredAnalysis;
     try {
       const intelligenceResult = await analyzeIRSLetter(letterText, {
@@ -154,8 +155,15 @@ const mainHandler = async (event) => {
       console.log('Urgency:', intelligenceResult?.classification?.urgencyLevel);
       console.log('Risk Level:', intelligenceResult?.metadata?.riskLevel);
       
+      const fi = intelligenceResult?.financialInfo || {};
+      const taxYear =
+        fi.taxYear ||
+        extractPrimaryTaxYearFromText(letterText) ||
+        null;
+
       structuredAnalysis = {
         letterType: intelligenceResult?.classification?.noticeType,
+        taxYear,
         summary: intelligenceResult?.analysisOutput,
         reason: intelligenceResult?.classification?.description,
         requiredActions: `Response Required: ${intelligenceResult?.classification?.responseRequired ? 'YES' : 'NO'}. Days Remaining: ${intelligenceResult?.deadlineIntelligence?.deadline?.daysRemaining}`,
@@ -183,6 +191,7 @@ const mainHandler = async (event) => {
       
       structuredAnalysis = {
         letterType: classification?.noticeType,
+        taxYear: extractPrimaryTaxYearFromText(letterText) || null,
         summary: `This appears to be a ${classification?.noticeType} (${classification?.description}). ${classification?.escalationRisk?.[0] ?? ''}`,
         reason: classification?.description,
         requiredActions: `Response required within ${classification?.typicalDeadlineDays} days`,
@@ -243,6 +252,7 @@ const mainHandler = async (event) => {
       body: JSON.stringify({
         message: "Analysis complete.",
         analysis: structuredAnalysis ?? {},
+        taxYear: structuredAnalysis?.taxYear ?? null,
         recordId: recordId,
         summary
       }),

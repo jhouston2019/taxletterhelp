@@ -192,6 +192,12 @@ The following preferences must NOT weaken, soften, or hedge the letter. If they 
     if (userData) {
       const ud = typeof userData === 'string' ? userData : JSON.stringify(userData, null, 2);
       legacyUserContent += `TAXPAYER-PROVIDED INFORMATION:\n${ud}\n\n`;
+      try {
+        const udObj = typeof userData === 'string' ? JSON.parse(userData) : userData;
+        if (udObj && udObj.taxYear && String(udObj.taxYear).trim()) {
+          legacyUserContent += `AUTHORITATIVE TAX YEAR FOR THE LETTER (use in RE line / [TAX YEAR] placeholders): ${String(udObj.taxYear).trim()}\n\n`;
+        }
+      } catch (_) { /* ignore malformed userData */ }
     }
     legacyUserContent += `Generate only sections 5 and 6 (Response Letter and Action Checklist) as specified in the system message — no sections 1–4.`;
 

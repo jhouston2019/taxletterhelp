@@ -41,7 +41,7 @@
  * general AI by embedding domain expertise, procedural knowledge, and safety controls.
  */
 
-const { classifyIRSNotice, extractDeadlineInfo, extractFinancialInfo } = require('./classification-engine');
+const { classifyIRSNotice, extractDeadlineInfo, extractFinancialInfo, extractPrimaryTaxYearFromText } = require('./classification-engine');
 const { getPlaybook, validateUserPosition, checkProhibitedLanguage, assessProfessionalHelpNeed } = require('./response-playbooks');
 const { generateDeadlineIntelligence } = require('./deadline-calculator');
 const { mapEvidence, generateAttachmentInstructions, validateEvidence } = require('./evidence-mapper');
@@ -190,12 +190,16 @@ const TAX_DEFENSE_SYSTEM_PROMPT_BASE = `${LETTER_SYSTEM_PROMPT_ENFORCEMENT}\n\n$
  */
 function extractTaxYearsFromLetter(letterText) {
   if (!letterText || !letterText.trim()) return 'Not extracted — infer from NOTICE TEXT below.';
+  const primary = extractPrimaryTaxYearFromText(letterText);
+  if (primary) return primary;
+  const maxY = new Date().getFullYear();
+  const minY = 2010;
   const found = new Set();
   const re = /\b(20[0-9]{2}|19[89][0-9])\b/g;
   let m;
   while ((m = re.exec(letterText)) !== null) {
     const y = parseInt(m[1], 10);
-    if (y >= 1990 && y <= 2100) found.add(m[1]);
+    if (y >= minY && y <= maxY) found.add(m[1]);
   }
   return found.size ? [...found].sort().join(', ') : 'Not extracted — infer from NOTICE TEXT below.';
 }

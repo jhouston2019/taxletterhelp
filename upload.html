@@ -907,6 +907,41 @@
             return false;
         }
 
+        function shouldSkipAnalysisSectionTitle(title) {
+            const t = (title || '').replace(/^[═─\s]+|[═─\s]+$/g, '').trim();
+            if (/^legal notice$/i.test(t)) return true;
+            if (/^professional representation required for final decisions$/i.test(t)) return true;
+            if (/^legal$/i.test(t)) return true;
+            return false;
+        }
+
+        const TAX_YEAR_PATTERNS_CLIENT = [
+            /tax year[:\s]+(\d{4})/i,
+            /tax year\s+(\d{4})/i,
+            /for\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})/i,
+            /(?:tax\s+)?period\s+(?:ending\s+)?(\d{4})/i,
+            /(\d{4})\s+tax\s+(?:year|return)/i,
+            /(?:your\s+)?(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax/i,
+            /tax\s+return.*?(\d{4})/i,
+            /(?:Form\s+1040.*?)(\d{4})/i,
+            /notice.*?(\d{4})\s+tax/i
+        ];
+
+        function extractTaxYearFromTextClient(text) {
+            const src = (text || '').trim();
+            if (!src) return '';
+            const maxY = new Date().getFullYear();
+            const minY = 2010;
+            for (const re of TAX_YEAR_PATTERNS_CLIENT) {
+                const m = src.match(re);
+                if (m && m[1]) {
+                    const y = parseInt(m[1], 10);
+                    if (!Number.isNaN(y) && y >= minY && y <= maxY) return String(y);
+                }
+            }
+            return '';
+        }
+
         function formatSectionHeading(raw) {
             const t = raw.replace(/^[═─\s]+|[═─\s]+$/g, '').trim();
             if (!t) return 'Section';
@@ -935,22 +970,53 @@
                     title: formatSectionHeading(s.title),
                     body: (Array.isArray(s.body) ? s.body.join('\n') : String(s.body || '')).trim()
                 }))
-                .filter((s) => s.title && s.body.length > 0);
+                .filter((s) => s.title && s.body.length > 0 && !shouldSkipAnalysisSectionTitle(s.title));
         }
 
-        function extractFirstMeaningfulParagraph(raw) {
-            const t = (raw || '').replace(/\r/g, '').trim();
-            if (!t) return '—';
-            const paras = t.split(/\n\s*\n+/);
-            for (const p of paras) {
-                const s = p.replace(/\n/g, ' ').trim();
-                if (s.length < 50) continue;
-                if (/^(NOTICE CLASSIFICATION|SECTION\s+\d|═|─){3,}/i.test(s)) continue;
-                if (/^[A-Z0-9\s\-–—:]+$/.test(s) && s.length < 120) continue;
-                return s.length > 700 ? s.slice(0, 697) + '…' : s;
+        function shouldSkipWhatIrsSaysLine(s) {
+            const t = (s || '').trim();
+            if (t.length < 40) return true;
+            if (/^(Notice Type:|Category:|Confidence:|Financial Impact|Amount at Issue|Response Required|Urgency Level)\b/i.test(t)) return true;
+            if (/^[A-Z0-9\s\-–—:|]+$/.test(t) && !/[a-z]/.test(t)) return true;
+            return false;
+        }
+
+        function whatIrsSaysFallback(noticeType) {
+            const nt = String(noticeType || '').toUpperCase().replace(/[^A-Z0-9_]/g, '');
+            if (['LT39', 'CP14', 'CP501', 'CP503'].includes(nt)) {
+                return 'The IRS has issued a balance due notice indicating you have an unpaid tax liability. Payment, dispute, or resolution is required within the specified deadline.';
             }
-            const one = t.split('\n').map((l) => l.trim()).find((l) => l.length > 50);
-            return one ? (one.length > 700 ? one.slice(0, 697) + '…' : one) : t.slice(0, 600);
+            if (['CP504', 'LT11', 'CP90_CP297', 'CP90'].includes(nt)) {
+                return 'The IRS has issued a final notice of intent to levy. Immediate action is required to prevent enforcement collection including bank levies and wage garnishment.';
+            }
+            if (nt === 'CP2000') {
+                return 'The IRS has proposed changes to your tax return based on a mismatch between what you reported and information received from third parties.';
+            }
+            if (nt === 'AUDIT_LETTER' || nt.includes('AUDIT')) {
+                return 'The IRS has selected your return for examination. You must respond with documentation supporting the items under review.';
+            }
+            return 'The IRS has issued a notice requiring your response. Review the full analysis below for details.';
+        }
+
+        function extractFirstMeaningfulParagraph(raw, analysis) {
+            const text = (raw || '').replace(/\r/g, '').trim();
+            if (!text) return whatIrsSaysFallback(analysis && analysis.letterType);
+
+            const paras = text.split(/\n\s*\n+/);
+            for (const p of paras) {
+                const flat = p.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+                if (shouldSkipWhatIrsSaysLine(flat)) continue;
+                if (flat.length < 40) continue;
+                return flat.length > 700 ? flat.slice(0, 697) + '…' : flat;
+            }
+
+            for (const line of text.split('\n')) {
+                const t = line.trim();
+                if (shouldSkipWhatIrsSaysLine(t)) continue;
+                if (/[a-z]/.test(t)) return t.length > 700 ? t.slice(0, 697) + '…' : t;
+            }
+
+            return whatIrsSaysFallback(analysis && analysis.letterType);
         }
 
         function extractProcedureChecklist(raw, analysis) {
@@ -973,19 +1039,22 @@
         }
 
         function extractDocumentMentions(raw) {
-            const kw = /(Form\s+[\d\-A-Za-z]+|IRS\s+Form|1099|W-2|\bW2\b|receipt|record|documentation|document|documents|bank\s+statement|enclos|attach|proof|supporting)/i;
+            const docKw = /(?:\bForm\b|1099|W-2|\bW2\b|receipt|record|statement|documentation|document|\breturn\b|schedule|\blog\b|invoice|bank\s+statement|payment\s+confirmation|\bletter\b|correspondence|transcript)/i;
+            const banned = /SEND CERTIFIED|KEEP COPIES|RESPOND IN WRITING|READ THE NOTICE|GATHER DOCUMENTATION/i;
             const seen = new Set();
             const out = [];
             for (const line of (raw || '').split('\n')) {
-                const t = line.trim();
-                if (t.length < 10) continue;
-                if (!kw.test(t)) continue;
-                const cleaned = t.replace(/^[\-\•\*\d\.\)\s]+/, '').replace(/^[─┼│\s]+/, '').trim();
-                if (cleaned.length < 12) continue;
-                const key = cleaned.slice(0, 120);
+                let t = line.trim();
+                if (t.length < 12) continue;
+                if (/^\d+\.\s/.test(t)) continue;
+                if (banned.test(t)) continue;
+                if (!docKw.test(t)) continue;
+                t = t.replace(/^[\-\•\*\d\.\)\s]+/, '').replace(/^[─┼│\s]+/, '').trim();
+                if (t.length < 12) continue;
+                const key = t.slice(0, 140);
                 if (!seen.has(key)) {
                     seen.add(key);
-                    out.push(cleaned);
+                    out.push(t);
                 }
             }
             return out.length ? out : buildDocList(currentAnalysis);
@@ -1008,8 +1077,15 @@
             badge.className = 'risk-badge ' + risk.cls;
 
             const fi = currentAnalysis.financialInfo || {};
-            const taxY = document.getElementById('taxYearOverride')?.value?.trim() || fi.taxYear || fi.taxYears || '—';
+            const overrideTy = document.getElementById('taxYearOverride')?.value?.trim();
+            const clientTy = extractTaxYearFromTextClient(fullText || '') || extractTaxYearFromTextClient(letterText || '');
+            const taxY = overrideTy || apiPayload.taxYear || apiPayload.analysis?.taxYear || fi.taxYear || fi.taxYears || clientTy || '—';
             document.getElementById('metaTaxYear').textContent = taxY || '—';
+            if (taxY && taxY !== '—' && !overrideTy) {
+                const tyInput = document.getElementById('taxYearOverride');
+                if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = taxY;
+            }
+            currentAnalysis.resolvedTaxYear = taxY !== '—' ? taxY : '';
 
             const amt = fi.proposedChange != null ? fi.proposedChange : fi.balanceDue != null ? fi.balanceDue : fi.largestAmount;
             document.getElementById('metaAmount').textContent = formatMoney(amt);
@@ -1022,7 +1098,7 @@
             document.getElementById('metaDeadline').textContent = deadlineStr;
 
             const whatEl = document.getElementById('analysisWhatIrsSays');
-            const shortSummary = extractFirstMeaningfulParagraph(summaryText);
+            const shortSummary = extractFirstMeaningfulParagraph(summaryText, currentAnalysis);
             let whatHtml = '<p style="margin:0;">' + escapeHtml(shortSummary) + '</p>';
             const showTable = ['CP2000', 'CP2501', 'AUDIT_LETTER'].includes((currentAnalysis.letterType || '').toUpperCase()) ||
                 ['CP2000', 'CP2501', 'AUDIT_LETTER'].includes(nt);
@@ -1123,7 +1199,7 @@
             if (nt.includes('AUDIT') || nt.includes('CP75')) {
                 return [...base, 'Organized records by line item', 'Logs for any deductions under review'];
             }
-            if (nt.includes('CP14') || nt.includes('CP501') || nt.includes('CP503') || nt.includes('CP504')) {
+            if (nt.includes('CP14') || nt.includes('CP501') || nt.includes('CP503') || nt.includes('CP504') || nt.includes('LT39') || nt.includes('LT16') || nt.includes('LT18') || nt.includes('LT19') || nt.includes('LT38')) {
                 return [...base, 'Proof of payment if claiming paid', 'Form 433-F or hardship documentation if requesting relief'];
             }
             return base;
@@ -1131,7 +1207,7 @@
 
         function computeRecommendedStrategy() {
             const nt = (currentAnalysis.letterType || document.getElementById('noticeTypeOverride')?.value || '').toUpperCase();
-            if (['CP504', 'LT11', 'CP90'].includes(nt)) return 'DISPUTE';
+            if (['CP504', 'LT11', 'CP90', 'CP90_CP297'].includes(nt)) return 'DISPUTE';
             if (['CP2000', 'AUDIT_LETTER', 'CP75'].includes(nt) || nt.includes('AUDIT')) return 'DISPUTE';
             const fi = currentAnalysis.financialInfo;
             if (['CP14', 'CP501', 'CP503'].includes(nt)) {
@@ -1560,18 +1636,28 @@
         function insertChecklistReferenceLabel() {
             const el = document.getElementById('responseLetter');
             if (!el) return;
-            el.querySelectorAll('.checklist-label').forEach((n) => n.remove());
-            const candidates = el.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            el.querySelectorAll('.checklist-label, hr.checklist-label-fallback-hr').forEach((n) => n.remove());
+
+            const label = document.createElement('div');
+            label.className = 'checklist-label';
+            label.textContent = 'FOR YOUR REFERENCE ONLY — NOT INCLUDED IN DOWNLOADS';
+
+            const candidates = el.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
             for (const node of candidates) {
-                const t = (node.textContent || '').trim();
-                if (/^6\.\s*Action Checklist$/i.test(t) || /^Action Checklist$/i.test(t)) {
-                    const label = document.createElement('div');
-                    label.className = 'checklist-label';
-                    label.textContent = 'FOR YOUR REFERENCE ONLY — NOT INCLUDED IN DOWNLOADS';
+                const t = ((node.textContent || '').trim()).replace(/\s+/g, ' ');
+                if (/^(#{1,6}\s*)?(6\.\s*)?Action Checklist\b/i.test(t)) {
                     node.parentNode.insertBefore(label, node);
                     return;
                 }
             }
+
+            const blob = (el.textContent || '');
+            if (!/action checklist/i.test(blob)) return;
+            const hr = document.createElement('hr');
+            hr.className = 'checklist-label-fallback-hr';
+            hr.style.cssText = 'margin:24px 0;border:0;border-top:1px solid #e2e8f0;';
+            el.appendChild(hr);
+            el.appendChild(label);
         }
 
         function stripActionChecklistForDownload(cleanedText) {
@@ -1585,7 +1671,7 @@
             const el = document.getElementById('responseLetter');
             if (!el) return '';
             const clone = el.cloneNode(true);
-            clone.querySelectorAll('.checklist-label').forEach((n) => n.remove());
+            clone.querySelectorAll('.checklist-label, hr.checklist-label-fallback-hr').forEach((n) => n.remove());
             return clone.innerText || clone.textContent || '';
         }
 
@@ -1595,7 +1681,7 @@
             const cleaned = cleanGeneratedLetterMarkdown(md);
             if (globalThis.marked?.parse) {
                 el.innerHTML = highlightPlaceholdersInLetterHtml(globalThis.marked.parse(cleaned));
-                insertChecklistReferenceLabel();
+                requestAnimationFrame(() => insertChecklistReferenceLabel());
             } else {
                 el.textContent = cleaned;
             }
@@ -1656,10 +1742,12 @@
             btn.classList.add('btn-loading');
             try {
                 showStatus('Generating your letter...');
+                const overrideTy = document.getElementById('taxYearOverride')?.value?.trim();
+                const resolvedTy = overrideTy || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.taxYear || currentAnalysis.financialInfo?.taxYear || extractTaxYearFromTextClient(letterText || '');
                 const userDataPayload = {
                     strategy: selectedStrategy,
                     noticeType: currentAnalysis.letterType || document.getElementById('noticeTypeOverride')?.value || '',
-                    taxYear: document.getElementById('taxYearOverride')?.value || '',
+                    taxYear: resolvedTy || '',
                     advanced: true
                 };
                 if (selectedStrategy === 'CUSTOM') {
@@ -1690,7 +1778,7 @@
                     generatedLetter = cleanGeneratedLetterMarkdown(letterContent);
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
-                    const ty = document.getElementById('taxYearOverride')?.value || '—';
+                    const ty = document.getElementById('taxYearOverride')?.value?.trim() || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.financialInfo?.taxYear || extractTaxYearFromTextClient(letterText || '') || '—';
                     const stratLabels = { DISPUTE: 'Dispute', AGREE: 'Agree & resolve', PENALTY_ABATEMENT: 'Penalty abatement', EXTENSION: 'Extension', CUSTOM: 'Other / custom' };
                     document.getElementById('letterSubheading').textContent = nt + ' | Tax year ' + ty + ' | Strategy: ' + (stratLabels[selectedStrategy] || selectedStrategy);
                     hideStatus();
