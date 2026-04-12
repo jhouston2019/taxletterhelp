@@ -1057,6 +1057,157 @@ You must respond by April 30, 2024.`;
             return null;
         }
 
+        function extractSsnLast4FromNotice(text) {
+            if (!text) return '';
+            const patterns = [
+                /(?:social\s+security|taxpayer\s+(?:id|identification)|\bSSN\b|\bEIN\b)\s*(?:number|no\.?)?[:\s]+(?:XXX-XX-|xxx-xx-|\*{3}-\*{2}-|nnn-nn-)?(\d{4})\b/i,
+                /\b(?:XXX-XX-|\*{3}-\*{2}-|nnn-nn-)(\d{4})\b/i,
+                /taxpayer\s+id(?:\s+number)?[:\s]+[^\d\n]*?(\d{4})\b/i
+            ];
+            for (const re of patterns) {
+                const m = text.match(re);
+                if (m && m[1] && /^\d{4}$/.test(m[1])) return m[1];
+            }
+            const full = text.match(/\b(\d{3})-(\d{2})-(\d{4})\b/);
+            if (full && !/^[X*ni]{3}$/i.test(full[1])) return full[3];
+            return '';
+        }
+
+        function isLikelyIrsServiceCszLine(line) {
+            const u = (line || '').toUpperCase();
+            if (/\bINTERNAL\s+REVENUE\s+SERVICE\b/.test(u)) return true;
+            if (/\bPO\s+BOX\b/.test(u) && /\b(IRS|REVENUE|TREASURY|ACS\s+SUPPORT)\b/.test(u)) return true;
+            return /\bOGDEN,\s*UT\b/.test(u) ||
+                /\bAUSTIN,\s*TX\b/.test(u) ||
+                /\bPHILADELPHIA,\s*PA\b/.test(u) ||
+                /\bFRESNO,\s*CA\b/.test(u) ||
+                /\bKANSAS\s+CITY,\s*MO\b/.test(u) ||
+                /\bHOLTSVILLE,\s*NY\b/.test(u) ||
+                /\bMEMPHIS,\s*TN\b/.test(u) ||
+                /\bATLANTA,\s*GA\b/.test(u) ||
+                /\bCINCINNATI,\s*OH\b/.test(u);
+        }
+
+        function isStreetLine(s) {
+            const t = (s || '').trim();
+            if (t.length < 4 || t.length > 120) return false;
+            if (/^(notice|page\b|dear\b|department|internal revenue|important\b|www\.|http)/i.test(t)) return false;
+            if (/^\d/.test(t)) return true;
+            return /\b(ST|ST\.|STREET|AVE|AVE\.|AVENUE|RD|RD\.|ROAD|DR|DR\.|DRIVE|LN|LANE|BLVD|BOULEVARD|CT|COURT|WAY|PL|PLACE|BOX|ROUTE|RTE|HIGHWAY|HWY|PO\s*BOX|P\.O\.|BOULDER)\b/i.test(t);
+        }
+
+        function looksLikeNameLine(s) {
+            const t = (s || '').trim();
+            if (t.length < 3 || t.length > 120) return false;
+            if (/^(notice|page|dear|department|internal revenue|important|privacy|catalog|www\.|http|\d+\s*of\s*\d+)/i.test(t)) return false;
+            if (/\$\s*[\d,]+/.test(t) && /\b(amount|due|balance|total|penalty|interest)\b/i.test(t)) return false;
+            const letters = (t.match(/[A-Za-z]/g) || []).length;
+            return letters >= Math.min(4, t.length * 0.25);
+        }
+
+        function parseStreetAndCityStateZip(line) {
+            const m = line.match(/^(.+),\s*([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)\s*$/);
+            if (!m) return null;
+            const body = m[1].trim();
+            const st = m[2].toUpperCase();
+            const zip = m[3];
+            const lastComma = body.lastIndexOf(',');
+            if (lastComma === -1) {
+                return { street: '', cityStateZip: `${body}, ${st} ${zip}` };
+            }
+            return {
+                street: body.slice(0, lastComma).trim(),
+                cityStateZip: `${body.slice(lastComma + 1).trim()}, ${st} ${zip}`,
+            };
+        }
+
+        function extractTaxpayerMailingFromNotice(raw) {
+            const base = { fullName: '', street: '', cityStateZip: '', ssnLast4: '' };
+            if (!raw || !String(raw).trim()) {
+                base.ssnLast4 = extractSsnLast4FromNotice('');
+                return base;
+            }
+            const text = String(raw);
+            const lines = text.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
+            base.ssnLast4 = extractSsnLast4FromNotice(text);
+
+            let cszIdx = -1;
+            let parsed = null;
+
+            for (let i = 0; i < Math.min(lines.length, 100); i++) {
+                const line = lines[i];
+                if (isLikelyIrsServiceCszLine(line)) continue;
+                const p = parseStreetAndCityStateZip(line);
+                if (!p) continue;
+                const prev = i > 0 ? lines[i - 1] : '';
+                const prevIsStreet = prev && isStreetLine(prev);
+                const prevIsName = prev && looksLikeNameLine(prev) && !isStreetLine(prev);
+                const usable =
+                    (p.street && p.cityStateZip) ||
+                    prevIsStreet ||
+                    (prevIsName && !p.street);
+                if (!usable) continue;
+                cszIdx = i;
+                parsed = p;
+                break;
+            }
+
+            if (cszIdx < 0 || !parsed) return base;
+
+            let street = (parsed.street || '').trim();
+            const cityStateZip = parsed.cityStateZip;
+            if (!street && cszIdx > 0 && isStreetLine(lines[cszIdx - 1])) {
+                street = lines[cszIdx - 1].trim();
+            }
+
+            const nameLines = [];
+            let jEnd = cszIdx - 1;
+            if (!parsed.street && street && cszIdx > 0 && lines[cszIdx - 1] === street) jEnd = cszIdx - 2;
+            for (let j = jEnd; j >= 0; j--) {
+                const L = lines[j];
+                if (looksLikeNameLine(L) && !isStreetLine(L)) {
+                    nameLines.unshift(L);
+                    continue;
+                }
+                break;
+            }
+
+            base.fullName = nameLines.join(' ').replace(/\s+/g, ' ').trim();
+            base.street = street;
+            base.cityStateZip = cityStateZip;
+            return base;
+        }
+
+        function mergeExtractedTaxpayerIntoForm(ext) {
+            if (!ext) return;
+            const setIfEmpty = (id, val) => {
+                if (!val) return;
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (!String(el.value || '').trim()) el.value = val;
+            };
+            setIfEmpty('fillFullName', ext.fullName);
+            setIfEmpty('fillStreet', ext.street);
+            setIfEmpty('fillCityStateZip', ext.cityStateZip);
+            setIfEmpty('fillSsn4', ext.ssnLast4);
+        }
+
+        function applyFormPlaceholdersToMarkdown(md) {
+            const name = document.getElementById('fillFullName').value.trim();
+            const street = document.getElementById('fillStreet').value.trim();
+            const csz = document.getElementById('fillCityStateZip').value.trim();
+            const ssn4 = document.getElementById('fillSsn4').value.trim();
+            const phone = document.getElementById('fillPhone').value.trim();
+            const email = document.getElementById('fillEmail').value.trim();
+            const dateShow = getLetterDateDisplay();
+            let out = md;
+            const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow });
+            pairs.forEach(([re, val]) => {
+                out = out.replace(re, () => val);
+            });
+            return out;
+        }
+
         function formatSectionHeading(raw) {
             const t = raw.replace(/^[═─\s]+|[═─\s]+$/g, '').trim();
             if (!t) return 'Section';
@@ -1567,7 +1718,18 @@ You must respond by April 30, 2024.`;
             initFileDropZone();
         }
 
-        document.getElementById('pasteNoticeText').addEventListener('input', syncAnalyzeButtonState);
+        let pasteExtractTimer = null;
+        document.getElementById('pasteNoticeText').addEventListener('input', () => {
+            syncAnalyzeButtonState();
+            if (pasteExtractTimer) clearTimeout(pasteExtractTimer);
+            pasteExtractTimer = setTimeout(() => {
+                if (currentStep !== 1) return;
+                const t = (document.getElementById('pasteNoticeText').value || '').trim();
+                if (t.length < 40) return;
+                letterText = t;
+                mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(t));
+            }, 500);
+        });
 
         async function runExtractAndAnalyzeFromFile(file) {
             setUploadSubmitLoading('upload');
@@ -1729,6 +1891,7 @@ You must respond by April 30, 2024.`;
                         if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = currentTaxYear;
                         currentAnalysis.resolvedTaxYear = currentTaxYear;
                     }
+                    mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
                     hideStatus();
                     goToStep(2);
                 } else {
@@ -1934,7 +2097,7 @@ You must respond by April 30, 2024.`;
                 }
                 const letterContent = data.responseLetter || data.letter;
                 if (letterContent) {
-                    generatedLetter = applyDateAndTaxYearPlaceholders(cleanGeneratedLetterMarkdown(letterContent));
+                    generatedLetter = applyFormPlaceholdersToMarkdown(cleanGeneratedLetterMarkdown(letterContent));
                     renderLetterMarkdown(generatedLetter);
                     const nt = currentAnalysis.letterType || '—';
                     const ty = document.getElementById('taxYearOverride')?.value?.trim() || analysisData.taxYear || analysisData.analysis?.taxYear || currentAnalysis.resolvedTaxYear || currentAnalysis.financialInfo?.taxYear || currentTaxYear || extractTaxYearFromText(letterText || '') || '—';
@@ -2066,46 +2229,8 @@ You must respond by April 30, 2024.`;
                 : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        /** Date + tax year only — safe to run after generation without clearing name/address fields. */
-        function applyDateAndTaxYearPlaceholders(md) {
-            const dateShow = getLetterDateDisplay();
-            const tyDisp = currentTaxYear || extractTaxYearFromText(letterText || '') || 'See notice';
-            const pairs = [
-                [/\[Today's Date\]/gi, dateShow],
-                [/\[TODAY'S DATE\]/gi, dateShow],
-                [/\[Current Date\]/gi, dateShow],
-                [/\[CURRENT DATE\]/gi, dateShow],
-                [/\[DATE FROM NOTICE\]/gi, dateShow],
-                [/\[DATE\]/gi, dateShow],
-                [/\[Date\]/gi, dateShow],
-                [/\[date\]/gi, dateShow],
-                [/\[TAX YEAR\]/gi, tyDisp],
-                [/\[Tax Year\]/gi, tyDisp],
-                [/\[tax year\]/gi, tyDisp],
-                [/\[YEAR\]/gi, tyDisp]
-            ];
-            let out = md;
-            pairs.forEach(([re, val]) => {
-                out = out.replace(re, () => val);
-            });
-            return out;
-        }
-
         document.getElementById('btnFillPlaceholders').addEventListener('click', () => {
-            const name = document.getElementById('fillFullName').value.trim();
-            const street = document.getElementById('fillStreet').value.trim();
-            const csz = document.getElementById('fillCityStateZip').value.trim();
-            const ssn4 = document.getElementById('fillSsn4').value.trim();
-            const phone = document.getElementById('fillPhone').value.trim();
-            const email = document.getElementById('fillEmail').value.trim();
-            const formattedDate = getLetterDateDisplay();
-
-            let md = generatedLetter;
-            const pairs = buildPlaceholderReplacementPairs({ name, street, csz, ssn4, phone, email, dateShow: formattedDate });
-            pairs.forEach(([re, val]) => {
-                md = md.replace(re, () => val);
-            });
-            generatedLetter = md;
+            generatedLetter = applyFormPlaceholdersToMarkdown(generatedLetter);
             renderLetterMarkdown(generatedLetter);
         });
 
@@ -2206,6 +2331,7 @@ You must respond by April 30, 2024.`;
                 const ta = document.getElementById('pasteNoticeText');
                 if (ta) ta.value = DEMO_CP2000;
                 letterText = DEMO_CP2000.trim();
+                mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
             }
 
             syncAnalyzeButtonState();
