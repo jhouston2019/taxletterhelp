@@ -219,7 +219,7 @@ function assessProfessionalReviewNeed(riskAnalysis, classification, amount) {
   }
   
   // High-risk notice types
-  const highRiskNotices = ["CP504", "CP75", "AUDIT_LETTER", "LETTER_1058"];
+  const highRiskNotices = ["CP504", "CP75", "AUDIT_LETTER", "LETTER_1058", "LT11", "CP90_CP297"];
   if (highRiskNotices.includes(noticeType)) {
     needsReview = true;
     urgency = urgency === "MANDATORY" ? "MANDATORY" : "STRONGLY_RECOMMENDED";

@@ -13,19 +13,13 @@
  */
 
 /**
- * Removes lines that consist only of decorative box-drawing / dash border characters (═ ─ = - etc.).
+ * Removes lines that consist only of decorative border characters (═ ─ = - etc.), including trailing spaces.
  */
-function isBorderOnlyLine(line) {
-  const t = line.trim();
-  if (!t) return false;
-  return /^[═─=\-]+$/u.test(t);
-}
-
 function stripAsciiBorderLines(text) {
   if (!text || typeof text !== 'string') return text;
   return text
     .split('\n')
-    .filter((line) => !isBorderOnlyLine(line))
+    .filter((line) => !/^[═─=\-]{3,}\s*$/.test(line.trim()))
     .join('\n');
 }
 
@@ -87,6 +81,12 @@ function formatSection1_NoticeExplanation(classification, financialInfo) {
     CP501: "Balance due - first reminder. Escalation from CP14. Immediate action required.",
     CP503: "Balance due - second reminder. Next step: CP504 (levy authorization).",
     CP504: "Intent to levy. Final notice before asset seizure. 30 days to respond or request hearing.",
+    LT11: "Final notice of intent to levy. Collection Due Process / levy defense deadlines apply.",
+    LT39: "Balance due reminder — short response window (often 10 days). Pay, dispute, or arrange resolution.",
+    LT16: "Collection notice. Balance due — respond or resolve before escalation.",
+    LT18: "Balance due reminder. Review amount and respond by notice deadline.",
+    LT19: "Balance due reminder. Review amount and respond by notice deadline.",
+    LT38: "Collection activity may resume. Address balance or request appropriate relief.",
     CP75: "Examination notice. Documentation required. Response deadline per notice.",
     AUDIT_LETTER: "Formal audit. Comprehensive documentation required. Professional representation recommended.",
     IDENTITY_VERIFICATION: "Identity verification required. Refund held until verified.",
@@ -431,7 +431,7 @@ function formatDisclaimer(classification, riskAnalysis) {
     disclaimer += "⚠️ Risk factors detected. Professional consultation required before action.\n\n";
   }
   
-  const highRiskNotices = ["CP504", "CP75", "AUDIT_LETTER", "LETTER_1058"];
+  const highRiskNotices = ["CP504", "CP75", "AUDIT_LETTER", "LETTER_1058", "LT11", "CP90_CP297"];
   if (highRiskNotices.includes(classification.noticeType)) {
     disclaimer += "⚠️ High-risk notice type. Professional representation required.\n\n";
   }
@@ -439,7 +439,7 @@ function formatDisclaimer(classification, riskAnalysis) {
   disclaimer += "Verify all information with IRS. Consult qualified tax professional before responding.\n\n";
   disclaimer += "═══════════════════════════════════════════════════════════════\n";
   
-  return disclaimer;
+  return stripAsciiBorderLines(disclaimer);
 }
 
 module.exports = {

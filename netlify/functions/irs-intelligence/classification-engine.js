@@ -18,12 +18,69 @@
  * - Confidence scoring (rule-based)
  */
 
+const LT_BALANCE_REMINDER_RISKS = [
+  "Balance continues to accrue penalties and interest",
+  "Escalation to levy or lien if unpaid",
+  "Collection enforcement may resume or intensify",
+  "Federal tax lien filing possible"
+];
+
+function normalizeNoticeHeaderCode(value) {
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[\s\-–—:]+/g, "")
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+function extractNoticeLineCode(inputText) {
+  const lines = (inputText || "").split(/\r?\n/).slice(0, 65);
+  for (const raw of lines) {
+    const m = raw.trim().match(/^Notice:\s*(.+)$/i);
+    if (!m) continue;
+    const inner = m[1].trim();
+    if (inner.length > 0 && inner.length <= 36) return inner;
+  }
+  return null;
+}
+
+function toClassificationResult(row, detectionMethod, confidence) {
+  return {
+    noticeType: row.noticeType,
+    urgencyLevel: row.urgencyLevel,
+    responseRequired: row.responseRequired,
+    typicalDeadlineDays: row.typicalDeadlineDays,
+    escalationRisk: row.escalationRisk,
+    category: row.category,
+    description: row.description,
+    confidence,
+    detectionMethod
+  };
+}
+
 /**
  * Classifies an IRS notice based on deterministic pattern matching
  * @param {string} inputText - Raw text from the IRS letter
  * @returns {Object} Classification result with notice type, urgency, deadlines, and risks
  */
 function classifyIRSNotice(inputText) {
+  if (inputText == null || (typeof inputText === "string" && !String(inputText).trim())) {
+    return {
+      noticeType: "UNKNOWN",
+      urgencyLevel: "medium",
+      responseRequired: true,
+      typicalDeadlineDays: 30,
+      escalationRisk: [
+        "Unable to determine specific notice type",
+        "Assume response required within 30 days",
+        "Professional consultation strongly recommended"
+      ],
+      category: "UNKNOWN",
+      description: "Unable to Classify Notice Type",
+      confidence: "low",
+      detectionMethod: "fallback"
+    };
+  }
+
   const text = inputText.toUpperCase();
   
   // Pattern matching for specific notice types
@@ -95,10 +152,97 @@ function classifyIRSNotice(inputText) {
       category: "BALANCE_DUE",
       description: "Second Reminder - Urgent Action Required"
     },
+
+    // LT11 – Final notice of intent to levy (CDP / levy track)
+    {
+      pattern: /\bLT-?\s*11\b|\bLT\s+11\b/,
+      noticeType: "LT11",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 30,
+      escalationRisk: [
+        "Levy or seizure after response deadline",
+        "Loss of Collection Due Process rights if not timely appealed",
+        "Bank or wage levy authorization",
+        "Asset seizure and lien enforcement"
+      ],
+      category: "LEVY_INTENT",
+      description: "LT11 — Final notice of intent to levy"
+    },
+
+    // LT39 – Reminder, balance due (often 10-day response window)
+    {
+      pattern: /\bLT-?\s*39\b|\bLT\s+39\b|(?:BILLING\s+SUMMARY|AMOUNT\s+DUE|UNPAID\s+TAX).{0,180}(?:LT-?\s*39\b|\bLT\s+39\b)|(?:LT-?\s*39\b|\bLT\s+39\b).{0,180}(?:BILLING\s+SUMMARY|AMOUNT\s+DUE|UNPAID\s+TAX)/,
+      noticeType: "LT39",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 10,
+      escalationRisk: [
+        "Short response window (often 10 days on LT39)",
+        "Progression toward enforced collection if ignored",
+        "Penalties and interest continue to accrue",
+        "Potential lien or levy after deadline"
+      ],
+      category: "BALANCE_DUE",
+      description: "LT39 — Reminder notice, balance due"
+    },
+
+    // LT16 – Collection notice
+    {
+      pattern: /\bLT-?\s*16\b|\bLT\s+16\b/,
+      noticeType: "LT16",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 21,
+      escalationRisk: LT_BALANCE_REMINDER_RISKS,
+      category: "BALANCE_DUE",
+      description: "LT16 — Collection notice"
+    },
+
+    // LT18 – Balance due reminder
+    {
+      pattern: /\bLT-?\s*18\b|\bLT\s+18\b/,
+      noticeType: "LT18",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 21,
+      escalationRisk: LT_BALANCE_REMINDER_RISKS,
+      category: "BALANCE_DUE",
+      description: "LT18 — Balance due reminder"
+    },
+
+    // LT19 – Balance due reminder
+    {
+      pattern: /\bLT-?\s*19\b|\bLT\s+19\b/,
+      noticeType: "LT19",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 21,
+      escalationRisk: LT_BALANCE_REMINDER_RISKS,
+      category: "BALANCE_DUE",
+      description: "LT19 — Balance due reminder"
+    },
+
+    // LT38 – Resumption of collection activity
+    {
+      pattern: /\bLT-?\s*38\b|\bLT\s+38\b/,
+      noticeType: "LT38",
+      urgencyLevel: "high",
+      responseRequired: true,
+      typicalDeadlineDays: 30,
+      escalationRisk: [
+        "Prior collection hold or pause may have ended",
+        "Levy, lien, or offset activity may resume",
+        "Penalties and interest continue to accrue",
+        "Immediate payment or formal resolution typically required"
+      ],
+      category: "BALANCE_DUE",
+      description: "LT38 — Resumption of collection activity"
+    },
     
     // CP504 - Intent to Levy (Final Notice)
     {
-      pattern: /CP-?504|INTENT TO LEVY|NOTICE OF INTENT TO SEIZE|FINAL NOTICE/,
+      pattern: /CP-?504|NOTICE\s+OF\s+INTENT\s+TO\s+LEVY|NOTICE\s+OF\s+INTENT\s+TO\s+SEIZE|INTENT\s+TO\s+LEVY.*CP\s*-?\s*504|CP\s*-?\s*504.*INTENT\s+TO\s+LEVY/,
       noticeType: "CP504",
       urgencyLevel: "high",
       responseRequired: true,
@@ -215,9 +359,9 @@ function classifyIRSNotice(inputText) {
       description: "Refund Applied to Other Debt"
     },
     
-    // LT11 / LT1058 - Intent to Terminate Installment Agreement
+    // LT1058 - Intent to terminate installment agreement (not LT11 levy letter)
     {
-      pattern: /LT-?11|LT-?1058|TERMINATE.*INSTALLMENT AGREEMENT|DEFAULT.*PAYMENT PLAN/,
+      pattern: /\bLT-?\s*1058\b|\bLT\s+1058\b|TERMINATE.*INSTALLMENT AGREEMENT|DEFAULT.*PAYMENT PLAN/,
       noticeType: "INSTALLMENT_TERMINATION",
       urgencyLevel: "high",
       responseRequired: true,
@@ -268,21 +412,39 @@ function classifyIRSNotice(inputText) {
       description: "Final Notice - Right to Collection Due Process Hearing"
     }
   ];
+
+  const headerCodeRaw = extractNoticeLineCode(inputText);
+  if (headerCodeRaw) {
+    const normHeader = normalizeNoticeHeaderCode(headerCodeRaw);
+    if (normHeader.length >= 2) {
+      const byHeader = classifications.find(
+        (c) => normalizeNoticeHeaderCode(c.noticeType) === normHeader
+      );
+      if (byHeader) {
+        return toClassificationResult(byHeader, "notice_header_line", "high");
+      }
+      const shortType = normHeader.length <= 14 ? normHeader : normHeader.slice(0, 14);
+      return {
+        noticeType: shortType,
+        urgencyLevel: "medium",
+        responseRequired: true,
+        typicalDeadlineDays: 30,
+        escalationRisk: [
+          "Unknown escalation path — review full notice text",
+          "Consult a tax professional for notice-specific guidance"
+        ],
+        category: "UNKNOWN",
+        description: `IRS notice ${headerCodeRaw.trim()} (from notice header line)`,
+        confidence: "high",
+        detectionMethod: "notice_header_line"
+      };
+    }
+  }
   
   // Find matching classification
   for (const classification of classifications) {
     if (classification.pattern.test(text)) {
-      return {
-        noticeType: classification.noticeType,
-        urgencyLevel: classification.urgencyLevel,
-        responseRequired: classification.responseRequired,
-        typicalDeadlineDays: classification.typicalDeadlineDays,
-        escalationRisk: classification.escalationRisk,
-        category: classification.category,
-        description: classification.description,
-        confidence: "high",
-        detectionMethod: "pattern_match"
-      };
+      return toClassificationResult(classification, "pattern_match", "high");
     }
   }
   
