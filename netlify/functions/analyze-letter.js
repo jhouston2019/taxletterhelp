@@ -145,6 +145,8 @@ const mainHandler = async (event) => {
 
     let structuredAnalysis;
     try {
+      console.log('[analyze-letter] letterText preview:', letterText?.substring(0, 500));
+
       const intelligenceResult = await analyzeIRSLetter(letterText, {
         documents: [],
         userContext: {}
@@ -156,13 +158,16 @@ const mainHandler = async (event) => {
       console.log('Risk Level:', intelligenceResult?.metadata?.riskLevel);
       
       const fi = intelligenceResult?.financialInfo || {};
+      const cls = intelligenceResult?.classification || {};
+      const extractedTaxYear = extractPrimaryTaxYearFromText(letterText);
       const taxYear =
+        cls.taxYear ||
         fi.taxYear ||
-        extractPrimaryTaxYearFromText(letterText) ||
+        extractedTaxYear ||
         null;
 
       structuredAnalysis = {
-        letterType: intelligenceResult?.classification?.noticeType,
+        letterType: cls.noticeType,
         taxYear,
         summary: intelligenceResult?.analysisOutput,
         reason: intelligenceResult?.classification?.description,
@@ -186,12 +191,14 @@ const mainHandler = async (event) => {
     } catch (intelligenceError) {
       console.error('Intelligence system error, falling back to basic analysis:', intelligenceError);
       
-      const { classifyIRSNotice } = require('./irs-intelligence/classification-engine.js');
+      const { classifyIRSNotice, extractFinancialInfo } = require('./irs-intelligence/classification-engine.js');
       const classification = classifyIRSNotice(letterText);
-      
+      const fiQuick = extractFinancialInfo(letterText);
+      const extractedTaxYearCatch = extractPrimaryTaxYearFromText(letterText);
+
       structuredAnalysis = {
         letterType: classification?.noticeType,
-        taxYear: extractPrimaryTaxYearFromText(letterText) || null,
+        taxYear: fiQuick.taxYear || extractedTaxYearCatch || null,
         summary: `This appears to be a ${classification?.noticeType} (${classification?.description}). ${classification?.escalationRisk?.[0] ?? ''}`,
         reason: classification?.description,
         requiredActions: `Response required within ${classification?.typicalDeadlineDays} days`,

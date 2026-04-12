@@ -41,7 +41,12 @@
  * general AI by embedding domain expertise, procedural knowledge, and safety controls.
  */
 
-const { classifyIRSNotice, extractDeadlineInfo, extractFinancialInfo, extractPrimaryTaxYearFromText } = require('./classification-engine');
+const {
+  classifyIRSNotice,
+  extractDeadlineInfo,
+  extractFinancialInfo,
+  extractPrimaryTaxYearFromText
+} = require('./classification-engine');
 const { getPlaybook, validateUserPosition, checkProhibitedLanguage, assessProfessionalHelpNeed } = require('./response-playbooks');
 const { generateDeadlineIntelligence } = require('./deadline-calculator');
 const { mapEvidence, generateAttachmentInstructions, validateEvidence } = require('./evidence-mapper');
@@ -249,9 +254,15 @@ async function analyzeIRSLetter(letterText, options = {}) {
   } = options;
   
   // STEP 1: DETERMINISTIC CLASSIFICATION (Logic Override)
-  const classification = classifyIRSNotice(letterText);
+  let classification = classifyIRSNotice(letterText);
   const deadlineInfo = extractDeadlineInfo(letterText);
   const financialInfo = extractFinancialInfo(letterText);
+  const extractedTaxYear =
+    extractPrimaryTaxYearFromText(letterText) || financialInfo.taxYear || null;
+  classification = {
+    ...classification,
+    taxYear: classification.taxYear || financialInfo.taxYear || extractedTaxYear || null
+  };
   
   // STEP 2: GET NOTICE-SPECIFIC PLAYBOOK (Constraint System)
   const playbook = getPlaybook(classification.noticeType);

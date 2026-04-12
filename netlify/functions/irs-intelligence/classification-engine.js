@@ -58,6 +58,78 @@ function toClassificationResult(row, detectionMethod, confidence) {
 }
 
 /**
+ * Runs before the main classification table: glued LT/CP forms, Notice: line,
+ * and semantic phrases that indicate notice type when codes are missing.
+ * @param {string} rawInput
+ * @param {Array<{pattern: RegExp, noticeType: string, ...}>} classifications
+ * @returns {object|null} Full classification row or null
+ */
+function matchPriorityNoticeTypes(rawInput, classifications) {
+  const raw = String(rawInput || "");
+  if (!raw.trim()) return null;
+
+  const codeSpecs = [
+    [/\bLT-?\s*39\b|\bLT\s+39\b|\bLT39\b(?!\d)/i, "LT39"],
+    [/\bLT-?\s*11\b|\bLT\s+11\b|\bLT11\b(?!\d)/i, "LT11"],
+    [/\bLT-?\s*16\b|\bLT\s+16\b|\bLT16\b(?!\d)/i, "LT16"],
+    [/\bLT-?\s*38\b|\bLT\s+38\b|\bLT38\b(?!\d)/i, "LT38"],
+    [/\bLT-?\s*18\b|\bLT\s+18\b|\bLT18\b(?!\d)/i, "LT18"],
+    [/\bLT-?\s*19\b|\bLT\s+19\b|\bLT19\b(?!\d)/i, "LT19"],
+    [/\bCP-?\s*2000\b|\bCP\s+2000\b|\bCP2000\b(?!\d)/i, "CP2000"],
+    [/\bCP-?\s*14\b|\bCP\s+14\b|\bCP14\b(?!\d)/i, "CP14"],
+    [/\bCP-?\s*504\b|\bCP\s+504\b|\bCP504\b(?!\d)/i, "CP504"],
+    [/\bCP-?\s*90\b|\bCP\s+90\b|\bCP90\b(?!\d)/i, "CP90_CP297"],
+    [/\bCP-?\s*501\b|\bCP\s+501\b|\bCP501\b(?!\d)/i, "CP501"],
+    [/\bCP-?\s*503\b|\bCP\s+503\b|\bCP503\b(?!\d)/i, "CP503"]
+  ];
+
+  for (const [re, noticeType] of codeSpecs) {
+    if (re.test(raw)) {
+      const row = classifications.find((c) => c.noticeType === noticeType);
+      if (row) return row;
+    }
+  }
+
+  const noticeLine = raw.match(/Notice:\s*([A-Z0-9\s\-–—]{1,24})/i);
+  if (noticeLine) {
+    const code = normalizeNoticeHeaderCode(noticeLine[1]);
+    if (code.length >= 2) {
+      const row = classifications.find(
+        (c) => normalizeNoticeHeaderCode(c.noticeType) === code
+      );
+      if (row) return row;
+    }
+  }
+
+  if (/intent\s+to\s+levy/i.test(raw)) {
+    const row = classifications.find((c) => c.noticeType === "CP504");
+    if (row) return row;
+  }
+  if (/final\s+notice/i.test(raw) && /\blevy\b/i.test(raw)) {
+    const row =
+      classifications.find((c) => c.noticeType === "LETTER_1058") ||
+      classifications.find((c) => c.noticeType === "CP504");
+    if (row) return row;
+  }
+  if (/unpaid\s+tax/i.test(raw) && /amount\s+due/i.test(raw)) {
+    const row = classifications.find((c) => c.noticeType === "CP14");
+    if (row) return row;
+  }
+  if (/proposed\s+changes/i.test(raw) && /\bincome\b/i.test(raw)) {
+    const row = classifications.find((c) => c.noticeType === "CP2000");
+    if (row) return row;
+  }
+  if (/\bexamination\b/i.test(raw) || /\baudit\b/i.test(raw)) {
+    const row =
+      classifications.find((c) => c.noticeType === "CP75") ||
+      classifications.find((c) => c.noticeType === "AUDIT_LETTER");
+    if (row) return row;
+  }
+
+  return null;
+}
+
+/**
  * Classifies an IRS notice based on deterministic pattern matching
  * @param {string} inputText - Raw text from the IRS letter
  * @returns {Object} Classification result with notice type, urgency, deadlines, and risks
@@ -413,6 +485,11 @@ function classifyIRSNotice(inputText) {
     }
   ];
 
+  const priorityHit = matchPriorityNoticeTypes(inputText, classifications);
+  if (priorityHit) {
+    return toClassificationResult(priorityHit, "priority_pattern", "high");
+  }
+
   const headerCodeRaw = extractNoticeLineCode(inputText);
   if (headerCodeRaw) {
     const normHeader = normalizeNoticeHeaderCode(headerCodeRaw);
@@ -545,10 +622,13 @@ function extractDeadlineInfo(inputText) {
   };
 }
 
-const TAX_YEAR_PATTERNS = [
-  /tax year[:\s]+(\d{4})/i,
-  /tax year\s+(\d{4})/i,
-  /for\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})/i,
+const TAX_YEAR_REGEXES = [
+  /\btax\s+year\s*:?\s*(\d{4})\b/i,
+  /\bfor\s+(?:the\s+)?(?:tax\s+)?year\s+(\d{4})\b/i,
+  /\b(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax\s+return\b/i,
+  /\btaxable\s+year\s+(?:ended?\s+)?(?:\w+\s+\d+,?\s+)?(\d{4})\b/i,
+  /\bperiod\s+(?:ending\s+)?(?:\w+\s+\d+,?\s+)?(\d{4})\b/i,
+  /\byour\s+(\d{4})\s+(?:tax|return|Form)/i,
   /(?:tax\s+)?period\s+(?:ending\s+)?(\d{4})/i,
   /(\d{4})\s+tax\s+(?:year|return)/i,
   /(?:your\s+)?(\d{4})\s+(?:federal\s+)?(?:income\s+)?tax/i,
@@ -557,6 +637,12 @@ const TAX_YEAR_PATTERNS = [
   /notice.*?(\d{4})\s+tax/i
 ];
 
+function isValidTaxYearDigits(yearStr) {
+  const y = parseInt(yearStr, 10);
+  const maxY = new Date().getFullYear();
+  return !Number.isNaN(y) && y >= 2010 && y <= maxY;
+}
+
 /**
  * First plausible tax year on the notice (2010 … current calendar year).
  * @param {string} inputText
@@ -564,14 +650,14 @@ const TAX_YEAR_PATTERNS = [
  */
 function extractPrimaryTaxYearFromText(inputText) {
   if (!inputText || typeof inputText !== "string") return null;
-  const maxY = new Date().getFullYear();
-  const minY = 2010;
-  for (const re of TAX_YEAR_PATTERNS) {
+  for (const re of TAX_YEAR_REGEXES) {
     const m = inputText.match(re);
-    if (m && m[1]) {
-      const y = parseInt(m[1], 10);
-      if (!Number.isNaN(y) && y >= minY && y <= maxY) return String(y);
-    }
+    if (m && m[1] && isValidTaxYearDigits(m[1])) return String(parseInt(m[1], 10));
+  }
+  const reY = /\b(20\d{2})\b/g;
+  let mm;
+  while ((mm = reY.exec(inputText)) !== null) {
+    if (isValidTaxYearDigits(mm[1])) return mm[1];
   }
   return null;
 }
