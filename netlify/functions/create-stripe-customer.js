@@ -1,3 +1,5 @@
+/* ORPHANED - not currently called from any client page */
+
 import Stripe from "stripe";
 import { createClient } from '@supabase/supabase-js';
 

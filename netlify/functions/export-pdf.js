@@ -1,3 +1,5 @@
+/* ADMIN-ONLY: called from admin.html — do not use in user flows */
+
 import PDFDocument from 'pdfkit';
 import { getSupabaseAdmin } from './_supabase.js';
 

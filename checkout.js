@@ -1,3 +1,5 @@
+/* ORPHANED - this file is not loaded by any HTML page. Do not use. See payment.html for the active checkout flow. */
+
 /**
  * Handles Stripe checkout process for different subscription plans
  * @param {string} plan - The plan name (STANDARD, COMPLEX, STARTER, PRO, PROPLUS)

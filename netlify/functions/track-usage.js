@@ -103,14 +103,14 @@ export async function handler(event) {
       })
     };
   } catch (error) {
-    console.error('[track-usage]', error);
+    console.error('[track-usage] Usage check failed:', error);
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({ allowed: true })
+      body: JSON.stringify({ allowed: false, error: 'Usage check failed' })
     };
   }
 }

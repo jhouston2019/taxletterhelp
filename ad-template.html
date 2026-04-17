@@ -8,10 +8,6 @@
   
   <!-- Existing styles (if any) -->
   <link rel="stylesheet" href="/seo-shared-styles.css">
-  
-  <!-- AD SYSTEM: Add this CSS link -->
-  <link rel="stylesheet" href="/src/styles/ad-system.css">
-  
   <style>
     /* Page-specific styles here */
   </style>
@@ -53,13 +49,6 @@
       </ul>
     </div>
     
-    <!-- AD SYSTEM: POST-CONTENT NATIVE AD -->
-    <!-- Place this AFTER main content, BEFORE FAQs or secondary sections -->
-    <section class="native-ad post-content-ad">
-      <p class="ad-label">Sponsored Resources</p>
-      <div id="ad-post-content"></div>
-    </section>
-    
     <!-- SECONDARY CONTENT (FAQs, Related Links, etc.) -->
     <h2>Frequently Asked Questions</h2>
     <p>FAQ content here...</p>
@@ -82,23 +71,5 @@
       <a href="/disclaimer.html">Disclaimer</a>
     </p>
   </footer>
-
-  <!-- AD SYSTEM: EXIT GRID AD (DESKTOP ONLY) -->
-  <!-- Place this AFTER footer, BEFORE closing </body> -->
-  <section class="native-ad exit-grid-ad desktop-only">
-    <p class="ad-label">Additional Options You May Consider</p>
-    <div id="ad-exit-grid"></div>
-  </section>
-
-  <!-- AD SYSTEM: MOBILE FOOTER STICKY AD -->
-  <!-- Place this AFTER exit grid, BEFORE closing </body> -->
-  <div class="native-ad mobile-footer-ad mobile-only">
-    <button class="ad-close" aria-label="Close ad">×</button>
-    <div id="ad-mobile-footer"></div>
-  </div>
-
-  <!-- AD SYSTEM: JavaScript initialization -->
-  <!-- Place this as LAST element before closing </body> -->
-  <script type="module" src="/src/utils/ad-system.js"></script>
 </body>
 </html>

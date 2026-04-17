@@ -1,3 +1,5 @@
+/* USER-FACING: called from upload.html and resource.html */
+
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const { stripDisclaimerLinesFromLetter } = require("./_strip-letter-disclaimer.js");
 

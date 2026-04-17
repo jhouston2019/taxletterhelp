@@ -1,3 +1,5 @@
+/* ORPHANED - not currently called from any client page */
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(

@@ -130,8 +130,8 @@
                     document.getElementById('verifying-payment').style.display = 'none';
                     document.getElementById('payment-confirmed').style.display = 'block';
                     
-                    // Track conversion
-                    if (window.gtag) {
+                    /* GA TRACKING DISABLED — add Google Analytics script and replace GA_MEASUREMENT_ID before enabling */
+                    if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && /^G-[A-Z0-9]+$/.test(String(window.GA_MEASUREMENT_ID))) {
                         gtag('event', 'purchase', {
                             transaction_id: sessionId,
                             value: 19.00,
