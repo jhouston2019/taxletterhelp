@@ -100,6 +100,12 @@ async function validateFileStructure() {
     'netlify/functions/create-checkout-session.js',
     'netlify/functions/stripe-webhook.js',
     'netlify/functions/verify-payment.js',
+    'netlify/functions/create-session-from-stripe.js',
+    'netlify/functions/auth-me.js',
+    'netlify/functions/billing-status.js',
+    'netlify/functions/usage.js',
+    'netlify/functions/recover-payment-state.js',
+    'lib/sync-stripe-session.js',
     'netlify/functions/_supabase.js',
     'netlify/functions/_error-tracking.js',
     'netlify/functions/irs-intelligence/index.js',
@@ -109,10 +115,14 @@ async function validateFileStructure() {
     'index.html',
     'upload.html',
     'thank-you.html',
+    'success.html',
+    'app.html',
+    'recover.html',
     'payment.html',
     'pricing.html',
     'dashboard.html',
-    'supabase/migrations/20260224_fix_schema_v2.sql'
+    'supabase/migrations/20260224_fix_schema_v2.sql',
+    'supabase/migrations/20260420_billing_usage_idempotency.sql'
   ];
   
   for (const file of criticalFiles) {

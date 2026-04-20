@@ -46,17 +46,15 @@
     <p>This page tests the complete payment and access control system for Tax Letter Defense Pro.</p>
 
     <div class="test-section">
-        <h2>1. Test Payment Status</h2>
-        <button class="test-button" onclick="checkPaymentStatus()">Check Current Payment Status</button>
-        <button class="test-button" onclick="clearPaymentStatus()">Clear Payment Status</button>
-        <button class="test-button" onclick="setPaymentStatus()">Set Payment Status (Simulate Success)</button>
+        <h2>1. Entitlement (server-only)</h2>
+        <p class="status info">Access is not stored in localStorage. After login, <code>/api/billing-status</code> with JWT determines access.</p>
         <div id="paymentStatus"></div>
     </div>
 
     <div class="test-section">
         <h2>2. Test Access Control</h2>
-        <button class="test-button" onclick="testUploadAccess()">Test Upload Page Access</button>
-        <button class="test-button" onclick="testDashboardAccess()">Test Dashboard Access</button>
+        <button class="test-button" onclick="testUploadAccess()">Open upload (expect redirect if unpaid)</button>
+        <button class="test-button" onclick="testDashboardAccess()">Open dashboard (expect redirect if unpaid)</button>
         <div id="accessResults"></div>
     </div>
 
@@ -79,9 +77,8 @@
         <h2>📋 Test Checklist</h2>
         <ul>
             <li>✅ Payment page created with Stripe integration</li>
-            <li>✅ Success page sets localStorage flag</li>
-            <li>✅ Upload page checks payment status</li>
-            <li>✅ Dashboard page checks payment status</li>
+            <li>✅ Success page verifies via JWT + verify-payment</li>
+            <li>✅ Upload/dashboard use billing-status (JWT)</li>
             <li>✅ Homepage CTA buttons redirect to payment</li>
             <li>✅ Navigation links redirect to payment</li>
             <li>✅ Stripe checkout URLs updated</li>
@@ -89,40 +86,12 @@
     </div>
 
     <script>
-        function checkPaymentStatus() {
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            const statusDiv = document.getElementById('paymentStatus');
-            statusDiv.innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">
-                Payment Status: ${hasPaid ? '✅ PAID' : '❌ NOT PAID'}
-            </div>`;
-        }
-
-        function clearPaymentStatus() {
-            localStorage.removeItem('paid');
-            checkPaymentStatus();
-            document.getElementById('accessResults').innerHTML = '<div class="status info">Payment status cleared. Try accessing protected pages now.</div>';
-        }
-
-        function setPaymentStatus() {
-            localStorage.setItem('paid', 'true');
-            checkPaymentStatus();
-            document.getElementById('accessResults').innerHTML = '<div class="status success">Payment status set. You should now have access to protected pages.</div>';
-        }
-
         function testUploadAccess() {
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            const result = hasPaid ? 
-                '✅ Upload page should be accessible' : 
-                '❌ Upload page should redirect to payment';
-            document.getElementById('accessResults').innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">${result}</div>`;
+            window.location.href = '/upload.html';
         }
 
         function testDashboardAccess() {
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            const result = hasPaid ? 
-                '✅ Dashboard should be accessible' : 
-                '❌ Dashboard should redirect to payment';
-            document.getElementById('accessResults').innerHTML = `<div class="status ${hasPaid ? 'success' : 'error'}">${result}</div>`;
+            window.location.href = '/dashboard.html';
         }
 
         async function testStripeIntegration() {

@@ -21,6 +21,8 @@ const mainHandler = async (event) => {
       throw new Error('STRIPE_SECRET_KEY environment variable is not set');
     }
 
+    const site = (process.env.SITE_URL || "").replace(/\/$/, "");
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{ 
@@ -28,10 +30,12 @@ const mainHandler = async (event) => {
         quantity: 1 
       }],
       mode: 'payment',
-      success_url: `${process.env.SITE_URL}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.SITE_URL}/cancel.html`,
+      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/pricing`,
       metadata: {
         ...(recordId ? { recordId } : {}),
+        plan_type: 'single',
+        price_id: priceId,
         product_type: 'irs_notice_response',
         pricing_model: 'one_time',
         risk_level: 'regulated',

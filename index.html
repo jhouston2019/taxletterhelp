@@ -758,15 +758,16 @@
         });
     </script>
     <script type="module">
-        // Initialize admin mode (separate module) - fail gracefully if not available
-        try {
-            const { initAdminMode } = await import('./src/utils/admin-mode.js');
-            document.addEventListener('DOMContentLoaded', async () => {
-                await initAdminMode();
-            });
-        } catch (error) {
-            console.log('Admin mode module not available:', error.message);
-        }
+        (async function initAdminFromIndex() {
+            try {
+                const { initAdminMode } = await import('./src/utils/admin-mode.js');
+                document.addEventListener('DOMContentLoaded', async () => {
+                    await initAdminMode();
+                });
+            } catch (error) {
+                console.log('Admin mode module not available:', error.message);
+            }
+        })();
     </script>
 </body>
 </html>

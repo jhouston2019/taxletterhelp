@@ -28,7 +28,11 @@
     </nav>
 
     <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:2rem;">Your Dashboard</h1>
+        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:1rem;">Your Dashboard</h1>
+
+        <div style="margin-bottom:2rem;">
+            <a href="/upload.html" style="display:inline-block; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; padding:1rem 1.75rem; border-radius:12px; font-weight:700; font-size:1.15rem; text-decoration:none; box-shadow:0 8px 24px rgba(37,99,235,0.35);">Start New Estimate Review</a>
+        </div>
         
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
             <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
@@ -36,13 +40,13 @@
                 <div id="recentLetters">
                     <p style="color:#4a5568;">Loading your letters...</p>
                 </div>
-                <a href="/payment.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; margin-top:1rem;">Upload New Letter</a>
+                <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; margin-top:1rem;">Upload New Letter</a>
             </div>
             
             <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
                 <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Quick Actions</h3>
                 <div style="display:flex; flex-direction:column; gap:1rem;">
-                    <a href="/payment.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; text-align:center;">Analyze New Letter</a>
+                    <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center;">Analyze New Letter</a>
                     <a href="/pricing.html" style="background:#6c757d; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; text-align:center;">Upgrade Plan</a>
                 </div>
             </div>
@@ -66,24 +70,31 @@
     </script>
     <script type="module">
         import { getUserDocuments } from './src/components/UploadForm.js';
-        import { getCurrentUser } from './src/components/Auth.js';
+        import { getCurrentUser, getAccessToken } from './src/components/Auth.js';
         
         let currentUser = null;
+        let billingSnapshot = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user has paid
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            if (!hasPaid) {
-                alert('Payment required to access dashboard features. Redirecting to payment page...');
-                window.location.href = '/payment.html';
-                return;
-            }
-            
             currentUser = await getCurrentUser();
             
             if (!currentUser) {
-                alert('Please login to access your dashboard');
-                window.location.href = '/login.html';
+                window.location.href = '/login.html?next=' + encodeURIComponent('/dashboard.html');
+                return;
+            }
+
+            const tok = await getAccessToken();
+            if (!tok) {
+                window.location.href = '/login.html?next=' + encodeURIComponent('/dashboard.html');
+                return;
+            }
+
+            const br = await fetch('/api/billing-status', {
+                headers: { Authorization: 'Bearer ' + tok }
+            });
+            billingSnapshot = await br.json().catch(() => ({}));
+            if (!br.ok || billingSnapshot.active !== true) {
+                window.location.href = '/pricing.html';
                 return;
             }
             
@@ -109,7 +120,7 @@
             const container = document.getElementById('recentLetters');
             
             if (documents.length === 0) {
-                container.innerHTML = '<p>No letters uploaded yet. <a href="/payment.html">Upload your first letter</a></p>';
+                container.innerHTML = '<p>No letters uploaded yet. <a href="/upload.html">Upload your first letter</a></p>';
                 return;
             }
             
@@ -126,10 +137,18 @@
         
         function updateAccountStatus() {
             const statusDiv = document.getElementById('accountStatus');
+            const b = billingSnapshot;
+            const plan = b?.plan_type || '—';
+            const used = b?.usage?.used ?? '—';
+            const lim = b?.usage?.limit === -1 ? 'Unlimited' : (b?.usage?.limit ?? '—');
+            const renew = b?.renewal_date ? new Date(b.renewal_date).toLocaleDateString() : '—';
             statusDiv.innerHTML = `
                 <p><strong>Email:</strong> ${currentUser.email}</p>
                 <p><strong>Member since:</strong> ${new Date(currentUser.created_at).toLocaleDateString()}</p>
-                <p><strong>Plan:</strong> Free</p>
+                <p><strong>Plan:</strong> ${plan}</p>
+                <p><strong>Usage:</strong> ${used} of ${lim} reviews</p>
+                <p><strong>Renewal:</strong> ${renew}</p>
+                <p style="margin-top:1rem;"><a href="/pricing.html" style="color:#1d4ed8; font-weight:600;">Upgrade plan</a></p>
             `;
         }
     </script>

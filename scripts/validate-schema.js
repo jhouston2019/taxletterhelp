@@ -63,7 +63,9 @@ const REQUIRED_TABLES = [
   'subscriptions',
   'usage_tracking',
   'tlh_letters',  // CRITICAL - most referenced table
-  'system_check'
+  'system_check',
+  'processed_sessions',
+  'user_review_usage'
 ];
 
 // Required columns for tlh_letters (from code usage)

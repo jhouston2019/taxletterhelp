@@ -8,6 +8,8 @@ const {
   formatNoticeFactsForPrompt
 } = require("./irs-intelligence/index.js");
 const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
+const { getBillingSnapshot } = require("./_billing-snapshot.js");
+const { getUserFromBearer } = require("./_request-auth.js");
 
 const LETTER_GENERATION_MODEL = "gpt-4o";
 const LETTER_GENERATION_MAX_TOKENS = 4000;
@@ -20,7 +22,7 @@ const mainHandler = async (event) => {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: ''
@@ -28,6 +30,8 @@ const mainHandler = async (event) => {
   }
 
   try {
+    const { user: authUser, error: authErr } = await getUserFromBearer(event);
+
     const { 
       summary, 
       letterText = null,
@@ -42,6 +46,52 @@ const mainHandler = async (event) => {
     
     if (!summary && !letterText) {
       return { statusCode: 400, body: JSON.stringify({ error: "Missing summary or letter text" }) };
+    }
+
+    if (recordId && !authUser) {
+      return {
+        statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ error: 'Unauthorized', details: authErr })
+      };
+    }
+
+    if (authUser) {
+      const supabaseForBill = getSupabaseAdmin();
+      const billing = await getBillingSnapshot(supabaseForBill, authUser.id);
+      if (billing.active === false) {
+        return {
+          statusCode: 403,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
+          body: JSON.stringify({ error: 'Payment required', billing })
+        };
+      }
+    }
+
+    if (recordId && authUser) {
+      const supabase = getSupabaseAdmin();
+      const { data: letterRow } = await supabase
+        .from("tlh_letters")
+        .select("user_email")
+        .eq("id", recordId)
+        .maybeSingle();
+      const em = letterRow?.user_email ? String(letterRow.user_email).toLowerCase() : null;
+      if (em && em !== String(authUser.email || "").toLowerCase()) {
+        return {
+          statusCode: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({ error: "Forbidden" }),
+        };
+      }
     }
 
     // Initialize OpenAI client

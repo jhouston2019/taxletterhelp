@@ -92,7 +92,6 @@
             // Admin mode bypass
             if (shouldBypassPayment()) {
                 console.log('[ADMIN] Payment bypassed - redirecting to upload');
-                localStorage.setItem('paid', 'true');
                 window.location.href = '/upload.html';
                 return;
             }

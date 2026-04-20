@@ -908,7 +908,7 @@
     </script>
     <script type="module">
         import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js?v=3';
-        import { getCurrentUser } from './src/components/Auth.js?v=3';
+        import { getCurrentUser, getAccessToken } from './src/components/Auth.js?v=3';
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
 
         let currentUser = null;
@@ -1839,25 +1839,19 @@ You must respond by April 30, 2024.`;
         async function analyzeLetter() {
             setUploadSubmitLoading('analyze');
             try {
-                const usageResponse = await fetch('/.netlify/functions/track-usage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.id,
-                        actionType: 'letter_analysis',
-                        documentId: null
-                    })
-                });
-
-                if (!usageResponse.ok) {
-                    const usageData = await usageResponse.json();
-                    showStatus('Usage limit exceeded: ' + usageData.message);
+                const token = await getAccessToken();
+                if (!token) {
+                    showStatus('Please sign in to continue.');
+                    window.location.href = '/login.html?next=' + encodeURIComponent('/upload.html');
                     return;
                 }
 
                 const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: 'Bearer ' + token
+                    },
                     body: JSON.stringify({
                         text: letterText,
                         fileUrl: null,
@@ -1866,6 +1860,21 @@ You must respond by April 30, 2024.`;
                 });
 
                 const analysisText = await analysisResponse.text();
+
+                if (analysisResponse.status === 401) {
+                    showStatus('Please sign in again.');
+                    window.location.href = '/login.html?next=' + encodeURIComponent('/upload.html');
+                    return;
+                }
+                if (analysisResponse.status === 403) {
+                    let msg = 'Access denied.';
+                    try {
+                        const er = JSON.parse(analysisText);
+                        msg = er.error === 'Usage limit exceeded' ? 'Usage limit reached. Upgrade on the pricing page.' : (er.error || msg);
+                    } catch (_) { /* ignore */ }
+                    showStatus(msg);
+                    return;
+                }
                 let parsed;
                 try {
                     parsed = JSON.parse(analysisText);
@@ -2079,12 +2088,17 @@ You must respond by April 30, 2024.`;
                 if (selectedStrategy === 'CUSTOM') {
                     userDataPayload.customStrategy = document.getElementById('strategyCustomText').value.trim();
                 }
+                const genToken = await getAccessToken();
                 const response = await fetch('/.netlify/functions/generate-response', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(genToken ? { Authorization: 'Bearer ' + genToken } : {})
+                    },
                     body: JSON.stringify({
                         letterText: letterText,
-                        userData: JSON.stringify(userDataPayload)
+                        userData: JSON.stringify(userDataPayload),
+                        recordId: analysisData.recordId || null
                     })
                 });
                 const text = await response.text();
@@ -2314,18 +2328,32 @@ You must respond by April 30, 2024.`;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const adminMode = await initAdminMode();
-            const hasPaid = localStorage.getItem('paid') === 'true';
-            if (!hasPaid && !shouldBypassPayment()) {
-                alert('Payment required to access response preparation. Redirecting to pricing page...');
-                window.location.href = '/pricing.html';
-                return;
-            }
             if (adminMode) console.log('[ADMIN] Payment check bypassed');
 
             currentUser = await getCurrentUser();
-            if (!currentUser) {
-                currentUser = { id: 'test-user-123', email: 'test@example.com' };
-                console.log('Using mock user for testing');
+            if (!currentUser && !shouldBypassPayment()) {
+                window.location.href = '/login.html?next=' + encodeURIComponent('/upload.html');
+                return;
+            }
+
+            if (!shouldBypassPayment()) {
+                const tok = await getAccessToken();
+                if (!tok) {
+                    window.location.href = '/login.html?next=' + encodeURIComponent('/upload.html');
+                    return;
+                }
+                const br = await fetch('/api/billing-status', {
+                    headers: { Authorization: 'Bearer ' + tok }
+                });
+                const b = await br.json().catch(() => ({}));
+                if (br.ok && b.active !== true) {
+                    window.location.href = '/pricing.html';
+                    return;
+                }
+                if (!br.ok) {
+                    window.location.href = '/pricing.html';
+                    return;
+                }
             }
 
             const dateEl = document.getElementById('fillDate');

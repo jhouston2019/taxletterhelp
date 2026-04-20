@@ -70,8 +70,11 @@ test('Required files exist', () => {
     'netlify/functions/extract-text.js',
     'netlify/functions/stripe-webhook.js',
     'netlify/functions/create-stripe-customer.js',
-    'netlify/functions/get-user-subscription.js',
-    'netlify/functions/track-usage.js',
+    'netlify/functions/create-session-from-stripe.js',
+    'netlify/functions/auth-me.js',
+    'netlify/functions/billing-status.js',
+    'netlify/functions/usage.js',
+    'netlify/functions/recover-payment-state.js',
     'netlify/functions/validate-input.js',
     'netlify/functions/security-headers.js',
     'supabase/migrations/20251001_create_users_table.sql',
@@ -144,13 +147,16 @@ test('Netlify functions have proper structure', () => {
     'netlify/functions/extract-text.js',
     'netlify/functions/stripe-webhook.js',
     'netlify/functions/create-stripe-customer.js',
-    'netlify/functions/get-user-subscription.js',
-    'netlify/functions/track-usage.js'
+    'netlify/functions/create-session-from-stripe.js',
+    'netlify/functions/auth-me.js'
   ];
   
   functionFiles.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
-    if (!content.includes('export async function handler')) {
+    const hasHandler =
+      content.includes('export async function handler') ||
+      content.includes('exports.handler');
+    if (!hasHandler) {
       throw new Error(`${file} missing handler function`);
     }
     if (!content.includes('statusCode')) {

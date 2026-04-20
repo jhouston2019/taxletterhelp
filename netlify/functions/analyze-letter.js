@@ -1,19 +1,20 @@
 // Import dependencies with error handling
 // Netlify uses Node 18+ (see netlify.toml NODE_VERSION) — native global fetch, no node-fetch require.
 // PDF: no pdf-parse (DOMMatrix / browser APIs break in Node); use `text` from request body for PDFs.
-let OpenAI, mammoth, Tesseract, getSupabaseAdmin;
+let OpenAI, mammoth, Tesseract;
 
 try {
   OpenAI = require("openai");
   mammoth = require("mammoth");
   Tesseract = require("tesseract.js");
-  const supabaseModule = require("./_supabase.js");
-  getSupabaseAdmin = supabaseModule.getSupabaseAdmin;
 } catch (importError) {
   console.error("Import error:", importError);
 }
 
 const { wrapHandler, trackError } = require('./_error-tracking.js');
+const { getSupabaseAdmin } = require("./_supabase.js");
+const { getBillingSnapshot } = require("./_billing-snapshot.js");
+const { getUserFromBearer } = require("./_request-auth.js");
 
 const mainHandler = async (event) => {
   console.log('=== ANALYZE LETTER FUNCTION START ===');
@@ -41,7 +42,7 @@ const mainHandler = async (event) => {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: ''
@@ -55,6 +56,40 @@ const mainHandler = async (event) => {
     
     const { text, fileUrl, imageUrl, userEmail = null, priceId = process.env.STRIPE_PRICE_RESPONSE, stripeSessionId = null } = parsedBody;
     let letterText = text || "";
+
+    const got = await getUserFromBearer(event);
+    const authUser = got.user;
+    let billing = null;
+
+    if (authUser) {
+      const supabaseAuth = getSupabaseAdmin();
+      billing = await getBillingSnapshot(supabaseAuth, authUser.id);
+      if (billing.active === false) {
+        return {
+          statusCode: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({ error: "Payment required", billing }),
+        };
+      }
+      const lim = billing.usage.limit;
+      const used = billing.usage.used;
+      if (lim !== -1 && used >= lim) {
+        return {
+          statusCode: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({
+            error: "Usage limit exceeded",
+            usage: billing.usage,
+          }),
+        };
+      }
+    }
     
     console.log('Letter text length:', letterText.length);
     console.log('File URL provided:', !!fileUrl);
@@ -219,13 +254,13 @@ const mainHandler = async (event) => {
 
     // --- STEP 4: Store in Supabase (optional) ---
     let recordId = null;
-    if (getSupabaseAdmin) {
+    if (getSupabaseAdmin && authUser) {
       try {
         const supabase = getSupabaseAdmin();
         const { data, error } = await supabase
           .from("tlh_letters")
           .insert({
-            user_email: userEmail,
+            user_email: userEmail || authUser.email,
             stripe_session_id: stripeSessionId,
             price_id: priceId,
             letter_text: letterText,
@@ -239,12 +274,24 @@ const mainHandler = async (event) => {
         if (error) throw error;
         recordId = data.id;
         console.log('Record saved to database:', recordId);
+
+        const { data: urow } = await supabase
+          .from("user_review_usage")
+          .select("review_count")
+          .eq("user_id", authUser.id)
+          .maybeSingle();
+        const nextCount = (urow?.review_count ?? 0) + 1;
+        await supabase.from("user_review_usage").upsert(
+          { user_id: authUser.id, review_count: nextCount, updated_at: new Date().toISOString() },
+          { onConflict: "user_id" }
+        );
       } catch (dbError) {
         console.error("Database error:", dbError);
         console.log('Continuing without database storage');
       }
     } else {
-      console.log('Database not available, skipping storage');
+      if (!authUser) console.log('[analyze-letter] guest mode — no DB persistence');
+      else console.log('Database not available, skipping storage');
     }
 
     // --- STEP 5: Return structured response ---
@@ -253,7 +300,7 @@ const mainHandler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify({
@@ -274,7 +321,7 @@ const mainHandler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify({

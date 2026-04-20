@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recover access | Tax Letter Defense Pro</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+    </script>
+</head>
+<body style="background:#0f172a; color:#e2e8f0; font-family:'Inter',sans-serif; margin:0; padding:2rem;">
+    <div style="max-width:520px; margin:4rem auto; text-align:center;">
+        <h1 style="font-size:1.5rem;">Restoring your session…</h1>
+        <p id="status" style="color:#94a3b8;">Please wait.</p>
+    </div>
+    <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle"
+      }
+    }
+    </script>
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
+        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+
+        async function run() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const headers = { 'Content-Type': 'application/json' };
+            if (session?.access_token) {
+                headers.Authorization = `Bearer ${session.access_token}`;
+            }
+            const res = await fetch('/.netlify/functions/recover-payment-state', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ session_id: sessionId }),
+            });
+            const data = await res.json();
+
+            if (data.next === '/app') {
+                window.location.replace('/app');
+                return;
+            }
+            if (data.next === 'verify' && data.session_id) {
+                window.location.replace(`/success?session_id=${encodeURIComponent(data.session_id)}`);
+                return;
+            }
+            if (data.next === '/success' && data.session_id) {
+                window.location.replace(`/success?session_id=${encodeURIComponent(data.session_id)}`);
+                return;
+            }
+            window.location.replace('/pricing.html');
+        }
+
+        run().catch(() => {
+            document.getElementById('status').textContent = 'Redirecting to pricing…';
+            window.location.replace('/pricing.html');
+        });
+    </script>
+</body>
+</html>
