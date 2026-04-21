@@ -67,6 +67,12 @@ window.startCheckout = async function(plan) {
     const data = await response.json();
     
     if (data.url) {
+      if (data.livemode === true || data.stripe_secret_key_mode === 'live') {
+        console.warn(
+          '[Stripe] This checkout uses LIVE mode. Stripe test cards (4242 4242 4242 4242) are rejected. ' +
+          'For testing: set STRIPE_SECRET_KEY to sk_test_… and STRIPE_PRICE_RESPONSE to a Test-mode price ID (Netlify env).'
+        );
+      }
       window.location.href = data.url;
     } else {
       alert('Failed to create checkout session: ' + (data.error || 'Unknown error'));

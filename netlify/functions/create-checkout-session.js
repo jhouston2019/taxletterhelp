@@ -3,22 +3,59 @@ const { wrapHandler, trackError } = require('./_error-tracking.js');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function clientErrorMessage(err) {
+  if (!err) return "Unknown error";
+  if (err.type && err.message) return err.message;
+  return err.message || String(err);
+}
+
 const mainHandler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 204, headers: corsHeaders, body: "" };
+  }
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Method not allowed", details: "Use POST" }),
+    };
+  }
+
   try {
-    // Debug: Check environment variables
-    console.log('SITE_URL:', process.env.SITE_URL);
-    console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set' : 'Missing');
-    console.log('STRIPE_PRICE_RESPONSE:', process.env.STRIPE_PRICE_RESPONSE);
+    console.log("SITE_URL:", process.env.SITE_URL ? "set" : "missing");
+    console.log("STRIPE_SECRET_KEY:", process.env.STRIPE_SECRET_KEY ? "set" : "missing");
+    console.log("STRIPE_PRICE_RESPONSE:", process.env.STRIPE_PRICE_RESPONSE || "missing");
+
+    let body = {};
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch {
+      body = {};
+    }
+    const { recordId = null } = body;
+    const priceId = (process.env.STRIPE_PRICE_RESPONSE || "").trim();
     
-    const { recordId = null } = JSON.parse(event.body || "{}"); // send from client if available
-    const priceId = process.env.STRIPE_PRICE_RESPONSE || "price_49USD_single";
-    
-    // Validate required environment variables
     if (!process.env.SITE_URL) {
-      throw new Error('SITE_URL environment variable is not set');
+      throw new Error(
+        "SITE_URL is not set in Netlify (Site settings → Environment variables). Use your site URL, e.g. https://taxletterhelp.com"
+      );
     }
     if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+      throw new Error(
+        "STRIPE_SECRET_KEY is not set in Netlify. Add your Stripe secret key (sk_test_… or sk_live_…)."
+      );
+    }
+    if (!priceId) {
+      throw new Error(
+        "STRIPE_PRICE_RESPONSE is not set. In Stripe Dashboard copy the Price ID (price_…) for your $19 product and add it to Netlify."
+      );
     }
 
     const site = (process.env.SITE_URL || "").replace(/\/$/, "");
@@ -45,28 +82,32 @@ const mainHandler = async (event) => {
       }
     });
 
+    const keyIsTest = String(process.env.STRIPE_SECRET_KEY || "").startsWith("sk_test_");
+    console.log("[create-checkout-session]", {
+      livemode: session.livemode,
+      keyIsTest,
+      priceId,
+    });
+
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({ url: session.url })
+      headers: corsHeaders,
+      body: JSON.stringify({
+        url: session.url,
+        livemode: session.livemode,
+        stripe_secret_key_mode: keyIsTest ? "test" : "live",
+      }),
     };
   } catch (error) {
-    trackError(error, { functionName: 'create-checkout-session' });
+    trackError(error, { functionName: "create-checkout-session" });
+    const details = clientErrorMessage(error);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to create checkout session',
-        details: error.message 
-      })
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Failed to create checkout session",
+        details,
+      }),
     };
   }
 };

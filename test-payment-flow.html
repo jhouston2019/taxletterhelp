@@ -108,7 +108,11 @@
                 const data = await response.json();
                 
                 if (data.url) {
-                    resultsDiv.innerHTML = `<div class="status success">✅ Stripe integration working! Checkout URL: ${data.url}</div>`;
+                    const modeNote =
+                        data.livemode === true || data.stripe_secret_key_mode === 'live'
+                            ? '<p class="status" style="margin-top:8px;">⚠️ Checkout is <strong>live</strong> mode — Stripe test cards (4242…) will be declined. Use <code>sk_test_</code> + Test-mode price ID in Netlify to test cards.</p>'
+                            : '';
+                    resultsDiv.innerHTML = `<div class="status success">✅ Stripe integration working! Checkout URL: ${data.url}</div>${modeNote}`;
                 } else {
                     resultsDiv.innerHTML = `<div class="status error">❌ Stripe integration failed: ${data.error || 'Unknown error'}</div>`;
                 }

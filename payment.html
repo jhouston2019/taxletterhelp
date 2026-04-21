@@ -111,17 +111,27 @@
                     body: JSON.stringify({})
                 });
                 
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 
                 if (data.url) {
-                    // Redirect to Stripe Checkout
+                    if (data.livemode === true || data.stripe_secret_key_mode === 'live') {
+                        console.warn(
+                            '[Stripe] This checkout uses LIVE mode. Stripe test cards (4242 4242 4242 4242) are rejected. ' +
+                            'For testing: in Netlify set STRIPE_SECRET_KEY to sk_test_… and STRIPE_PRICE_RESPONSE to a price from Stripe Dashboard (Test mode).'
+                        );
+                    }
                     window.location.href = data.url;
                 } else {
-                    throw new Error(data.error || 'Failed to create checkout session');
+                    const detail = data.details || data.message || data.error || `HTTP ${response.status}`;
+                    console.error('create-checkout-session failed:', { status: response.status, data });
+                    throw new Error(detail);
                 }
             } catch (error) {
                 console.error('Payment error:', error);
-                alert('Payment setup failed. Please try again or contact support.');
+                alert(
+                    'Payment setup failed.\n\n' +
+                    (error && error.message ? error.message : 'Please try again or contact support.')
+                );
                 
                 // Reset button state
                 button.disabled = false;
