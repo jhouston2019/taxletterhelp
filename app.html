@@ -41,17 +41,6 @@
                 return;
             }
 
-            if (recoverSession) {
-                await fetch('/api/verify-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${session.access_token}`,
-                    },
-                    body: JSON.stringify({ session_id: recoverSession }),
-                });
-            }
-
             const res = await fetch('/api/billing-status', {
                 headers: { Authorization: `Bearer ${session.access_token}` },
             });

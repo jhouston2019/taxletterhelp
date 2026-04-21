@@ -30,14 +30,32 @@ const mainHandler = async (event) => {
     return { statusCode: 204, headers: cors, body: "" };
   }
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers: cors, body: JSON.stringify({ error: "Method not allowed" }) };
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ success: false, error: "method_not_allowed" }),
+    };
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    let body = {};
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch (_) {
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ success: false, error: "invalid_json" }),
+      };
+    }
+
     const sessionId = body.session_id || body.sessionId;
     if (!sessionId) {
-      return { statusCode: 400, headers: cors, body: JSON.stringify({ error: "session_id required" }) };
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ success: false, error: "session_id required" }),
+      };
     }
 
     const checkout = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -46,7 +64,11 @@ const mainHandler = async (event) => {
 
     const { email, customerId } = await resolveEmailAndCustomer(checkout);
     if (!email) {
-      return { statusCode: 400, headers: cors, body: JSON.stringify({ error: "Could not resolve customer email from Stripe session" }) };
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ success: false, error: "Could not resolve customer email from Stripe session" }),
+      };
     }
 
     const supabase = getSupabaseAdmin();
@@ -73,7 +95,11 @@ const mainHandler = async (event) => {
           const retry = await supabase.rpc("tlh_auth_uid_for_email", { lookup_email: email });
           if (retry.data) userId = retry.data;
         } else {
-          throw create.error;
+          return {
+            statusCode: 200,
+            headers: cors,
+            body: JSON.stringify({ success: false, error: msg || "user_create_failed" }),
+          };
         }
       } else if (create.data?.user?.id) {
         userId = create.data.user.id;
@@ -81,7 +107,11 @@ const mainHandler = async (event) => {
     }
 
     if (!userId) {
-      return { statusCode: 500, headers: cors, body: JSON.stringify({ error: "Could not create or resolve user" }) };
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ success: false, error: "Could not create or resolve user" }),
+      };
     }
 
     await supabase.from("users").upsert(
@@ -113,7 +143,16 @@ const mainHandler = async (event) => {
       },
     });
 
-    if (link.error) throw link.error;
+    if (link.error) {
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({
+          success: false,
+          error: link.error.message || "generate_link_failed",
+        }),
+      };
+    }
 
     const hashed = link.data?.properties?.hashed_token;
     const actionLink = link.data?.properties?.action_link;
@@ -135,9 +174,12 @@ const mainHandler = async (event) => {
   } catch (e) {
     trackError(e, { functionName: "create-session-from-stripe" });
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ error: e.message || "session creation failed" }),
+      body: JSON.stringify({
+        success: false,
+        error: e.message || "session creation failed",
+      }),
     };
   }
 };
