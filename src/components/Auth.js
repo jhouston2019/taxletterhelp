@@ -9,7 +9,7 @@ export async function signInWithMagicLink(email, options = {}) {
   return supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: options.redirectTo || window.location.origin + '/app',
+      emailRedirectTo: options.redirectTo || window.location.origin + '/wizard',
     },
   });
 }

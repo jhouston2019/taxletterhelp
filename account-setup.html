@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create your account | Tax Letter Defense Pro</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin:0; min-height:100vh; font-family:'Inter',system-ui,sans-serif; background:linear-gradient(180deg,#f8fafc,#eef2ff); color:#0f172a; }
+        .wrap { max-width:440px; margin:0 auto; padding:2.5rem 1.25rem 4rem; }
+        h1 { font-size:1.35rem; font-weight:700; margin:0 0 0.5rem; line-height:1.35; }
+        .sub { color:#64748b; font-size:0.95rem; margin:0 0 1.5rem; }
+        .trust { display:flex; align-items:flex-start; gap:0.5rem; font-size:0.85rem; color:#475569; margin-bottom:1.5rem; }
+        .card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1.5rem; box-shadow:0 10px 30px rgba(15,23,42,0.06); }
+        label { display:block; font-weight:600; font-size:0.85rem; margin-bottom:0.35rem; color:#334155; }
+        input[type="email"], input[type="password"] { width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:1rem; }
+        input[readonly] { background:#f1f5f9; color:#475569; }
+        .field { margin-bottom:1rem; }
+        .pw-row { position:relative; }
+        .pw-toggle { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#64748b; cursor:pointer; font-size:0.8rem; }
+        .err { color:#b91c1c; font-size:0.9rem; margin-top:0.75rem; min-height:1.25em; }
+        .btn { width:100%; padding:12px 16px; border:none; border-radius:10px; background:linear-gradient(180deg,#3b82f6,#1d4ed8); color:#fff; font-weight:700; font-size:1rem; cursor:pointer; font-family:inherit; }
+        .btn:disabled { opacity:0.65; cursor:not-allowed; }
+        .btn .spin { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading { text-align:center; padding:2rem; color:#64748b; }
+        .hidden { display:none !important; }
+        .fatal { text-align:center; padding:2rem 1rem; }
+        .fatal a { color:#2563eb; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div id="fatal" class="fatal hidden"></div>
+
+        <div id="loadingBlock" class="loading">
+            <p>Loading your payment details…</p>
+        </div>
+
+        <div id="formBlock" class="hidden">
+            <h1>Your payment was successful. Create your account to access your response.</h1>
+            <p class="sub">Choose a password to secure your account.</p>
+            <div class="trust">
+                <span aria-hidden="true">🔒</span>
+                <span>Your information is secured with 256-bit encryption.</span>
+            </div>
+
+            <div class="card">
+                <form id="acctForm" novalidate>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" readonly autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <div class="pw-row">
+                            <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" required>
+                            <button type="button" class="pw-toggle" id="togglePw" aria-label="Show password">Show</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="password2">Confirm password</label>
+                        <div class="pw-row">
+                            <input type="password" id="password2" name="password2" minlength="8" autocomplete="new-password" required>
+                            <button type="button" class="pw-toggle" id="togglePw2" aria-label="Show confirm password">Show</button>
+                        </div>
+                    </div>
+                    <div id="formError" class="err" role="alert"></div>
+                    <button type="submit" class="btn" id="submitBtn">
+                        <span id="btnSpinner" class="spin hidden"></span>
+                        <span id="btnLabel">Create Account &amp; Continue</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+    </script>
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+        const fatal = document.getElementById('fatal');
+        const loadingBlock = document.getElementById('loadingBlock');
+        const formBlock = document.getElementById('formBlock');
+        const formError = document.getElementById('formError');
+        const acctForm = document.getElementById('acctForm');
+        const emailEl = document.getElementById('email');
+        const pw = document.getElementById('password');
+        const pw2 = document.getElementById('password2');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const btnLabel = document.getElementById('btnLabel');
+
+        function showFatal(html) {
+            loadingBlock.classList.add('hidden');
+            formBlock.classList.add('hidden');
+            fatal.innerHTML = html;
+            fatal.classList.remove('hidden');
+        }
+
+        function setLoadingForm(on) {
+            submitBtn.disabled = on;
+            btnSpinner.classList.toggle('hidden', !on);
+            if (on) btnLabel.textContent = 'Creating account…';
+            else btnLabel.textContent = 'Create Account & Continue';
+        }
+
+        function wireToggle(btn, input) {
+            btn.addEventListener('click', () => {
+                const t = input.type === 'password' ? 'text' : 'password';
+                input.type = t;
+                btn.textContent = t === 'password' ? 'Show' : 'Hide';
+            });
+        }
+        wireToggle(document.getElementById('togglePw'), pw);
+        wireToggle(document.getElementById('togglePw2'), pw2);
+
+        async function init() {
+            if (!sessionId) {
+                showFatal('<p>Invalid session. Please contact support.</p><p><a href="/pricing">Return to pricing</a></p>');
+                return;
+            }
+
+            const res = await fetch('/api/get-stripe-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId }),
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                const msg = data.error === 'Payment not completed'
+                    ? 'Payment not verified. If you completed checkout, wait a moment and refresh, or <a href="/pricing">return to pricing</a>.'
+                    : (data.error || 'Could not verify payment.') + ' <a href="/pricing">Back to pricing</a>';
+                showFatal('<p>' + msg + '</p>');
+                return;
+            }
+
+            emailEl.value = data.email || '';
+            loadingBlock.classList.add('hidden');
+            formBlock.classList.remove('hidden');
+        }
+
+        acctForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            formError.textContent = '';
+            const password = pw.value;
+            const confirm = pw2.value;
+            if (password.length < 8) {
+                formError.textContent = 'Password must be at least 8 characters.';
+                return;
+            }
+            if (password !== confirm) {
+                formError.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            setLoadingForm(true);
+            try {
+                const res = await fetch('/api/create-account-from-stripe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        email: emailEl.value.trim(),
+                        password,
+                    }),
+                });
+                const out = await res.json().catch(() => ({}));
+
+                if (res.status === 400 && out.error === 'account_exists') {
+                    formError.innerHTML = 'An account with this email already exists. Please <a href="/login.html">log in</a>.';
+                    setLoadingForm(false);
+                    return;
+                }
+                if (!res.ok) {
+                    formError.textContent = out.error || 'Something went wrong. Try again.';
+                    setLoadingForm(false);
+                    return;
+                }
+
+                if (out.token_hash) {
+                    const v1 = await supabase.auth.verifyOtp({
+                        token_hash: out.token_hash,
+                        type: 'magiclink',
+                    });
+                    if (v1.error) {
+                        const v2 = await supabase.auth.signInWithPassword({
+                            email: emailEl.value.trim(),
+                            password,
+                        });
+                        if (v2.error) {
+                            formError.textContent = v2.error.message || v1.error.message || 'Sign-in failed.';
+                            setLoadingForm(false);
+                            return;
+                        }
+                    }
+                }
+                window.location.replace('/wizard');
+            } catch (err) {
+                formError.textContent = err.message || 'Request failed.';
+                setLoadingForm(false);
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

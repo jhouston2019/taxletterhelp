@@ -67,10 +67,12 @@ const mainHandler = async (event) => {
         quantity: 1 
       }],
       mode: 'payment',
-      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      customer_creation: 'always',
+      success_url: `${site}/account-setup?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/pricing`,
       metadata: {
         ...(recordId ? { recordId } : {}),
+        plan: 'single',
         plan_type: 'single',
         price_id: priceId,
         product_type: 'irs_notice_response',

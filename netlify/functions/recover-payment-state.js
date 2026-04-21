@@ -32,7 +32,7 @@ exports.handler = async (event) => {
         return {
           statusCode: 200,
           headers: cors,
-          body: JSON.stringify({ next: "/app", state: "paid", billing }),
+          body: JSON.stringify({ next: "/wizard", state: "paid", billing }),
         };
       }
     }
@@ -48,7 +48,7 @@ exports.handler = async (event) => {
         return {
           statusCode: 200,
           headers: cors,
-          body: JSON.stringify({ next: "verify", state: "processing", session_id: sessionId }),
+          body: JSON.stringify({ next: "/account-setup", state: "processing", session_id: sessionId }),
         };
       }
 
@@ -58,7 +58,7 @@ exports.handler = async (event) => {
           return {
             statusCode: 200,
             headers: cors,
-            body: JSON.stringify({ next: "/success", state: "resume_verify", session_id: sessionId }),
+            body: JSON.stringify({ next: "/account-setup", state: "resume_setup", session_id: sessionId }),
           };
         }
       } catch (_) {

@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy post-checkout session (magic link / user provisioning).
+ * Replaced by account-setup.html + get-stripe-session + create-account-from-stripe.
+ * Safe to delete after go-live confirmation — search repo for references first.
+ */
 const Stripe = require("stripe");
 const { getSupabaseAdmin } = require("./_supabase.js");
 const { wrapHandler, trackError } = require("./_error-tracking.js");

@@ -3,62 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting… | Tax Letter Defense Pro</title>
+    <title>Payment confirmed | Tax Letter Defense Pro</title>
     <meta name="robots" content="noindex, nofollow">
-    <script>
-      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
-      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
-    </script>
+    <style>
+        body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+            font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#64748b; }
+        .box { text-align:center; padding:2rem; }
+        .spin { width:40px; height:40px; border:3px solid #e2e8f0; border-top-color:#3b82f6;
+            border-radius:50%; animation:spin 0.9s linear infinite; margin:0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
-<body style="background:#f8fafc; color:#64748b; font-family:'Inter',sans-serif; margin:0; padding:2rem; text-align:center;">
-    <p style="margin:0;">Opening app…</p>
-
-    <script type="importmap">
-    {
-      "imports": {
-        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle"
-      }
-    }
-    </script>
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js';
-        import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
-
-        const params = new URLSearchParams(window.location.search);
-        const checkoutSessionId = params.get('session_id');
-
-        async function run() {
-            await initAdminMode();
-            if (shouldBypassPayment()) {
-                window.location.replace('/app');
-                return;
-            }
-
-            const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-            try {
-                if (checkoutSessionId) {
-                    const sessionRes = await fetch('/api/auth/create-session-from-stripe', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ session_id: checkoutSessionId }),
-                    });
-                    const sessionJson = await sessionRes.json().catch(() => ({}));
-                    if (sessionJson.token_hash) {
-                        const { error: otpErr } = await supabase.auth.verifyOtp({
-                            token_hash: sessionJson.token_hash,
-                            type: 'magiclink',
-                        });
-                        if (otpErr) console.error('verifyOtp', otpErr);
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-            } finally {
-                window.location.replace('/app');
-            }
-        }
-
-        run();
+<body>
+    <div class="box">
+        <div class="spin" aria-hidden="true"></div>
+        <p style="margin:0; font-size:1rem;">Payment confirmed — setting up your account…</p>
+    </div>
+    <script>
+        (function () {
+            var q = window.location.search || '';
+            window.location.replace('/account-setup' + q);
+        })();
     </script>
 </body>
 </html>

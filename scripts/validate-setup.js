@@ -105,6 +105,8 @@ async function validateFileStructure() {
     'netlify/functions/billing-status.js',
     'netlify/functions/usage.js',
     'netlify/functions/recover-payment-state.js',
+    'netlify/functions/get-stripe-session.js',
+    'netlify/functions/create-account-from-stripe.js',
     'lib/sync-stripe-session.js',
     'netlify/functions/_supabase.js',
     'netlify/functions/_error-tracking.js',
@@ -114,6 +116,8 @@ async function validateFileStructure() {
     'netlify/functions/irs-intelligence/response-playbooks.js',
     'index.html',
     'upload.html',
+    'wizard.html',
+    'account-setup.html',
     'thank-you.html',
     'success.html',
     'app.html',
@@ -122,7 +126,8 @@ async function validateFileStructure() {
     'pricing.html',
     'dashboard.html',
     'supabase/migrations/20260224_fix_schema_v2.sql',
-    'supabase/migrations/20260420_billing_usage_idempotency.sql'
+    'supabase/migrations/20260420_billing_usage_idempotency.sql',
+    'supabase/migrations/20260421_paid_sessions.sql'
   ];
   
   for (const file of criticalFiles) {
@@ -387,6 +392,8 @@ async function validateHTMLPages() {
   const pages = [
     'index.html',
     'upload.html',
+    'wizard.html',
+    'account-setup.html',
     'payment.html',
     'thank-you.html',
     'pricing.html',

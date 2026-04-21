@@ -63,7 +63,7 @@
         <button class="test-button" onclick="window.location.href='/index.html'">Go to Homepage</button>
         <button class="test-button" onclick="window.location.href='/payment.html'">Go to Payment Page</button>
         <button class="test-button" onclick="window.location.href='/success.html'">Go to Success Page</button>
-        <button class="test-button" onclick="window.location.href='/upload.html'">Test Upload Page (Should Redirect if Unpaid)</button>
+        <button class="test-button" onclick="window.location.href='/wizard'">Test Wizard Page (Should Redirect if Unpaid)</button>
         <button class="test-button" onclick="window.location.href='/dashboard.html'">Test Dashboard (Should Redirect if Unpaid)</button>
     </div>
 
@@ -77,7 +77,7 @@
         <h2>📋 Test Checklist</h2>
         <ul>
             <li>✅ Payment page created with Stripe integration</li>
-            <li>✅ Success page POSTs create-session-from-stripe then redirects to /app</li>
+            <li>✅ Stripe success → /account-setup → password → /wizard</li>
             <li>✅ Upload/dashboard use billing-status (JWT)</li>
             <li>✅ Homepage CTA buttons redirect to payment</li>
             <li>✅ Navigation links redirect to payment</li>
@@ -87,7 +87,7 @@
 
     <script>
         function testUploadAccess() {
-            window.location.href = '/upload.html';
+            window.location.href = '/wizard';
         }
 
         function testDashboardAccess() {

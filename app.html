@@ -3,61 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opening app… | Tax Letter Defense Pro</title>
+    <title>Redirecting… | Tax Letter Defense Pro</title>
     <meta name="robots" content="noindex, nofollow">
-    <script>
-      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
-      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
-    </script>
+    <script>window.location.replace('/wizard');</script>
+    <meta http-equiv="refresh" content="0;url=/wizard">
 </head>
-<body style="background:#0f172a; color:#e2e8f0; font-family:'Inter',sans-serif; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;">
-    <p id="msg" style="font-size:1rem;">Loading…</p>
-    <script type="importmap">
-    {
-      "imports": {
-        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle"
-      }
-    }
-    </script>
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js';
-
-        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const params = new URLSearchParams(window.location.search);
-        const recoverSession = params.get('session_id');
-
-        function routeByPlan(plan) {
-            const p = (plan || '').toLowerCase();
-            if (p === 'single') return '/upload.html';
-            if (p === 'premier' || p === 'enterprise') return '/dashboard.html';
-            return '/dashboard.html';
-        }
-
-        async function run() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session?.access_token) {
-                const next = encodeURIComponent('/app' + (recoverSession ? `?session_id=${encodeURIComponent(recoverSession)}` : ''));
-                window.location.replace(`/login.html?next=${next}`);
-                return;
-            }
-
-            const res = await fetch('/api/billing-status', {
-                headers: { Authorization: `Bearer ${session.access_token}` },
-            });
-            const billing = await res.json().catch(() => ({}));
-
-            if (billing.active !== true) {
-                window.location.replace('/pricing.html');
-                return;
-            }
-
-            window.location.replace(routeByPlan(billing.plan_type));
-        }
-
-        run().catch((e) => {
-            document.getElementById('msg').textContent = 'Something went wrong. Try /recover or /pricing.';
-            console.error(e);
-        });
-    </script>
+<body style="background:#0f172a;color:#e2e8f0;font-family:system-ui,sans-serif;text-align:center;padding:3rem;">
+    <p>Opening wizard… <a href="/wizard" style="color:#93c5fd;">Continue</a></p>
 </body>
 </html>

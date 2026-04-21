@@ -3,64 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Dashboard | Tax Letter Defense Pro</title>
-    <meta name="description" content="Access your Tax Letter Defense Pro dashboard to view your IRS letter analyses, response letters, and account information.">
+    <title>My Documents | Tax Letter Defense Pro</title>
+    <meta name="description" content="Your IRS notice sessions and response letters.">
     <link rel="canonical" href="https://taxletterdefensepro.com/dashboard.html">
-    <meta property="og:title" content="Your Dashboard | Tax Letter Defense Pro">
-    <meta property="og:description" content="Access your Tax Letter Defense Pro dashboard to view your IRS letter analyses, response letters, and account information.">
+    <meta property="og:title" content="My Documents | Tax Letter Defense Pro">
     <meta property="og:image" content="https://taxletterdefensepro.com/images/og-image.jpg">
     <meta property="og:url" content="https://taxletterdefensepro.com/dashboard.html">
-    <meta property="og:type" content="website">
     <script>
       window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
       window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
     </script>
 </head>
-<body style="background:#0f172a; color:#ffffff; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
-    <nav style="background:#1e293b; padding:1rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; border-bottom: 2px solid #334155;">
-        <div style="color: #f5f5f5;"><strong>Tax Letter Defense Pro</strong></div>
-        <div>
-            <a href="/upload.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Upload</a> |
-            <a href="/dashboard.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Dashboard</a> |
-            <a href="/pricing.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Pricing</a> |
-            <a href="/login.html" style="color: #f5f5f5; text-decoration: none; margin: 0 10px; padding: 8px 16px; border-radius: 4px; transition: background-color 0.2s, color 0.2s;">Login</a>
+<body style="background:#0f172a; color:#e2e8f0; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
+    <nav style="background:#1e293b; padding:1rem 1.25rem; box-shadow:0 1px 4px rgba(0,0,0,0.1); display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #334155;">
+        <div style="color:#f5f5f5;"><strong>Tax Letter Defense Pro</strong></div>
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <span style="color:#93c5fd; font-weight:700; padding:8px 12px;">My Documents</span>
+            <a href="/wizard" style="color:#e2e8f0; text-decoration:none; font-weight:600; padding:8px 12px;">New notice</a>
+            <button type="button" id="dashSignOut" style="background:transparent; border:1px solid #64748b; color:#e2e8f0; padding:8px 14px; border-radius:6px; cursor:pointer; font-family:inherit;">Sign Out</button>
         </div>
     </nav>
 
-    <div style="width:min(1120px, 92%); margin-inline:auto; padding:2rem 0;">
-        <h1 style="color:#ffffff; font-size:2.5rem; margin-bottom:1rem;">Your Dashboard</h1>
-
-        <div style="margin-bottom:2rem;">
-            <a href="/upload.html" style="display:inline-block; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; padding:1rem 1.75rem; border-radius:12px; font-weight:700; font-size:1.15rem; text-decoration:none; box-shadow:0 8px 24px rgba(37,99,235,0.35);">Start New Estimate Review</a>
-        </div>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; margin:2rem 0;">
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Recent Letters</h3>
-                <div id="recentLetters">
-                    <p style="color:#4a5568;">Loading your letters...</p>
-                </div>
-                <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; margin-top:1rem;">Upload New Letter</a>
-            </div>
-            
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Quick Actions</h3>
-                <div style="display:flex; flex-direction:column; gap:1rem;">
-                    <a href="/upload.html" style="background:#334155; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; text-decoration:none; display:inline-block; text-align:center;">Analyze New Letter</a>
-                    <a href="/pricing.html" style="background:#6c757d; color:white; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; transition:all 0.3s ease; text-transform:uppercase; letter-spacing:0.5px; text-decoration:none; display:inline-block; text-align:center;">Upgrade Plan</a>
-                </div>
-            </div>
-            
-            <div style="background:#ffffff; padding:2rem; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); color:#2d3748; border:1px solid #e2e8f0;">
-                <h3 style="color:#2d3748; font-size:1.5rem; margin-bottom:1rem;">Account Status</h3>
-                <div id="accountStatus">
-                    <p style="color:#4a5568;">Loading account information...</p>
-                </div>
-            </div>
-        </div>
+    <div style="width:min(960px, 92%); margin:0 auto; padding:2rem 0 4rem;">
+        <h1 style="font-size:1.75rem; margin:0 0 1rem;">My Documents</h1>
+        <p style="color:#94a3b8; margin:0 0 2rem;">One row per paid session — your IRS letter and AI response.</p>
+        <div id="docList"><p style="color:#94a3b8;">Loading…</p></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script type="importmap">
     {
       "imports": {
@@ -69,20 +38,38 @@
     }
     </script>
     <script type="module">
-        import { getUserDocuments } from './src/components/UploadForm.js';
-        import { getCurrentUser, getAccessToken } from './src/components/Auth.js';
-        
-        let currentUser = null;
-        let billingSnapshot = null;
-        
+        import { createClient } from '@supabase/supabase-js';
+        import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js';
+
+        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+        document.getElementById('dashSignOut').addEventListener('click', async () => {
+            await signOut();
+            window.location.href = '/';
+        });
+
+        async function downloadPdf(text, fileName) {
+            const res = await fetch('/.netlify/functions/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, fileName: fileName || 'irs-response.pdf' }),
+            });
+            if (!res.ok) return;
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'irs-response.pdf';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
-            currentUser = await getCurrentUser();
-            
-            if (!currentUser) {
+            const user = await getCurrentUser();
+            if (!user) {
                 window.location.href = '/login.html?next=' + encodeURIComponent('/dashboard.html');
                 return;
             }
-
             const tok = await getAccessToken();
             if (!tok) {
                 window.location.href = '/login.html?next=' + encodeURIComponent('/dashboard.html');
@@ -90,66 +77,89 @@
             }
 
             const br = await fetch('/api/billing-status', {
-                headers: { Authorization: 'Bearer ' + tok }
+                headers: { Authorization: 'Bearer ' + tok },
             });
-            billingSnapshot = await br.json().catch(() => ({}));
-            if (!br.ok || billingSnapshot.active !== true) {
+            const billing = await br.json().catch(() => ({}));
+            if (!br.ok || billing.active !== true) {
                 window.location.href = '/pricing.html';
                 return;
             }
-            
-            await loadUserData();
-        });
-        
-        async function loadUserData() {
-            try {
-                // Load user documents
-                const documents = await getUserDocuments(currentUser.id);
-                displayRecentLetters(documents);
-                
-                // Update account status
-                updateAccountStatus();
-                
-            } catch (error) {
-                console.error('Failed to load user data:', error);
-                document.getElementById('recentLetters').innerHTML = '<p>Failed to load letters</p>';
-            }
-        }
-        
-        function displayRecentLetters(documents) {
-            const container = document.getElementById('recentLetters');
-            
-            if (documents.length === 0) {
-                container.innerHTML = '<p>No letters uploaded yet. <a href="/upload.html">Upload your first letter</a></p>';
+
+            const { data: sessions, error: sErr } = await supabase
+                .from('paid_sessions')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            const listEl = document.getElementById('docList');
+            if (sErr) {
+                listEl.innerHTML = '<p style="color:#f87171;">Could not load sessions. Ensure the paid_sessions table exists (see deployment SQL).</p>';
+                console.error(sErr);
                 return;
             }
-            
-            const lettersHtml = documents.slice(0, 5).map(doc => `
-                <div style="border: 1px solid #e1e5e9; padding: 1rem; margin: 0.5rem 0; border-radius: 8px;">
-                    <strong>${doc.file_name}</strong>
-                    <br>
-                    <small>Uploaded: ${new Date(doc.created_at).toLocaleDateString()}</small>
-                </div>
-            `).join('');
-            
-            container.innerHTML = lettersHtml;
-        }
-        
-        function updateAccountStatus() {
-            const statusDiv = document.getElementById('accountStatus');
-            const b = billingSnapshot;
-            const plan = b?.plan_type || '—';
-            const used = b?.usage?.used ?? '—';
-            const lim = b?.usage?.limit === -1 ? 'Unlimited' : (b?.usage?.limit ?? '—');
-            const renew = b?.renewal_date ? new Date(b.renewal_date).toLocaleDateString() : '—';
-            statusDiv.innerHTML = `
-                <p><strong>Email:</strong> ${currentUser.email}</p>
-                <p><strong>Member since:</strong> ${new Date(currentUser.created_at).toLocaleDateString()}</p>
-                <p><strong>Plan:</strong> ${plan}</p>
-                <p><strong>Usage:</strong> ${used} of ${lim} reviews</p>
-                <p><strong>Renewal:</strong> ${renew}</p>
-                <p style="margin-top:1rem;"><a href="/pricing.html" style="color:#1d4ed8; font-weight:600;">Upgrade plan</a></p>
-            `;
+
+            if (!sessions || sessions.length === 0) {
+                listEl.innerHTML = `
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:2rem; text-align:center;">
+                        <p style="margin:0 0 1rem;">No documents yet.</p>
+                        <a href="/pricing.html" style="display:inline-block; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; padding:12px 22px; border-radius:10px; font-weight:700; text-decoration:none;">Prepare My IRS Response →</a>
+                    </div>`;
+                return;
+            }
+
+            const cards = [];
+            const pdfTexts = [];
+            for (const ps of sessions) {
+                const { data: letter } = await supabase
+                    .from('tlh_letters')
+                    .select('id, notice_type, status, ai_response, created_at')
+                    .eq('stripe_session_id', ps.stripe_session_id)
+                    .maybeSingle();
+
+                const notice = letter?.notice_type || 'IRS notice';
+                const dt = new Date(ps.created_at || letter?.created_at).toLocaleString();
+                const hasResponse = !!(letter?.ai_response && String(letter.ai_response).trim());
+                const complete = hasResponse || ps.status === 'completed' || letter?.status === 'completed';
+                const badge = complete
+                    ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Complete</span>'
+                    : '<span style="background:#a16207;color:#fef9c3;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">In Progress</span>';
+
+                pdfTexts.push(hasResponse ? String(letter.ai_response) : null);
+                const pdfIdx = pdfTexts.length - 1;
+                cards.push(`
+                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.75rem; align-items:flex-start;">
+                            <div>
+                                <div style="font-weight:700; color:#f8fafc;">${escapeHtml(notice)}</div>
+                                <div style="font-size:0.85rem; color:#94a3b8; margin-top:0.25rem;">${escapeHtml(dt)}</div>
+                                <div style="margin-top:0.5rem;">${badge}</div>
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                                <a href="/wizard" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">View / Continue</a>
+                                ${hasResponse ? `<button type="button" class="dl-pdf" data-idx="${pdfIdx}" style="background:#0ea5e9;color:white;padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;">Download PDF</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+            listEl.innerHTML = cards.join('');
+
+            listEl.querySelectorAll('.dl-pdf').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const i = Number(btn.getAttribute('data-idx'));
+                    const t = pdfTexts[i];
+                    if (t) downloadPdf(t, 'irs-response.pdf');
+                });
+            });
+        });
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
     </script>
 </body>

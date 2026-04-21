@@ -52,7 +52,7 @@
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const { error } = await signInWithMagicLink(email, {
-                redirectTo: window.location.origin + '/app'
+                redirectTo: window.location.origin + '/wizard'
             });
             if (error) {
                 alert('Could not send link: ' + error.message);

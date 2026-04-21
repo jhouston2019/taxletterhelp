@@ -42,16 +42,12 @@
             });
             const data = await res.json();
 
-            if (data.next === '/app') {
-                window.location.replace('/app');
+            if (data.next === '/wizard') {
+                window.location.replace('/wizard');
                 return;
             }
-            if (data.next === 'verify' && data.session_id) {
-                window.location.replace(`/success?session_id=${encodeURIComponent(data.session_id)}`);
-                return;
-            }
-            if (data.next === '/success' && data.session_id) {
-                window.location.replace(`/success?session_id=${encodeURIComponent(data.session_id)}`);
+            if (data.session_id && (data.next === '/account-setup' || data.next === 'verify')) {
+                window.location.replace(`/account-setup?session_id=${encodeURIComponent(data.session_id)}`);
                 return;
             }
             window.location.replace('/pricing.html');

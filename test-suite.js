@@ -49,6 +49,8 @@ test('Required files exist', () => {
     'package.json',
     'index.html',
     'upload.html',
+    'wizard.html',
+    'account-setup.html',
     'dashboard.html',
     'login.html',
     'signup.html',
@@ -113,6 +115,8 @@ test('HTML files have proper structure', () => {
   const htmlFiles = [
     'index.html',
     'upload.html',
+    'wizard.html',
+    'account-setup.html',
     'dashboard.html',
     'login.html',
     'signup.html',
