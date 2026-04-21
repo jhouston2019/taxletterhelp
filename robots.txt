@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://taxletterhelp.pro/sitemap.xml
+Sitemap: https://taxletterdefensepro.com/sitemap.xml

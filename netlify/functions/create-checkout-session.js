@@ -44,7 +44,7 @@ const mainHandler = async (event) => {
     
     if (!process.env.SITE_URL) {
       throw new Error(
-        "SITE_URL is not set in Netlify (Site settings → Environment variables). Use your site URL, e.g. https://taxletterhelp.com"
+        "SITE_URL is not set in Netlify (Site settings → Environment variables). Use your site URL, e.g. https://taxletterdefensepro.com"
       );
     }
     if (!process.env.STRIPE_SECRET_KEY) {
