@@ -1,6 +1,15 @@
+import { createRequire } from "module";
 import OpenAI from "openai";
 
+const require = createRequire(import.meta.url);
+const { getRequestIp, checkIpRateLimit } = require("./_rate-limit-ip.js");
+
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+/** OpenAI-backed extraction — per-IP cap (default 20 / 15 min). */
+const extractMax = () =>
+  Math.max(3, Math.min(200, parseInt(process.env.RATE_LIMIT_EXTRACT_PER_IP, 10) || 20));
+const EXTRACT_WINDOW_MS = 15 * 60 * 1000;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +20,26 @@ const CORS = {
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: CORS, body: "" };
+  }
+
+  const ip = getRequestIp(event);
+  const extractRl = checkIpRateLimit(ip, {
+    namespace: "extract-text",
+    maxRequests: extractMax(),
+    windowMs: EXTRACT_WINDOW_MS,
+  });
+  if (!extractRl.ok) {
+    return {
+      statusCode: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(extractRl.retryAfterSec),
+        ...CORS,
+      },
+      body: JSON.stringify({
+        error: "Too many file extractions. Please try again in a few minutes.",
+      }),
+    };
   }
 
   try {

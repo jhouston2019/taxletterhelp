@@ -749,6 +749,7 @@
             <form id="uploadForm" enctype="multipart/form-data" onsubmit="return false;">
                 <label for="pasteNoticeText" style="display:block; font-weight:600; margin-bottom:8px; color:#334155;">Paste your notice text here</label>
                 <textarea id="pasteNoticeText" rows="8" placeholder="Paste the full text of your IRS or state tax notice here..."></textarea>
+                <p id="previewLengthHint" style="display:none; color:#b91c1c; font-size:0.9rem; margin-top:8px; margin-bottom:0;" role="alert"></p>
 
                 <p style="margin:24px 0 8px; font-weight:600; color:#334155;">Or upload a file (PDF, JPG, PNG)</p>
                 <p id="fileDropError" style="display:none; color:#b91c1c; margin-bottom:8px;"></p>
@@ -960,6 +961,21 @@
         let fullAnalysisUnlocked = false;
         /** True when step 2 was filled from preview API, before full analysis. */
         let showingPreviewOnly = false;
+        /** /analysis-preview → ?flow=preview: allow preview without login (session-persisted). */
+        let isPublicPreviewEntry = false;
+
+        function readPublicPreviewEntryFlag() {
+            const sp0 = new URLSearchParams(window.location.search);
+            if (sp0.get('flow') === 'preview') {
+                try { sessionStorage.setItem('tlh_public_preview', '1'); } catch (e) { /* ignore */ }
+                return true;
+            }
+            try {
+                return sessionStorage.getItem('tlh_public_preview') === '1';
+            } catch (e) {
+                return false;
+            }
+        }
 
         function getDefaultUploadButtonHtml() {
             if (shouldBypassPayment()) return 'Analyze My Notice →';
@@ -1820,10 +1836,17 @@ You must respond by April 30, 2024.`;
 
         async function runExtractAndAnalyzeFromFile(file) {
             setUploadSubmitLoading('upload');
-            showStatus('Uploading...');
-
-            const filePath = await uploadFile(file, currentUser.id);
-            await saveDocumentToDatabase(currentUser.id, file.name, filePath);
+            if (currentUser) {
+                showStatus('Uploading...');
+                const filePath = await uploadFile(file, currentUser.id);
+                await saveDocumentToDatabase(currentUser.id, file.name, filePath);
+            } else if (isPublicPreviewEntry) {
+                showStatus('Preparing your file...');
+            } else {
+                setUploadSubmitLoading(null);
+                showStatus('Please sign in to upload a file, or use Paste notice text below.');
+                return;
+            }
 
             setUploadSubmitLoading('extract');
             showStatus('Extracting text...');
@@ -2008,6 +2031,21 @@ You must respond by April 30, 2024.`;
          * Full analysis: analyzeLetter() — unchanged, still uses analyze-letter + billing.
          */
         async function analyzeLetterPreview() {
+            const previewTrim = (letterText || '').trim();
+            if (previewTrim.length < 50) {
+                const hintEl = document.getElementById('previewLengthHint');
+                if (hintEl) {
+                    hintEl.textContent =
+                        'Please paste more of your notice — we need at least a few lines to generate a preview.';
+                    hintEl.style.display = 'block';
+                }
+                return;
+            }
+            const hintEl = document.getElementById('previewLengthHint');
+            if (hintEl) {
+                hintEl.style.display = 'none';
+                hintEl.textContent = '';
+            }
             setUploadSubmitLoading('preview');
             try {
                 showStatus('Preparing your preview...');
@@ -2144,7 +2182,7 @@ You must respond by April 30, 2024.`;
         }
 
         document.getElementById('uploadAnalyzeSubmit').addEventListener('click', async () => {
-            if (!currentUser) {
+            if (!currentUser && !isPublicPreviewEntry) {
                 alert('Please login first');
                 return;
             }
@@ -2472,14 +2510,28 @@ You must respond by April 30, 2024.`;
                 });
             }
 
+            isPublicPreviewEntry = readPublicPreviewEntryFlag();
+            if (isPublicPreviewEntry) {
+                try {
+                    const u = new URL(window.location.href);
+                    if (u.searchParams.get('flow') === 'preview') {
+                        u.searchParams.delete('flow');
+                        const qs = u.searchParams.toString();
+                        window.history.replaceState({}, '', u.pathname + (qs ? '?' + qs : ''));
+                    }
+                } catch (e) { /* ignore */ }
+            }
+
             currentUser = await getCurrentUser();
-            if (!currentUser && !shouldBypassPayment()) {
+            if (!currentUser && !shouldBypassPayment() && !isPublicPreviewEntry) {
                 window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
                 return;
             }
 
             if (shouldBypassPayment()) {
                 fullAnalysisUnlocked = true;
+            } else if (isPublicPreviewEntry) {
+                fullAnalysisUnlocked = false;
             } else {
                 const tok = await getAccessToken();
                 if (!tok) {

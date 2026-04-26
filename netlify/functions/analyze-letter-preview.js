@@ -12,6 +12,28 @@ const {
 } = require('./irs-intelligence/classification-engine.js');
 const { generateDeadlineIntelligence } = require('./irs-intelligence/deadline-calculator.js');
 
+// Simple in-memory rate limiter — resets on function cold start
+const ipRequestLog = {};
+const RATE_LIMIT = 3; // max requests per window
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour window
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (!ipRequestLog[ip]) {
+    ipRequestLog[ip] = { count: 1, windowStart: now };
+    return false;
+  }
+  const entry = ipRequestLog[ip];
+  if (now - entry.windowStart > WINDOW_MS) {
+    entry.count = 1;
+    entry.windowStart = now;
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT) return true;
+  entry.count++;
+  return false;
+}
+
 const mainHandler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -30,23 +52,49 @@ const mainHandler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
+  const ip =
+    event.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+    event.headers['X-Forwarded-For']?.split(',')[0]?.trim() ||
+    event.headers['client-ip'] ||
+    event.headers['x-nf-client-connection-ip'] ||
+    'unknown';
+
+  if (isRateLimited(ip)) {
+    return {
+      statusCode: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      },
+      body: JSON.stringify({
+        error:
+          'Too many preview requests. Please try again later or proceed to generate your full response.',
+      }),
+    };
+  }
+
   try {
     const parsed = JSON.parse(event.body || '{}');
     const { text: rawText = '' } = parsed;
     const letterText = String(rawText).trim();
 
-    if (letterText.length < 20) {
+    if (!letterText || typeof letterText !== 'string' || letterText.length < 50) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Please provide more notice text (at least 20 characters).' }),
+        body: JSON.stringify({ error: 'Please provide the text of your IRS notice.' }),
       };
     }
 
-    const classification = classifyIRSNotice(letterText);
-    const fi = extractFinancialInfo(letterText);
-    const deadlineInfo = extractDeadlineInfo(letterText);
-    const extractedTaxYear = extractPrimaryTaxYearFromText(letterText);
+    // Cap input length to prevent prompt stuffing (no OpenAI in this function — see analyze-letter.js)
+    const truncatedText = letterText.slice(0, 8000);
+
+    const classification = classifyIRSNotice(truncatedText);
+    const fi = extractFinancialInfo(truncatedText);
+    const deadlineInfo = extractDeadlineInfo(truncatedText);
+    const extractedTaxYear = extractPrimaryTaxYearFromText(truncatedText);
     const taxYear = fi.taxYear || extractedTaxYear || null;
     const deadlineIntelligence = generateDeadlineIntelligence(classification, deadlineInfo);
 
@@ -67,10 +115,11 @@ const mainHandler = async (event) => {
       urgency: (classification.urgencyLevel || 'medium').toString(),
       financialInfo: fi,
       taxYear: taxYear || null,
-      // Same shape the wizard uses; no OpenAI narrative (full path remains analyze-letter only).
       deadlineIntelligence: deadlineIntelligence,
       fullAnalysis: null,
     };
+
+    const remaining = Math.max(0, RATE_LIMIT - (ipRequestLog[ip]?.count ?? 0));
 
     return {
       statusCode: 200,
@@ -79,6 +128,7 @@ const mainHandler = async (event) => {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'X-Preview-Remaining': String(remaining),
       },
       body: JSON.stringify({
         message: 'Preview ready.',
