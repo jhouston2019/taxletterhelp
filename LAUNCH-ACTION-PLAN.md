@@ -249,7 +249,7 @@ exports.handler = async (event) => {
 **Action:**
 1. Go to https://dashboard.stripe.com
 2. Switch to production mode
-3. Create product: "IRS Letter Response" ($19 one-time)
+3. Create product: "IRS Letter Response" ($29 one-time)
 4. Copy price ID
 5. Set up webhook: `https://taxletterhelp.pro/.netlify/functions/stripe-webhook`
 6. Select events: `checkout.session.completed`
@@ -597,7 +597,7 @@ function checkRateLimit(ip, limit = 10, window = 60000) {
 
 **Action:**
 1. Set up Google Optimize
-2. Create pricing test ($19 vs. $49)
+2. Create pricing test ($29 vs. $49)
 3. Create CTA test variations
 4. Set up conversion tracking
 
@@ -726,7 +726,7 @@ function checkRateLimit(ip, limit = 10, window = 60000) {
 - **Total:** $1,026-2,026/month
 
 ### Break-Even
-- 57 customers/month at $19 = $1,083/month
+- 57 customers/month at $29 = $1,653/month
 - Covers monthly costs
 - Achievable in Month 1
 

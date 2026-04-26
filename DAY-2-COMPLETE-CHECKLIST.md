@@ -48,7 +48,7 @@
 │ USER JOURNEY                                                 │
 └─────────────────────────────────────────────────────────────┘
 
-1. User clicks "Prepare My IRS Response" ($19)
+1. User clicks "Prepare My IRS Response" ($29)
    ↓
 2. Redirected to Stripe Checkout
    ↓
@@ -234,13 +234,13 @@ http://localhost:8888/payment.html
 
 **Expected:**
 - Redirects to Stripe Checkout
-- Shows $19 price
+- Shows $29 price
 - Test mode indicator visible
 
 **Verification:**
 - [ ] Checkout session creates
 - [ ] Redirects to Stripe
-- [ ] Price is correct ($19)
+- [ ] Price is correct ($29)
 
 #### 4.2: Test Successful Payment
 ```
@@ -443,7 +443,7 @@ localStorage.clear();
 **Complete User Journey:**
 
 1. **Start:** Go to landing page (index.html)
-2. **Click:** "Prepare My IRS Response - $19"
+2. **Click:** "Prepare My IRS Response - $29"
 3. **Redirect:** Should go to /payment.html
 4. **Click:** Payment button
 5. **Checkout:** Enter test card details

@@ -43,7 +43,7 @@
 1. Go to Products
 2. Click "Add product"
 3. Name: `IRS Notice Response`
-4. Price: `$19.00` one-time
+4. Price: `$29.00` one-time
 5. Copy the Price ID (starts with `price_`)
 
 ### Get API Keys

@@ -24,7 +24,7 @@
 - [ ] Create Stripe account at [stripe.com](https://stripe.com)
 - [ ] Create product: "Standard Letter Response" ($49 one-time)
 - [ ] Create product: "Complex Letter Response" ($99 one-time)
-- [ ] Create product: "Starter Plan" ($19/month)
+- [ ] Create product: "Starter Plan" ($29/month)
 - [ ] Create product: "Pro Plan" ($49/month)
 - [ ] Create product: "Pro+ Plan" ($99/month)
 - [ ] Copy all price IDs from Stripe dashboard

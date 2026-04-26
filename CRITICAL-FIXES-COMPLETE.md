@@ -115,7 +115,7 @@ node scripts/validate-setup.js
 
 ### Phase 3: Stripe Setup (15 minutes)
 1. Create Stripe account
-2. Create product ($19 one-time)
+2. Create product ($29 one-time)
 3. Copy API keys to `.env`
 
 ### Phase 4: OpenAI Setup (10 minutes)

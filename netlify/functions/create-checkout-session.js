@@ -54,7 +54,7 @@ const mainHandler = async (event) => {
     }
     if (!priceId) {
       throw new Error(
-        "STRIPE_PRICE_RESPONSE is not set. In Stripe Dashboard copy the Price ID (price_…) for your $19 product and add it to Netlify."
+        "STRIPE_PRICE_RESPONSE is not set. In Stripe Dashboard copy the Price ID (price_…) for your $29 product and add it to Netlify."
       );
     }
 
@@ -80,7 +80,7 @@ const mainHandler = async (event) => {
         risk_level: 'regulated',
         ai_mode: 'constrained_procedural',
         not_chat_based: 'true',
-        price_point: '19'
+        price_point: '29'
       }
     });
 

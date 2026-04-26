@@ -132,7 +132,7 @@ SELECT * FROM tlh_letters LIMIT 1;
 3. Name: `IRS Notice Response`
 4. Description: `Professional IRS notice response preparation`
 5. Pricing model: `One-time`
-6. Price: `$19.00 USD`
+6. Price: `$29.00 USD`
 7. Click "Save product"
 8. Copy the `Price ID` (starts with `price_`) → Update `STRIPE_PRICE_RESPONSE` in `.env`
 

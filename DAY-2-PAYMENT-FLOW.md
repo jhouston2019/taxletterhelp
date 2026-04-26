@@ -50,7 +50,7 @@
 
 ```
 User Flow:
-1. User clicks "Prepare My IRS Response" ($19)
+1. User clicks "Prepare My IRS Response" ($29)
 2. Redirected to Stripe Checkout
 3. Enters payment info
 4. Stripe processes payment

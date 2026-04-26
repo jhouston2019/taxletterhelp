@@ -76,7 +76,7 @@
 
 ## 📊 YEAR 1 REVENUE PROJECTIONS
 
-### Pricing Model: $19 per IRS Notice Response
+### Pricing Model: $29 per IRS Notice Response
 
 ### Scenario 1: Conservative (Likely)
 **Assumptions:**
@@ -86,21 +86,21 @@
 
 **Monthly Breakdown:**
 ```
-Month 1:   50 customers  × $19 = $950
-Month 2:   75 customers  × $19 = $1,425
-Month 3:  100 customers  × $19 = $1,900
-Month 4:  105 customers  × $19 = $1,995
-Month 5:  110 customers  × $19 = $2,090
-Month 6:  115 customers  × $19 = $2,185
-Month 7:  120 customers  × $19 = $2,280
-Month 8:  125 customers  × $19 = $2,375
-Month 9:  130 customers  × $19 = $2,470
-Month 10: 135 customers  × $19 = $2,565
-Month 11: 140 customers  × $19 = $2,660
-Month 12: 145 customers  × $19 = $2,755
+Month 1:   50 customers  × $29 = $1,450
+Month 2:   75 customers  × $29 = $2,175
+Month 3:  100 customers  × $29 = $2,900
+Month 4:  105 customers  × $29 = $3,045
+Month 5:  110 customers  × $29 = $3,190
+Month 6:  115 customers  × $29 = $3,335
+Month 7:  120 customers  × $29 = $3,480
+Month 8:  125 customers  × $29 = $3,625
+Month 9:  130 customers  × $29 = $3,770
+Month 10: 135 customers  × $29 = $3,915
+Month 11: 140 customers  × $29 = $4,060
+Month 12: 145 customers  × $29 = $4,205
 ```
 
-**Year 1 Total Revenue:** $25,650
+**Year 1 Total Revenue:** $39,150
 
 **Costs:**
 - OpenAI: 1,345 analyses × $0.50 = $673
@@ -109,9 +109,9 @@ Month 12: 145 customers  × $19 = $2,755
 - Tools: $26/month × 12 = $312
 - **Total Costs:** $14,128
 
-**Net Profit (Year 1):** $11,522
+**Net Profit (Year 1):** $25,022
 
-**ROI:** 115% (if you invest $10,000 upfront)
+**ROI:** 250% (if you invest $10,000 upfront)
 
 ---
 
@@ -123,32 +123,32 @@ Month 12: 145 customers  × $19 = $2,755
 
 **Monthly Breakdown:**
 ```
-Month 1:  200 customers  × $19 = $3,800
-Month 2:  300 customers  × $19 = $5,700
-Month 3:  400 customers  × $19 = $7,600
-Month 4:  500 customers  × $19 = $9,500
-Month 5:  550 customers  × $19 = $10,450
-Month 6:  600 customers  × $19 = $11,400
-Month 7:  650 customers  × $19 = $12,350
-Month 8:  700 customers  × $19 = $13,300
-Month 9:  750 customers  × $19 = $14,250
-Month 10: 800 customers  × $19 = $15,200
-Month 11: 850 customers  × $19 = $16,150
-Month 12: 900 customers  × $19 = $17,100
+Month 1:  200 customers  × $29 = $5,800
+Month 2:  300 customers  × $29 = $8,700
+Month 3:  400 customers  × $29 = $11,600
+Month 4:  500 customers  × $29 = $14,500
+Month 5:  550 customers  × $29 = $15,950
+Month 6:  600 customers  × $29 = $17,400
+Month 7:  650 customers  × $29 = $18,850
+Month 8:  700 customers  × $29 = $20,300
+Month 9:  750 customers  × $29 = $21,750
+Month 10: 800 customers  × $29 = $23,200
+Month 11: 850 customers  × $29 = $24,650
+Month 12: 900 customers  × $29 = $26,100
 ```
 
-**Year 1 Total Revenue:** $131,800
+**Year 1 Total Revenue:** $208,800
 
 **Costs:**
-- OpenAI: 6,700 analyses × $0.50 = $3,350
-- Stripe: 6,700 transactions × $0.85 = $5,695
+- OpenAI: 7,800 analyses × $0.50 = $3,900
+- Stripe: 7,800 transactions × $0.85 = $6,630
 - Marketing: $2,000/month × 12 = $24,000
 - Tools: $26/month × 12 = $312
-- **Total Costs:** $33,357
+- **Total Costs:** $34,842
 
-**Net Profit (Year 1):** $98,443
+**Net Profit (Year 1):** $173,958
 
-**ROI:** 984% (if you invest $10,000 upfront)
+**ROI:** 1,740% (if you invest $10,000 upfront)
 
 ---
 
@@ -161,12 +161,12 @@ Month 12: 900 customers  × $19 = $17,100
 
 **Monthly Breakdown:**
 ```
-Month 1:  400 customers  × $19 = $7,600
-Month 2:  600 customers  × $19 = $11,400
-Month 3:  800 customers  × $19 = $15,200
-Month 4: 1,000 customers × $19 = $19,000
-Month 5: 1,150 customers × $19 = $21,850
-Month 6: 1,300 customers × $19 = $24,700
+Month 1:  400 customers  × $29 = $11,600
+Month 2:  600 customers  × $29 = $17,400
+Month 3:  800 customers  × $29 = $23,200
+Month 4: 1,000 customers × $29 = $29,000
+Month 5: 1,150 customers × $29 = $33,350
+Month 6: 1,300 customers × $29 = $37,700
 Month 7: 1,450 customers × $49 = $71,050  ← Price increase
 Month 8: 1,600 customers × $49 = $78,400
 Month 9: 1,750 customers × $49 = $85,750
@@ -175,18 +175,18 @@ Month 11: 2,000 customers × $49 = $98,000
 Month 12: 2,100 customers × $49 = $102,900
 ```
 
-**Year 1 Total Revenue:** $628,950
+**Year 1 Total Revenue:** $681,450
 
 **Costs:**
-- OpenAI: 15,050 analyses × $0.50 = $7,525
-- Stripe: 15,050 transactions × $0.85 = $12,793
+- OpenAI: 16,050 analyses × $0.50 = $8,025
+- Stripe: 16,050 transactions × $0.85 = $13,643
 - Marketing: $3,000/month × 12 = $36,000
 - Tools/Infrastructure: $500/month × 12 = $6,000
-- **Total Costs:** $62,318
+- **Total Costs:** $63,668
 
-**Net Profit (Year 1):** $566,632
+**Net Profit (Year 1):** $617,782
 
-**ROI:** 5,666% (if you invest $10,000 upfront)
+**ROI:** 6,178% (if you invest $10,000 upfront)
 
 ---
 
@@ -196,7 +196,7 @@ Month 12: 2,100 customers × $49 = $102,900
 
 **Assumptions:**
 - 300-400 customers/month average
-- $19 price point (test $49 after 3 months)
+- $29 price point (test $49 after 3 months)
 - $1,500/month marketing budget
 - Organic growth + paid ads
 
@@ -357,7 +357,7 @@ The IRS Intelligence System you built:
 **Range:** $80,000 - $120,000
 - Conservative: $25,650
 - Moderate: $131,800
-- Optimistic: $628,950
+- Optimistic: $681,450
 - **Most Likely:** $100,000
 
 ### Year 1 Profit (Most Likely)
@@ -367,7 +367,7 @@ The IRS Intelligence System you built:
 - Low fixed costs
 
 ### Break-Even
-**57 customers/month** at $19 price point
+**57 customers/month** at $29 price point
 - Very achievable
 - Low risk
 - Can hit in Month 2-3
@@ -376,7 +376,7 @@ The IRS Intelligence System you built:
 
 ## 💡 PRICING OPTIMIZATION
 
-### Current: $19 per Notice
+### Current: $29 per Notice
 **Pros:**
 - Low barrier to entry
 - Easy impulse purchase
@@ -396,13 +396,13 @@ The IRS Intelligence System you built:
 - Room for discounts
 
 **A/B Test Strategy:**
-- 50% traffic at $19
+- 50% traffic at $29
 - 50% traffic at $49
 - Run for 2 weeks
 - Measure conversion and revenue
 - Choose winner
 
-**Expected Result:** $49 price point likely converts at 60-70% rate of $19, but generates 1.5-1.8x more revenue
+**Expected Result:** $49 price point likely converts at 60-70% rate of $29, but generates 1.5-1.8x more revenue
 
 ---
 
@@ -561,7 +561,7 @@ The IRS Intelligence System you built:
 ### Year 1 Revenue Projection: **$80,000 - $120,000** (most likely)
 - Conservative: $25,650
 - Moderate: $131,800
-- Optimistic: $628,950
+- Optimistic: $681,450
 
 ### Should You Sell As-Is? **NO**
 

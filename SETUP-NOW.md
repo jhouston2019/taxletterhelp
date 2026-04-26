@@ -84,7 +84,7 @@ Should return empty result (no error = success)
 3. Name: `IRS Notice Response`
 4. Description: `Professional IRS notice response preparation`
 5. Pricing: One-time payment
-6. Price: `$19.00 USD`
+6. Price: `$29.00 USD`
 7. Click "Save product"
 8. Copy the `Price ID` → Update `STRIPE_PRICE_RESPONSE` in `.env`
 
@@ -256,7 +256,7 @@ If all tests pass, your site is ready for real users!
 
 **B. Create Live Product:**
 1. In Live mode, create product again
-2. Price: $19.00 one-time
+2. Price: $29.00 one-time
 3. Copy new Price ID
 4. Update `STRIPE_PRICE_RESPONSE` in Netlify
 

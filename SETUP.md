@@ -119,7 +119,7 @@ CREATE POLICY "Users can delete own files" ON storage.objects
 2. Create products for each plan:
    - **Standard Letter Response** - $49 one-time
    - **Complex Letter Response** - $99 one-time
-   - **Starter Plan** - $19/month
+   - **Starter Plan** - $29/month
    - **Pro Plan** - $49/month
    - **Pro+ Plan** - $99/month
 

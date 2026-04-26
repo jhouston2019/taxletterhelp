@@ -68,7 +68,7 @@
    - Create products for each plan:
      - Standard Letter Response ($49)
      - Complex Letter Response ($99)
-     - Starter Plan ($19/month)
+     - Starter Plan ($29/month)
      - Pro Plan ($49/month)
      - Pro+ Plan ($99/month)
 

@@ -61,7 +61,7 @@ async function validateEnvironmentVariables() {
     { key: 'OPENAI_API_KEY', description: 'OpenAI API key' },
     { key: 'STRIPE_SECRET_KEY', description: 'Stripe secret key' },
     { key: 'STRIPE_PUBLIC_KEY', description: 'Stripe public key' },
-    { key: 'STRIPE_PRICE_RESPONSE', description: 'Stripe price ID for $19 response' },
+    { key: 'STRIPE_PRICE_RESPONSE', description: 'Stripe price ID for $29 response' },
     { key: 'SITE_URL', description: 'Site URL' },
     { key: 'ADMIN_KEY', description: 'Admin authentication key' }
   ];

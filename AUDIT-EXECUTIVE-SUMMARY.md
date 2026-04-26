@@ -27,7 +27,7 @@
 
 ### 2. Product Positioning (A+)
 - Clear differentiation: "Procedural IRS response system"
-- 97% cheaper than CPAs ($19 vs. $300-1,200)
+- 97% cheaper than CPAs ($29 vs. $300-1,200)
 - Safer than ChatGPT (risk controls)
 - Faster than professionals (instant vs. days)
 
@@ -81,7 +81,7 @@
 - **Optimistic:** 1,000 customers/month = $228,000/year
 
 ### Break-Even
-- **57 customers/month** at $19 price point
+- **57 customers/month** at $29 price point
 - Very achievable with low risk
 
 ---
@@ -141,7 +141,7 @@
 5. **Get legal review** (1-2 weeks)
 
 ### Pricing Strategy
-- **Current:** $19 per notice
+- **Current:** $29 per notice
 - **Recommended:** Test $49 per notice
 - **Rationale:** Still 90% cheaper than CPAs, 2.6x revenue increase
 
@@ -183,7 +183,7 @@
 - ✅ Evidence guidance
 
 ### vs. CPAs
-- ✅ 97% cheaper ($19 vs. $300-1,200)
+- ✅ 97% cheaper ($29 vs. $300-1,200)
 - ✅ Instant (vs. days/weeks)
 - ✅ 24/7 availability
 - ✅ All 50 states

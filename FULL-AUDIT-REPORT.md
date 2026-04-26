@@ -185,7 +185,7 @@ This is the product's **core competitive advantage** and cannot be replicated by
 - **Assessment:** Professional, conversion-optimized ✅
 
 **Payment Flow (payment.html):**
-- ✅ Clear pricing ($19 one-time)
+- ✅ Clear pricing ($29 one-time)
 - ✅ Stripe integration
 - ✅ Security badges (SSL, PCI)
 - ✅ Admin mode bypass for testing
@@ -351,7 +351,7 @@ The code expects a `tlh_letters` table that doesn't exist in the migration files
 | Notice-Specific Playbooks | ❌ | ✅ | ✅ |
 | Risk Guardrails | ❌ | ✅ | ✅ |
 | 24/7 Availability | ✅ | ❌ | ✅ |
-| Price | Free | $500+ | $19 |
+| Price | Free | $500+ | $29 |
 | Instant Results | ✅ | ❌ | ✅ |
 
 **Positioning Grade: A+**
@@ -363,7 +363,7 @@ The product has **clear, defensible differentiation** from both AI tools and tra
 ### 3.2 Pricing Strategy Analysis
 
 **Current Pricing:**
-- $19 one-time per IRS notice
+- $29 one-time per IRS notice
 - No subscriptions
 - No hidden fees
 
@@ -371,7 +371,7 @@ The product has **clear, defensible differentiation** from both AI tools and tra
 - **Local CPA:** $300-600 per letter
 - **Big Tax Firm:** $500-1,200 per letter
 - **DIY (ChatGPT):** Free but risky
-- **Tax Letter Defense Pro:** $19 (97% cheaper than CPA)
+- **Tax Letter Defense Pro:** $29 (97% cheaper than CPA)
 
 **Pricing Assessment:**
 - ✅ Dramatically undercuts professional services
@@ -450,14 +450,14 @@ The product has **clear, defensible differentiation** from both AI tools and tra
 ### 3.5 Monetization & Revenue Model
 
 **Current Model:**
-- One-time payment: $19 per notice
+- One-time payment: $29 per notice
 - No recurring revenue
 - No upsells
 
 **Revenue Projections (Hypothetical):**
-- 100 customers/month × $19 = $1,900/month
-- 500 customers/month × $19 = $9,500/month
-- 1,000 customers/month × $19 = $19,000/month
+- 100 customers/month × $29 = $2,900/month
+- 500 customers/month × $29 = $14,500/month
+- 1,000 customers/month × $29 = $29,000/month
 
 **Cost Structure:**
 - OpenAI API: ~$0.50 per analysis
@@ -465,7 +465,7 @@ The product has **clear, defensible differentiation** from both AI tools and tra
 - Netlify: Free tier (up to 100K requests/month)
 - Supabase: Free tier (up to 500MB storage)
 - **Total cost per transaction:** ~$1.35
-- **Gross margin:** ~93% ($17.65 profit per sale)
+- **Gross margin:** ~95% ($27.65 profit per sale)
 
 **Monetization Grade: B**
 
@@ -860,7 +860,7 @@ CREATE TABLE tlh_letters (
 
 #### 4. Price-Value Proposition
 **97% cheaper than CPAs:**
-- $19 vs. $300-1,200
+- $29 vs. $300-1,200
 - Instant vs. days/weeks
 - 24/7 availability
 - All 50 states covered
@@ -917,7 +917,7 @@ CREATE TABLE tlh_letters (
 ### Phase 3: Growth (Months 2-6)
 
 **Optimization:**
-1. A/B test pricing ($19 vs. $49 vs. $79)
+1. A/B test pricing ($29 vs. $49 vs. $79)
 2. Add premium tier for complex notices
 3. Implement referral program
 4. Build email nurture sequence
@@ -937,22 +937,22 @@ CREATE TABLE tlh_letters (
 ### Revenue Scenarios (Year 1)
 
 **Conservative (100 customers/month):**
-- Monthly Revenue: $1,900
-- Annual Revenue: $22,800
-- Gross Margin: 93% ($21,204)
-- Net Profit: ~$8,000 (after marketing)
+- Monthly Revenue: $2,900
+- Annual Revenue: $34,800
+- Gross Margin: 93% ($32,364)
+- Net Profit: ~$12,200 (after marketing)
 
 **Moderate (500 customers/month):**
-- Monthly Revenue: $9,500
-- Annual Revenue: $114,000
-- Gross Margin: 93% ($106,020)
-- Net Profit: ~$80,000 (after marketing)
+- Monthly Revenue: $14,500
+- Annual Revenue: $174,000
+- Gross Margin: 93% ($161,820)
+- Net Profit: ~$123,000 (after marketing)
 
 **Optimistic (1,000 customers/month):**
-- Monthly Revenue: $19,000
-- Annual Revenue: $228,000
-- Gross Margin: 93% ($212,040)
-- Net Profit: ~$180,000 (after marketing)
+- Monthly Revenue: $29,000
+- Annual Revenue: $348,000
+- Gross Margin: 93% ($323,640)
+- Net Profit: ~$277,000 (after marketing)
 
 ### Break-Even Analysis
 
@@ -964,7 +964,7 @@ CREATE TABLE tlh_letters (
 - Marketing: $1,000/month
 - **Total Fixed:** $1,070/month
 
-**Break-Even Point:** 57 customers/month (at $19 price point)
+**Break-Even Point:** 57 customers/month (at $29 price point)
 
 **Assessment:** Very achievable break-even with low risk.
 
@@ -1058,7 +1058,7 @@ CREATE TABLE tlh_letters (
 
 ### Pricing Recommendation
 
-**Current:** $19 per notice
+**Current:** $29 per notice
 
 **Recommended:** Test $49 per notice
 
@@ -1070,7 +1070,7 @@ CREATE TABLE tlh_letters (
 - Room for discounts/promotions
 
 **A/B Test Plan:**
-- 50% traffic at $19
+- 50% traffic at $29
 - 50% traffic at $49
 - Run for 2 weeks
 - Measure conversion rate and revenue
@@ -1230,7 +1230,7 @@ CREATE TABLE tlh_letters (
 
 | Feature | Tax Letter Defense Pro | TurboTax | H&R Block | ChatGPT | Local CPA |
 |---------|---------------|----------|-----------|---------|-----------|
-| Price | $19 | $89-199 | $200-500 | Free | $300-1,200 |
+| Price | $29 | $89-199 | $200-500 | Free | $300-1,200 |
 | Speed | Instant | 1-3 days | 3-7 days | Instant | 5-14 days |
 | Availability | 24/7 | Business hours | Business hours | 24/7 | Business hours |
 | Risk Controls | ✅ Advanced | ✅ Yes | ✅ Yes | ❌ No | ✅ Yes |
