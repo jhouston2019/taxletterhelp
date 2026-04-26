@@ -678,6 +678,34 @@
             font-weight: 600;
             color: #475569;
         }
+        /* Preview-first flow: paywall is shown on step 2 only after a preview, not on landing */
+        .paywall-preview-banner {
+            display: none;
+            margin: 0 0 20px 0;
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: linear-gradient(180deg, #1e293b, #0f172a);
+            color: #e2e8f0;
+        }
+        .paywall-preview-banner p { margin: 0; line-height: 1.5; }
+        .paywall-preview-actions { margin-top: 14px; }
+        .paywall-preview-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #22c55e, #15803d);
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body style="background:#0f172a; min-height:100vh; color:#cbd5e1; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -777,6 +805,15 @@
                     <div><span>Tax year</span><strong id="metaTaxYear">—</strong></div>
                     <div><span>Proposed amount</span><strong id="metaAmount">—</strong></div>
                     <div><span>Response deadline</span><strong id="metaDeadline">—</strong></div>
+                </div>
+            </div>
+
+            <!-- Paywall (post-preview only): /payment and Stripe path unchanged; session holds letter for return -->
+            <div id="paywallAfterPreview" class="paywall-preview-banner" style="display:none;" role="region" aria-label="Unlock full analysis">
+                <p><strong>Unlock the full report</strong> — response strategy, evidence guidance, and your IRS-ready letter (PDF &amp; Word).</p>
+                <p style="font-size:0.9rem; color:#94a3b8; margin:10px 0 0 0;">One-time $19 per notice. After payment, your full analysis runs here automatically — no re-upload.</p>
+                <div class="paywall-preview-actions">
+                    <button type="button" id="paywallAfterPreviewBtn" class="paywall-preview-btn">Continue to payment — $19</button>
                 </div>
             </div>
 
@@ -908,6 +945,7 @@
         import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js?v=3';
         import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js?v=3';
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
+        import { analyzeTaxLetterPreview } from './src/utils/analyzeTaxLetterPreview.js?v=1';
 
         let currentUser = null;
         let letterText = '';
@@ -918,8 +956,15 @@
         let currentStep = 1;
         let lastFullAnalysisText = '';
         let currentTaxYear = '';
+        /** Set after billing check. Paid/admin users skip preview and use full analyze-letter. */
+        let fullAnalysisUnlocked = false;
+        /** True when step 2 was filled from preview API, before full analysis. */
+        let showingPreviewOnly = false;
 
-        const UPLOAD_SUBMIT_DEFAULT_HTML = 'Analyze My Notice →';
+        function getDefaultUploadButtonHtml() {
+            if (shouldBypassPayment()) return 'Analyze My Notice →';
+            return fullAnalysisUnlocked ? 'Analyze My Notice →' : 'Preview my notice →';
+        }
         const GENERATE_BTN_DEFAULT_HTML = 'Generate My Response Letter →';
 
         const DEMO_CP2000 = `Department of the Treasury — Internal Revenue Service
@@ -956,6 +1001,13 @@ You must respond by April 30, 2024.`;
                 .trim();
         }
 
+        function setPaywallAfterPreview(visible) {
+            const el = document.getElementById('paywallAfterPreview');
+            if (!el) return;
+            const on = visible && !fullAnalysisUnlocked;
+            el.style.display = on ? 'block' : 'none';
+        }
+
         function goToStep(n) {
             currentStep = n;
             for (let i = 1; i <= 4; i++) {
@@ -968,6 +1020,12 @@ You must respond by April 30, 2024.`;
                     if (i === n) stepEl.setAttribute('aria-current', 'step');
                     else stepEl.removeAttribute('aria-current');
                 }
+            }
+            if (n === 1) {
+                setPaywallAfterPreview(false);
+            }
+            if (n === 2) {
+                setPaywallAfterPreview(showingPreviewOnly && !fullAnalysisUnlocked);
             }
             if (n === 3) {
                 selectedStrategy = computeRecommendedStrategy();
@@ -991,11 +1049,14 @@ You must respond by April 30, 2024.`;
             } else if (phase === 'extract') {
                 btn.innerHTML = '<span class="spinner"></span>Extracting text...';
                 btn.classList.add('btn-loading');
+            } else if (phase === 'preview') {
+                btn.innerHTML = '<span class="spinner"></span>Preparing preview...';
+                btn.classList.add('btn-loading');
             } else if (phase === 'analyze') {
                 btn.innerHTML = '<span class="spinner"></span>Analyzing notice...';
                 btn.classList.add('btn-loading');
             } else {
-                btn.innerHTML = UPLOAD_SUBMIT_DEFAULT_HTML;
+                btn.innerHTML = getDefaultUploadButtonHtml();
                 btn.classList.remove('btn-loading');
                 syncAnalyzeButtonState();
             }
@@ -1328,7 +1389,7 @@ You must respond by April 30, 2024.`;
             return out.length ? out : buildDocList(currentAnalysis);
         }
 
-        function populateStep2(apiPayload, fullText) {
+        function populateStep2(apiPayload, fullText, isPreviewResult = false) {
             currentAnalysis = apiPayload.analysis || {};
             const summaryText = fullText || apiPayload.summary || '';
             lastFullAnalysisText = summaryText;
@@ -1408,6 +1469,14 @@ You must respond by April 30, 2024.`;
 
             const hiddenExpl = document.getElementById('explanation');
             if (hiddenExpl) hiddenExpl.textContent = summaryText;
+
+            if (isPreviewResult) {
+                showingPreviewOnly = true;
+                setPaywallAfterPreview(true);
+            } else {
+                showingPreviewOnly = false;
+                setPaywallAfterPreview(false);
+            }
         }
 
         function escapeHtml(s) {
@@ -1536,6 +1605,12 @@ You must respond by April 30, 2024.`;
             selectedStrategy = 'DISPUTE';
             generatedLetter = '';
             currentTaxYear = '';
+            showingPreviewOnly = false;
+            setPaywallAfterPreview(false);
+            try {
+                localStorage.removeItem('tlh_pending_letter');
+                localStorage.removeItem('tlh_awaiting_full');
+            } catch (e) { /* ignore */ }
             const sct = document.getElementById('strategyCustomText');
             if (sct) sct.value = '';
             document.getElementById('pasteNoticeText').value = '';
@@ -1733,6 +1808,16 @@ You must respond by April 30, 2024.`;
             }, 500);
         });
 
+        async function runFullOrPreviewAfterExtract() {
+            if (fullAnalysisUnlocked) {
+                showStatus('Analyzing notice...');
+                await analyzeLetter();
+            } else {
+                showStatus('Preparing your preview...');
+                await analyzeLetterPreview();
+            }
+        }
+
         async function runExtractAndAnalyzeFromFile(file) {
             setUploadSubmitLoading('upload');
             showStatus('Uploading...');
@@ -1771,8 +1856,7 @@ You must respond by April 30, 2024.`;
                         }
                         if (ocrData.text) {
                             letterText = ocrData.text;
-                            showStatus('Analyzing notice...');
-                            await analyzeLetter();
+                            await runFullOrPreviewAfterExtract();
                         } else {
                             showStatus('Failed to extract text from image: ' + (ocrData.error || 'Unknown error'));
                             setUploadSubmitLoading(null);
@@ -1814,8 +1898,7 @@ You must respond by April 30, 2024.`;
                         }
                         if (ocrData.text) {
                             letterText = ocrData.text;
-                            showStatus('Analyzing notice...');
-                            await analyzeLetter();
+                            await runFullOrPreviewAfterExtract();
                         } else {
                             showStatus('Failed to extract text: ' + (ocrData.error || 'Unknown error'));
                             setUploadSubmitLoading(null);
@@ -1830,8 +1913,7 @@ You must respond by April 30, 2024.`;
             }
 
             letterText = `Document content for ${file.name}. This is a placeholder for document text extraction.`;
-            showStatus('Analyzing notice...');
-            await analyzeLetter();
+            await runFullOrPreviewAfterExtract();
         }
 
         async function analyzeLetter() {
@@ -1889,7 +1971,7 @@ You must respond by April 30, 2024.`;
                 const summaryText = parsed.summary || parsed.explanation || parsed.analysis?.fullAnalysis || '';
 
                 if (summaryText || parsed.analysis) {
-                    populateStep2(parsed, summaryText);
+                    populateStep2(parsed, summaryText, false);
                     const extractedYear =
                         analysisData.taxYear ||
                         currentAnalysis?.taxYear ||
@@ -1903,6 +1985,12 @@ You must respond by April 30, 2024.`;
                         currentAnalysis.resolvedTaxYear = currentTaxYear;
                     }
                     mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
+                    try {
+                        if (localStorage.getItem('tlh_awaiting_full') === '1') {
+                            localStorage.removeItem('tlh_pending_letter');
+                            localStorage.removeItem('tlh_awaiting_full');
+                        }
+                    } catch (e) { /* ignore */ }
                     hideStatus();
                     goToStep(2);
                 } else {
@@ -1910,6 +1998,41 @@ You must respond by April 30, 2024.`;
                 }
             } catch (error) {
                 showStatus('Analysis failed: ' + error.message);
+            } finally {
+                setUploadSubmitLoading(null);
+            }
+        }
+
+        /**
+         * Preview path (unpaid / preview-first): lightweight Netlify function, no full OpenAI.
+         * Full analysis: analyzeLetter() — unchanged, still uses analyze-letter + billing.
+         */
+        async function analyzeLetterPreview() {
+            setUploadSubmitLoading('preview');
+            try {
+                showStatus('Preparing your preview...');
+                const out = await analyzeTaxLetterPreview(letterText);
+                analysisData = out;
+                const summaryText = out.summary || '';
+                populateStep2(out, summaryText, true);
+                const extractedYear = out.taxYear || currentAnalysis?.taxYear || extractTaxYearFromText(letterText);
+                currentTaxYear = (extractedYear ? String(extractedYear) : '') || currentTaxYear || '';
+                if (currentTaxYear) {
+                    const metaTy = document.getElementById('metaTaxYear');
+                    if (metaTy) metaTy.textContent = currentTaxYear;
+                    const tyInput = document.getElementById('taxYearOverride');
+                    if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = currentTaxYear;
+                    currentAnalysis.resolvedTaxYear = currentTaxYear;
+                }
+                mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
+                try {
+                    localStorage.setItem('tlh_pending_letter', letterText);
+                    localStorage.setItem('tlh_awaiting_full', '1');
+                } catch (e) { /* ignore */ }
+                hideStatus();
+                goToStep(2);
+            } catch (error) {
+                showStatus('Preview failed: ' + error.message);
             } finally {
                 setUploadSubmitLoading(null);
             }
@@ -2036,9 +2159,15 @@ You must respond by April 30, 2024.`;
             try {
                 if (paste) {
                     letterText = paste;
-                    showStatus('Analyzing notice...');
-                    setUploadSubmitLoading('analyze');
-                    await analyzeLetter();
+                    if (fullAnalysisUnlocked) {
+                        setUploadSubmitLoading('analyze');
+                        showStatus('Analyzing notice...');
+                        await analyzeLetter();
+                    } else {
+                        setUploadSubmitLoading('preview');
+                        showStatus('Preparing your preview...');
+                        await analyzeLetterPreview();
+                    }
                     return;
                 }
                 await runExtractAndAnalyzeFromFile(file);
@@ -2048,7 +2177,14 @@ You must respond by April 30, 2024.`;
             }
         });
 
-        document.getElementById('footerNext2').addEventListener('click', () => goToStep(3));
+        document.getElementById('footerNext2').addEventListener('click', () => {
+            if (!fullAnalysisUnlocked && showingPreviewOnly) {
+                const pay = document.getElementById('paywallAfterPreview');
+                if (pay) pay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            goToStep(3);
+        });
         document.getElementById('footerBack2').addEventListener('click', () => goToStep(1));
         document.getElementById('footerBack3').addEventListener('click', () => goToStep(2));
 
@@ -2342,7 +2478,9 @@ You must respond by April 30, 2024.`;
                 return;
             }
 
-            if (!shouldBypassPayment()) {
+            if (shouldBypassPayment()) {
+                fullAnalysisUnlocked = true;
+            } else {
                 const tok = await getAccessToken();
                 if (!tok) {
                     window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
@@ -2352,28 +2490,69 @@ You must respond by April 30, 2024.`;
                     headers: { Authorization: 'Bearer ' + tok }
                 });
                 const b = await br.json().catch(() => ({}));
-                if (br.ok && b.active !== true) {
-                    window.location.href = '/pricing.html';
-                    return;
-                }
-                if (!br.ok) {
-                    window.location.href = '/pricing.html';
-                    return;
-                }
+                // Preview-first UX: open wizard without sending unpaid users to /pricing; paywall is on step 2 after preview.
+                fullAnalysisUnlocked = br.ok && b.active === true;
             }
 
             const dateEl = document.getElementById('fillDate');
             if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
 
-            if (new URLSearchParams(window.location.search).get('demo') === 'cp2000') {
-                const ta = document.getElementById('pasteNoticeText');
-                if (ta) ta.value = DEMO_CP2000;
-                letterText = DEMO_CP2000.trim();
-                mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
+            const paywallAfterBtn = document.getElementById('paywallAfterPreviewBtn');
+            if (paywallAfterBtn) {
+                paywallAfterBtn.addEventListener('click', () => {
+                    let t = (letterText || '').trim();
+                    if (!t) {
+                        t = (document.getElementById('pasteNoticeText')?.value || '').trim();
+                    }
+                    if (!t) {
+                        alert('Notice text is missing. Go back to step 1 and add your letter.');
+                        return;
+                    }
+                    letterText = t;
+                    try {
+                        sessionStorage.setItem('tlh_resume_wizard', '1');
+                        localStorage.setItem('tlh_pending_letter', t);
+                        localStorage.setItem('tlh_awaiting_full', '1');
+                    } catch (e) { /* ignore */ }
+                    window.location.href = '/payment.html';
+                });
+            }
+
+            const sp = new URLSearchParams(window.location.search);
+            let pendingLetter = null;
+            try {
+                pendingLetter = localStorage.getItem('tlh_pending_letter');
+            } catch (e) { /* ignore */ }
+
+            // Post-checkout only: account-setup → /wizard?resume=1 (avoids re-running on every visit if localStorage is stale)
+            const shouldAutoFull = fullAnalysisUnlocked && pendingLetter && sp.get('resume') === '1';
+
+            if (shouldAutoFull) {
+                letterText = pendingLetter;
+                const ta0 = document.getElementById('pasteNoticeText');
+                if (ta0) ta0.value = pendingLetter;
+                if (sp.get('resume') === '1') {
+                    const u = new URL(window.location.href);
+                    u.searchParams.delete('resume');
+                    window.history.replaceState({}, '', u.pathname + (u.search || ''));
+                }
+                await analyzeLetter();
+            } else {
+                if (sp.get('demo') === 'cp2000') {
+                    const ta = document.getElementById('pasteNoticeText');
+                    if (ta) ta.value = DEMO_CP2000;
+                    letterText = DEMO_CP2000.trim();
+                    mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
+                } else if (pendingLetter && !fullAnalysisUnlocked) {
+                    letterText = pendingLetter;
+                    const ta2 = document.getElementById('pasteNoticeText');
+                    if (ta2) ta2.value = pendingLetter;
+                }
+                goToStep(1);
             }
 
             syncAnalyzeButtonState();
-            goToStep(1);
+            setUploadSubmitLoading(null);
         });
     </script>
 </body>

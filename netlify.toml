@@ -18,6 +18,12 @@
   to = "/wizard.html"
   status = 200
 
+# Preview-first upload entry (serves wizard with flow flag; no backend change)
+[[redirects]]
+  from = "/analysis-preview"
+  to = "/wizard.html?flow=preview"
+  status = 200
+
 [[redirects]]
   from = "/upload"
   to = "/wizard"
@@ -137,6 +143,9 @@
   timeout = 26
 
 [functions.analyze-letter]
+  timeout = 26
+
+[functions.analyze-letter-preview]
   timeout = 26
 
 [functions.generate-response]

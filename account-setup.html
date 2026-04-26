@@ -207,7 +207,16 @@
                         }
                     }
                 }
-                window.location.replace('/wizard');
+                // Preview-first: return to full analysis in wizard only when user had started checkout from the paywall (same-tab session)
+                const resumeWiz = (function () {
+                    try { return sessionStorage.getItem('tlh_resume_wizard') === '1'; } catch (e) { return false; }
+                })();
+                if (resumeWiz) {
+                    try { sessionStorage.removeItem('tlh_resume_wizard'); } catch (e) { /* ignore */ }
+                    window.location.replace('/wizard?resume=1');
+                } else {
+                    window.location.replace('/wizard');
+                }
             } catch (err) {
                 formError.textContent = err.message || 'Request failed.';
                 setLoadingForm(false);
