@@ -47,7 +47,7 @@
             throw new Error("No auth");
         }
 
-        await fetch("/.netlify/functions/verify-payment", {
+        const res = await fetch("/.netlify/functions/verify-payment", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -55,6 +55,13 @@
             },
             body: JSON.stringify({ session_id })
         });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            document.body.innerText = "Verification failed.";
+            throw new Error("Verification failed");
+        }
 
         let job = null;
 

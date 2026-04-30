@@ -706,6 +706,57 @@
             cursor: pointer;
             box-sizing: border-box;
         }
+
+        #preview-container {
+            margin: 0 0 20px 0;
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .preview-visible {
+            white-space: pre-wrap;
+            margin-bottom: 16px;
+        }
+        .preview-blurred {
+            white-space: pre-wrap;
+            filter: blur(6px);
+            user-select: none;
+            pointer-events: none;
+            position: relative;
+        }
+        .preview-blurred::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.7) 100%
+            );
+        }
+        .preview-cta {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+        .preview-cta button {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #22c55e, #15803d);
+            color: #fff;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body style="background:#0f172a; min-height:100vh; color:#cbd5e1; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -806,6 +857,16 @@
                     <div><span>Tax year</span><strong id="metaTaxYear">—</strong></div>
                     <div><span>Proposed amount</span><strong id="metaAmount">—</strong></div>
                     <div><span>Response deadline</span><strong id="metaDeadline">—</strong></div>
+                </div>
+            </div>
+
+            <div id="preview-container" hidden>
+                <div id="preview-visible" class="preview-visible"></div>
+                <div id="preview-blurred" class="preview-blurred"></div>
+                <div class="preview-cta">
+                    Your full IRS response letter is ready.
+                    Unlock the complete version to submit immediately.
+                    <button type="button" onclick="goToPayment()">Unlock Full Letter — $19</button>
                 </div>
             </div>
 
@@ -947,7 +1008,6 @@
         import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js?v=3';
         import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js?v=3';
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
-        import { analyzeTaxLetterPreview } from './src/utils/analyzeTaxLetterPreview.js?v=1';
 
         const supabaseWizard = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
@@ -1408,9 +1468,31 @@ You must respond by April 30, 2024.`;
             return out.length ? out : buildDocList(currentAnalysis);
         }
 
+        function renderPreview(preview_text) {
+            if (!preview_text) return;
+
+            const cutoff = Math.floor(preview_text.length * 0.5);
+
+            const visibleText = preview_text.slice(0, cutoff);
+            const blurredText = preview_text.slice(cutoff);
+
+            document.getElementById("preview-visible").textContent = visibleText;
+            document.getElementById("preview-blurred").textContent = blurredText;
+        }
+
+        window.goToPayment = function goToPayment() {
+            document.getElementById("paywallAfterPreviewBtn")?.click();
+        };
+
         function populateStep2(apiPayload, fullText, isPreviewResult = false) {
+            const splitSource =
+                typeof apiPayload.preview_text === "string" && apiPayload.preview_text.trim()
+                    ? apiPayload.preview_text.trim()
+                    : null;
             currentAnalysis = apiPayload.analysis || {};
-            const summaryText = fullText || apiPayload.summary || '';
+            const summaryText = splitSource
+                ? splitSource.slice(0, Math.floor(splitSource.length * 0.5))
+                : fullText || apiPayload.summary || "";
             lastFullAnalysisText = summaryText;
             const overrideNt = document.getElementById('noticeTypeOverride')?.value?.trim();
             const nt = (overrideNt || currentAnalysis.letterType || 'UNKNOWN').toUpperCase();
@@ -1427,8 +1509,8 @@ You must respond by April 30, 2024.`;
             const fi = currentAnalysis.financialInfo || {};
             const overrideTy = document.getElementById('taxYearOverride')?.value?.trim();
             const textTy =
-                extractTaxYearFromText(fullText || '') ||
-                extractTaxYearFromText(letterText || '');
+                extractTaxYearFromText(summaryText || "") ||
+                extractTaxYearFromText(letterText || "");
             const taxY = overrideTy || apiPayload.taxYear || apiPayload.analysis?.taxYear || fi.taxYear || fi.taxYears || textTy || '—';
             document.getElementById('metaTaxYear').textContent = taxY || '—';
             if (taxY && taxY !== '—' && !overrideTy) {
@@ -1489,7 +1571,24 @@ You must respond by April 30, 2024.`;
             const hiddenExpl = document.getElementById('explanation');
             if (hiddenExpl) hiddenExpl.textContent = summaryText;
 
-            if (isPreviewResult) {
+            const previewBox = document.getElementById("preview-container");
+            const fullDetailsEl = document.getElementById("fullAnalysisDetails");
+            if (splitSource && previewBox) {
+                previewBox.removeAttribute("hidden");
+                renderPreview(splitSource);
+                if (fullDetailsEl) fullDetailsEl.style.display = "none";
+            } else {
+                if (previewBox) {
+                    previewBox.setAttribute("hidden", "");
+                    const pv = document.getElementById("preview-visible");
+                    const pb = document.getElementById("preview-blurred");
+                    if (pv) pv.textContent = "";
+                    if (pb) pb.textContent = "";
+                }
+                if (fullDetailsEl) fullDetailsEl.style.display = "";
+            }
+
+            if (splitSource || isPreviewResult) {
                 showingPreviewOnly = true;
                 setPaywallAfterPreview(true);
             } else {
@@ -1828,12 +1927,12 @@ You must respond by April 30, 2024.`;
         });
 
         async function runFullOrPreviewAfterExtract() {
-            if (fullAnalysisUnlocked) {
+            if (fullAnalysisUnlocked || currentUser) {
                 showStatus('Analyzing notice...');
                 await analyzeLetter();
             } else {
-                showStatus('Preparing your preview...');
-                await analyzeLetterPreview();
+                window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
+                setUploadSubmitLoading(null);
             }
         }
 
@@ -2001,6 +2100,7 @@ You must respond by April 30, 2024.`;
                         analysis: {},
                         taxYear: extractTaxYearFromText(letterText) || null,
                         recordId: parsed.recordId,
+                        preview_text: parsed.preview_text || "",
                     }, summaryText, false);
                     const extractedYear =
                         currentAnalysis?.resolvedTaxYear ||
@@ -2028,56 +2128,6 @@ You must respond by April 30, 2024.`;
                 }
             } catch (error) {
                 showStatus('Analysis failed: ' + error.message);
-            } finally {
-                setUploadSubmitLoading(null);
-            }
-        }
-
-        /**
-         * Preview path (unpaid / preview-first): lightweight Netlify function, no full OpenAI.
-         * Full analysis: analyzeLetter() — unchanged, still uses analyze-letter + billing.
-         */
-        async function analyzeLetterPreview() {
-            const previewTrim = (letterText || '').trim();
-            if (previewTrim.length < 50) {
-                const hintEl = document.getElementById('previewLengthHint');
-                if (hintEl) {
-                    hintEl.textContent =
-                        'Please paste more of your notice — we need at least a few lines to generate a preview.';
-                    hintEl.style.display = 'block';
-                }
-                return;
-            }
-            const hintEl = document.getElementById('previewLengthHint');
-            if (hintEl) {
-                hintEl.style.display = 'none';
-                hintEl.textContent = '';
-            }
-            setUploadSubmitLoading('preview');
-            try {
-                showStatus('Preparing your preview...');
-                const out = await analyzeTaxLetterPreview(letterText);
-                analysisData = out;
-                const summaryText = out.summary || '';
-                populateStep2(out, summaryText, true);
-                const extractedYear = out.taxYear || currentAnalysis?.taxYear || extractTaxYearFromText(letterText);
-                currentTaxYear = (extractedYear ? String(extractedYear) : '') || currentTaxYear || '';
-                if (currentTaxYear) {
-                    const metaTy = document.getElementById('metaTaxYear');
-                    if (metaTy) metaTy.textContent = currentTaxYear;
-                    const tyInput = document.getElementById('taxYearOverride');
-                    if (tyInput && !String(tyInput.value || '').trim()) tyInput.value = currentTaxYear;
-                    currentAnalysis.resolvedTaxYear = currentTaxYear;
-                }
-                mergeExtractedTaxpayerIntoForm(extractTaxpayerMailingFromNotice(letterText));
-                try {
-                    localStorage.setItem('tlh_pending_letter', letterText);
-                    localStorage.setItem('tlh_awaiting_full', '1');
-                } catch (e) { /* ignore */ }
-                hideStatus();
-                goToStep(2);
-            } catch (error) {
-                showStatus('Preview failed: ' + error.message);
             } finally {
                 setUploadSubmitLoading(null);
             }
@@ -2204,14 +2254,13 @@ You must respond by April 30, 2024.`;
             try {
                 if (paste) {
                     letterText = paste;
-                    if (fullAnalysisUnlocked) {
+                    if (fullAnalysisUnlocked || currentUser) {
                         setUploadSubmitLoading('analyze');
                         showStatus('Analyzing notice...');
                         await analyzeLetter();
                     } else {
-                        setUploadSubmitLoading('preview');
-                        showStatus('Preparing your preview...');
-                        await analyzeLetterPreview();
+                        setUploadSubmitLoading(null);
+                        window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
                     }
                     return;
                 }
@@ -2292,7 +2341,23 @@ You must respond by April 30, 2024.`;
                     }
                     return;
                 }
-                const letterContent = data.responseLetter || data.letter;
+                let letterContent = data.responseLetter || data.letter;
+                if (data.warning) {
+                    showStatus(data.message || 'Please review the warning and try again.');
+                    return;
+                }
+                if (!letterContent && data.success && analysisData.recordId) {
+                    const recordId = analysisData.recordId;
+                    const { data: job, error: jobFetchErr } = await supabaseWizard
+                        .from('tax_letter_jobs')
+                        .select('letter_full, paid, is_unlocked')
+                        .eq('id', recordId)
+                        .single();
+                    if (!job || jobFetchErr || (!job.paid && !job.is_unlocked)) {
+                        throw new Error('Locked');
+                    }
+                    letterContent = job.letter_full || '';
+                }
                 if (letterContent) {
                     generatedLetter = applyFormPlaceholdersToMarkdown(cleanGeneratedLetterMarkdown(letterContent));
                     renderLetterMarkdown(generatedLetter);
@@ -2302,6 +2367,8 @@ You must respond by April 30, 2024.`;
                     document.getElementById('letterSubheading').textContent = nt + ' | Tax year ' + ty + ' | Strategy: ' + (stratLabels[selectedStrategy] || selectedStrategy);
                     hideStatus();
                     goToStep(4);
+                } else if (data.success) {
+                    showStatus('Letter saved. Open the result page if it does not appear here.');
                 } else {
                     showStatus('Response generation failed: ' + (data.error || 'Unknown error'));
                 }

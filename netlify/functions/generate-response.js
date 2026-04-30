@@ -164,13 +164,7 @@ const mainHandler = async (event) => {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify({ 
-          letter,
-          riskAnalysis: responseResult.riskAnalysis,
-          professionalReviewNeed: responseResult.professionalReviewNeed,
-          attachmentInstructions: responseResult.attachmentInstructions,
-          metadata: responseResult.metadata
-        }),
+        body: JSON.stringify({ success: true }),
       };
     }
     
@@ -257,7 +251,7 @@ The following preferences must NOT weaken, soften, or hedge the letter. If they 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({ letter }),
+      body: JSON.stringify({ success: true }),
     };
   } catch (error) {
     trackError(error, { 

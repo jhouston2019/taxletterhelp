@@ -48,22 +48,6 @@
             window.location.href = '/';
         });
 
-        async function downloadPdf(text, fileName) {
-            const res = await fetch('/.netlify/functions/generate-pdf', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, fileName: fileName || 'irs-response.pdf' }),
-            });
-            if (!res.ok) return;
-            const blob = await res.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'irs-response.pdf';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const user = await getCurrentUser();
             if (!user) {
@@ -78,7 +62,7 @@
 
             const { data, error: sErr } = await supabase
                 .from('tax_letter_jobs')
-                .select('*')
+                .select('id, created_at, paid, is_unlocked')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
@@ -95,18 +79,14 @@
             }
 
             const cards = [];
-            const pdfTexts = [];
             for (const job of data) {
-                const notice = (job.analysis_json && job.analysis_json.letterType) ? job.analysis_json.letterType : 'IRS notice';
+                const notice = 'IRS notice';
                 const dt = new Date(job.created_at).toLocaleString();
-                const hasResponse = !!(job.letter_full && String(job.letter_full).trim());
-                const complete = !!(job.paid || job.is_unlocked) && hasResponse;
-                const badge = complete
-                    ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Complete</span>'
+                const unlocked = !!(job.paid || job.is_unlocked);
+                const badge = unlocked
+                    ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Unlocked</span>'
                     : '<span style="background:#a16207;color:#fef9c3;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">In Progress</span>';
 
-                pdfTexts.push(hasResponse ? String(job.letter_full) : null);
-                const pdfIdx = pdfTexts.length - 1;
                 const resultLink = job.id ? `<a href="/result/${job.id}" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open result</a>` : '';
                 cards.push(`
                     <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
@@ -119,21 +99,12 @@
                             <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
                                 ${resultLink}
                                 <a href="/wizard" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">New notice</a>
-                                ${hasResponse ? `<button type="button" class="dl-pdf" data-idx="${pdfIdx}" style="background:#0ea5e9;color:white;padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;">Download PDF</button>` : ''}
                             </div>
                         </div>
                     </div>
                 `);
             }
             listEl.innerHTML = cards.join('');
-
-            listEl.querySelectorAll('.dl-pdf').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    const i = Number(btn.getAttribute('data-idx'));
-                    const t = pdfTexts[i];
-                    if (t) downloadPdf(t, 'irs-response.pdf');
-                });
-            });
         });
 
         function escapeHtml(s) {
