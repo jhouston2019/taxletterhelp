@@ -7,8 +7,7 @@ const {
   TAX_DEFENSE_SYSTEM_PROMPT_BASE,
   formatNoticeFactsForPrompt
 } = require("./irs-intelligence/index.js");
-const { wrapHandler, trackError, trackWarning } = require('./_error-tracking.js');
-const { getBillingSnapshot } = require("./_billing-snapshot.js");
+const { wrapHandler, trackError } = require('./_error-tracking.js');
 const { getUserFromBearer } = require("./_request-auth.js");
 
 const LETTER_GENERATION_MODEL = "gpt-4o";
@@ -29,9 +28,19 @@ const mainHandler = async (event) => {
     };
   }
 
-  try {
-    const { user: authUser, error: authErr } = await getUserFromBearer(event);
+  const { user: authUser } = await getUserFromBearer(event);
+  if (!authUser) {
+    return {
+      statusCode: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ error: "Unauthorized" })
+    };
+  }
 
+  try {
     const { 
       summary, 
       letterText = null,
@@ -48,41 +57,15 @@ const mainHandler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: "Missing summary or letter text" }) };
     }
 
-    if (recordId && !authUser) {
-      return {
-        statusCode: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({ error: 'Unauthorized', details: authErr })
-      };
-    }
-
-    if (authUser) {
-      const supabaseForBill = getSupabaseAdmin();
-      const billing = await getBillingSnapshot(supabaseForBill, authUser.id);
-      if (billing.active === false) {
-        return {
-          statusCode: 403,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          },
-          body: JSON.stringify({ error: 'Payment required', billing })
-        };
-      }
-    }
-
-    if (recordId && authUser) {
+    if (recordId) {
       const supabase = getSupabaseAdmin();
-      const { data: letterRow } = await supabase
-        .from("tlh_letters")
-        .select("user_email")
+      const { data: jobRow } = await supabase
+        .from("tax_letter_jobs")
+        .select("user_id")
         .eq("id", recordId)
         .maybeSingle();
-      const em = letterRow?.user_email ? String(letterRow.user_email).toLowerCase() : null;
-      if (em && em !== String(authUser.email || "").toLowerCase()) {
+      const uid = jobRow?.user_id ? String(jobRow.user_id) : null;
+      if (!uid || uid !== String(authUser.id)) {
         return {
           statusCode: 403,
           headers: {
@@ -169,13 +152,8 @@ const mainHandler = async (event) => {
       if (recordId) {
         const supabase = getSupabaseAdmin();
         const { error } = await supabase
-          .from("tlh_letters")
-          .update({ 
-            ai_response: letter, 
-            status: "responded",
-            risk_level: responseResult.metadata.riskLevel,
-            requires_professional_review: responseResult.professionalReviewNeed.needsReview
-          })
+          .from("tax_letter_jobs")
+          .update({ letter_full: letter })
           .eq("id", recordId);
         if (error) console.error("Database update error:", error);
       }
@@ -267,8 +245,8 @@ The following preferences must NOT weaken, soften, or hedge the letter. If they 
     if (recordId) {
       const supabase = getSupabaseAdmin();
       const { error } = await supabase
-        .from("tlh_letters")
-        .update({ ai_response: letter, status: "responded" })
+        .from("tax_letter_jobs")
+        .update({ letter_full: letter })
         .eq("id", recordId);
       if (error) console.error("Database update error:", error);
     }
@@ -284,8 +262,6 @@ The following preferences must NOT weaken, soften, or hedge the letter. If they 
   } catch (error) {
     trackError(error, { 
       functionName: 'generate-response',
-      hasLetterText: !!letterText,
-      hasUserPosition: !!userPosition
     });
     console.error("Error in generate-response:", error);
     return { 

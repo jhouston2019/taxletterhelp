@@ -1,12 +1,14 @@
 const Stripe = require("stripe");
 const { wrapHandler, trackError } = require('./_error-tracking.js');
+const { getSupabaseAdmin } = require("./_supabase.js");
+const { getUserFromBearer } = require("./_request-auth.js");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const corsHeaders = {
   "Content-Type": "application/json",
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -28,20 +30,33 @@ const mainHandler = async (event) => {
     };
   }
 
-  try {
-    console.log("SITE_URL:", process.env.SITE_URL ? "set" : "missing");
-    console.log("STRIPE_SECRET_KEY:", process.env.STRIPE_SECRET_KEY ? "set" : "missing");
-    console.log("STRIPE_PRICE_RESPONSE:", process.env.STRIPE_PRICE_RESPONSE || "missing");
+  const { user } = await getUserFromBearer(event);
+  if (!user) {
+    return {
+      statusCode: 401,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Unauthorized" }),
+    };
+  }
 
+  try {
     let body = {};
     try {
       body = JSON.parse(event.body || "{}");
     } catch {
       body = {};
     }
-    const { recordId = null } = body;
+    const jobId = body.job_id || body.jobId || null;
     const priceId = (process.env.STRIPE_PRICE_RESPONSE || "").trim();
     
+    if (!jobId) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "job_id required" }),
+      };
+    }
+
     if (!process.env.SITE_URL) {
       throw new Error(
         "SITE_URL is not set in Netlify (Site settings → Environment variables). Use your site URL, e.g. https://taxletterdefensepro.com"
@@ -58,6 +73,21 @@ const mainHandler = async (event) => {
       );
     }
 
+    const supabase = getSupabaseAdmin();
+    const { data: job, error: jobErr } = await supabase
+      .from("tax_letter_jobs")
+      .select("id, user_id")
+      .eq("id", jobId)
+      .maybeSingle();
+
+    if (jobErr || !job || String(job.user_id) !== String(user.id)) {
+      return {
+        statusCode: 403,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "Forbidden" }),
+      };
+    }
+
     const site = (process.env.SITE_URL || "").replace(/\/$/, "");
 
     const session = await stripe.checkout.sessions.create({
@@ -68,20 +98,14 @@ const mainHandler = async (event) => {
       }],
       mode: 'payment',
       customer_creation: 'always',
-      success_url: `${site}/account-setup?session_id={CHECKOUT_SESSION_ID}`,
+      customer_email: user.email,
+      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/pricing`,
       metadata: {
-        ...(recordId ? { recordId } : {}),
-        plan: 'single',
-        plan_type: 'single',
-        price_id: priceId,
-        product_type: 'irs_notice_response',
-        pricing_model: 'one_time',
-        risk_level: 'regulated',
-        ai_mode: 'constrained_procedural',
-        not_chat_based: 'true',
-        price_point: '29'
-      }
+        job_id: jobId,
+        user_id: user.id,
+        product_type: "tax_letter",
+      },
     });
 
     const keyIsTest = String(process.env.STRIPE_SECRET_KEY || "").startsWith("sk_test_");

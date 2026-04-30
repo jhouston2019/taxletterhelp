@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your response | Tax Letter Defense Pro</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+    </script>
+</head>
+<body style="margin:0; font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#0f172a;">
+    <div id="root" style="max-width:900px; margin:0 auto; padding:2rem;">
+        <p id="loading" style="color:#64748b;">Loading…</p>
+        <article id="full" style="display:none;">
+            <h1 style="font-size:1.25rem;">Your response letter</h1>
+            <div id="letterBody" style="margin-top:1rem; white-space:pre-wrap; line-height:1.6;"></div>
+        </article>
+    </div>
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+    </script>
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
+        const params = new URLSearchParams(window.location.search);
+        const job_id = params.get('job_id');
+        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        const loading = document.getElementById('loading');
+        const full = document.getElementById('full');
+        const letterBody = document.getElementById('letterBody');
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            loading.style.display = 'none';
+            document.body.innerText = "Unauthorized.";
+        } else if (!job_id) {
+            loading.style.display = 'none';
+            document.body.innerText = "Not found.";
+        } else {
+            const { data: job } = await supabase
+                .from('tax_letter_jobs')
+                .select('*')
+                .eq('id', job_id)
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            loading.style.display = 'none';
+
+            if (!job) {
+                document.body.innerText = "Not found.";
+            } else if (!job.is_unlocked && !job.paid) {
+                document.body.innerText = "Locked.";
+            } else {
+                full.style.display = 'block';
+                letterBody.textContent = job.letter_full || '';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,12 +1,9 @@
 const Stripe = require("stripe");
 const { wrapHandler, trackError } = require("./_error-tracking.js");
+const { getSupabaseAdmin } = require("./_supabase.js");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-/**
- * Webhook is NOT an entitlement writer. verify-payment is the only DB writer for access.
- * This handler only verifies Stripe signatures and logs events.
- */
 const mainHandler = async (event) => {
   try {
     const sig = event.headers["stripe-signature"];
@@ -21,13 +18,36 @@ const mainHandler = async (event) => {
 
     if (evt.type === "checkout.session.completed") {
       const session = evt.data.object;
-      console.log("[WEBHOOK] checkout.session.completed (log only)", {
-        id: session.id,
-        payment_status: session.payment_status,
-        customer_email: session.customer_email || session.customer_details?.email,
-      });
-    } else {
-      console.log("[WEBHOOK] event (log only)", { type: evt.type, id: evt.id });
+
+      const jobId = session.metadata.job_id;
+      const userId = session.metadata.user_id;
+
+      if (!jobId || !userId) {
+        return { statusCode: 200, body: "ok" };
+      }
+
+      const supabase = getSupabaseAdmin();
+      const { data: existing } = await supabase
+        .from("tax_letter_jobs")
+        .select("paid")
+        .eq("id", jobId)
+        .maybeSingle();
+
+      if (!existing) {
+        return { statusCode: 200, body: "ok" };
+      }
+
+      if (!existing.paid) {
+        await supabase
+          .from("tax_letter_jobs")
+          .update({
+            paid: true,
+            is_unlocked: true,
+            user_id: userId,
+            stripe_session_id: session.id,
+          })
+          .eq("id", jobId);
+      }
     }
 
     return { statusCode: 200, body: "ok" };

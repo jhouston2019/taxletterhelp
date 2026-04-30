@@ -76,56 +76,38 @@
                 return;
             }
 
-            const br = await fetch('/api/billing-status', {
-                headers: { Authorization: 'Bearer ' + tok },
-            });
-            const billing = await br.json().catch(() => ({}));
-            if (!br.ok || billing.active !== true) {
-                window.location.href = '/pricing.html';
-                return;
-            }
-
-            const { data: sessions, error: sErr } = await supabase
-                .from('paid_sessions')
+            const { data, error: sErr } = await supabase
+                .from('tax_letter_jobs')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             const listEl = document.getElementById('docList');
             if (sErr) {
-                listEl.innerHTML = '<p style="color:#f87171;">Could not load sessions. Ensure the paid_sessions table exists (see deployment SQL).</p>';
+                listEl.innerHTML = '<p style="color:#f87171;">Could not load documents. Run the tax_letter_jobs migration in Supabase.</p>';
                 console.error(sErr);
                 return;
             }
 
-            if (!sessions || sessions.length === 0) {
-                listEl.innerHTML = `
-                    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:2rem; text-align:center;">
-                        <p style="margin:0 0 1rem;">No documents yet.</p>
-                        <a href="/pricing.html" style="display:inline-block; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; padding:12px 22px; border-radius:10px; font-weight:700; text-decoration:none;">Prepare My IRS Response →</a>
-                    </div>`;
+            if (!data || data.length === 0) {
+                document.body.innerText = "No letters yet. Upload your first IRS notice.";
                 return;
             }
 
             const cards = [];
             const pdfTexts = [];
-            for (const ps of sessions) {
-                const { data: letter } = await supabase
-                    .from('tlh_letters')
-                    .select('id, notice_type, status, ai_response, created_at')
-                    .eq('stripe_session_id', ps.stripe_session_id)
-                    .maybeSingle();
-
-                const notice = letter?.notice_type || 'IRS notice';
-                const dt = new Date(ps.created_at || letter?.created_at).toLocaleString();
-                const hasResponse = !!(letter?.ai_response && String(letter.ai_response).trim());
-                const complete = hasResponse || ps.status === 'completed' || letter?.status === 'completed';
+            for (const job of data) {
+                const notice = (job.analysis_json && job.analysis_json.letterType) ? job.analysis_json.letterType : 'IRS notice';
+                const dt = new Date(job.created_at).toLocaleString();
+                const hasResponse = !!(job.letter_full && String(job.letter_full).trim());
+                const complete = !!(job.paid || job.is_unlocked) && hasResponse;
                 const badge = complete
                     ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Complete</span>'
                     : '<span style="background:#a16207;color:#fef9c3;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">In Progress</span>';
 
-                pdfTexts.push(hasResponse ? String(letter.ai_response) : null);
+                pdfTexts.push(hasResponse ? String(job.letter_full) : null);
                 const pdfIdx = pdfTexts.length - 1;
+                const resultLink = job.id ? `<a href="/result/${job.id}" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open result</a>` : '';
                 cards.push(`
                     <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
                         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.75rem; align-items:flex-start;">
@@ -135,7 +117,8 @@
                                 <div style="margin-top:0.5rem;">${badge}</div>
                             </div>
                             <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                                <a href="/wizard" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">View / Continue</a>
+                                ${resultLink}
+                                <a href="/wizard" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">New notice</a>
                                 ${hasResponse ? `<button type="button" class="dl-pdf" data-idx="${pdfIdx}" style="background:#0ea5e9;color:white;padding:10px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;">Download PDF</button>` : ''}
                             </div>
                         </div>

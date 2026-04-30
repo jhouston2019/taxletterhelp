@@ -13,7 +13,6 @@ try {
 
 const { wrapHandler, trackError } = require('./_error-tracking.js');
 const { getSupabaseAdmin } = require("./_supabase.js");
-const { getBillingSnapshot } = require("./_billing-snapshot.js");
 const { getUserFromBearer } = require("./_request-auth.js");
 
 const mainHandler = async (event) => {
@@ -49,47 +48,26 @@ const mainHandler = async (event) => {
     };
   }
 
+  const got = await getUserFromBearer(event);
+  const authUser = got.user;
+  if (!authUser) {
+    return {
+      statusCode: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ error: "Unauthorized" })
+    };
+  }
+
   try {
     console.log('Parsing event body...');
     const parsedBody = JSON.parse(event.body || "{}");
     console.log('Parsed body keys:', Object.keys(parsedBody));
     
-    const { text, fileUrl, imageUrl, userEmail = null, priceId = process.env.STRIPE_PRICE_RESPONSE, stripeSessionId = null } = parsedBody;
+    const { text, fileUrl, imageUrl, userEmail = null, stripeSessionId = null } = parsedBody;
     let letterText = text || "";
-
-    const got = await getUserFromBearer(event);
-    const authUser = got.user;
-    let billing = null;
-
-    if (authUser) {
-      const supabaseAuth = getSupabaseAdmin();
-      billing = await getBillingSnapshot(supabaseAuth, authUser.id);
-      if (billing.active === false) {
-        return {
-          statusCode: 403,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: JSON.stringify({ error: "Payment required", billing }),
-        };
-      }
-      const lim = billing.usage.limit;
-      const used = billing.usage.used;
-      if (lim !== -1 && used >= lim) {
-        return {
-          statusCode: 403,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: JSON.stringify({
-            error: "Usage limit exceeded",
-            usage: billing.usage,
-          }),
-        };
-      }
-    }
     
     console.log('Letter text length:', letterText.length);
     console.log('File URL provided:', !!fileUrl);
@@ -252,46 +230,32 @@ const mainHandler = async (event) => {
       structuredAnalysis?.explanation ||
       "Analysis complete. See details below.";
 
-    // --- STEP 4: Store in Supabase (optional) ---
+    // --- STEP 4: Store in Supabase ---
     let recordId = null;
-    if (getSupabaseAdmin && authUser) {
+    if (getSupabaseAdmin) {
       try {
         const supabase = getSupabaseAdmin();
         const { data, error } = await supabase
-          .from("tlh_letters")
+          .from("tax_letter_jobs")
           .insert({
-            user_email: userEmail || authUser.email,
-            stripe_session_id: stripeSessionId,
-            price_id: priceId,
-            letter_text: letterText,
-            analysis: structuredAnalysis ?? {},
-            summary,
-            status: "analyzed"
+            user_id: authUser.id,
+            email: userEmail || authUser.email || null,
+            analysis_json: structuredAnalysis ?? {},
+            inputs_json: { text: letterText, fileUrl, imageUrl, stripeSessionId },
+            preview_text: summary,
+            paid: false,
+            is_unlocked: false,
           })
-          .select("id, created_at, status")
+          .select("id, created_at")
           .single();
 
         if (error) throw error;
         recordId = data.id;
         console.log('Record saved to database:', recordId);
-
-        const { data: urow } = await supabase
-          .from("user_review_usage")
-          .select("review_count")
-          .eq("user_id", authUser.id)
-          .maybeSingle();
-        const nextCount = (urow?.review_count ?? 0) + 1;
-        await supabase.from("user_review_usage").upsert(
-          { user_id: authUser.id, review_count: nextCount, updated_at: new Date().toISOString() },
-          { onConflict: "user_id" }
-        );
       } catch (dbError) {
         console.error("Database error:", dbError);
         console.log('Continuing without database storage');
       }
-    } else {
-      if (!authUser) console.log('[analyze-letter] guest mode — no DB persistence');
-      else console.log('Database not available, skipping storage');
     }
 
     // --- STEP 5: Return structured response ---
@@ -304,11 +268,8 @@ const mainHandler = async (event) => {
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify({
-        message: "Analysis complete.",
-        analysis: structuredAnalysis ?? {},
-        taxYear: structuredAnalysis?.taxYear ?? null,
         recordId: recordId,
-        summary
+        preview_text: summary,
       }),
     };
   } catch (err) {
@@ -325,8 +286,7 @@ const mainHandler = async (event) => {
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
       body: JSON.stringify({
-        summary: 'Analysis temporarily unavailable - server error',
-        explanation: 'The analyze function encountered an error. Check Netlify logs.',
+        preview_text: 'Analysis temporarily unavailable - server error',
       }),
     };
   }

@@ -943,10 +943,13 @@
     }
     </script>
     <script type="module">
+        import { createClient } from '@supabase/supabase-js';
         import { uploadFile, saveDocumentToDatabase } from './src/components/UploadForm.js?v=3';
         import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js?v=3';
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
         import { analyzeTaxLetterPreview } from './src/utils/analyzeTaxLetterPreview.js?v=1';
+
+        const supabaseWizard = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
         let currentUser = null;
         let letterText = '';
@@ -1973,7 +1976,7 @@ You must respond by April 30, 2024.`;
                     let msg = 'Access denied.';
                     try {
                         const er = JSON.parse(analysisText);
-                        msg = er.error === 'Usage limit exceeded' ? 'Usage limit reached. Upgrade on the pricing page.' : (er.error || msg);
+                        msg = er.error || msg;
                     } catch (_) { /* ignore */ }
                     showStatus(msg);
                     return;
@@ -1991,12 +1994,16 @@ You must respond by April 30, 2024.`;
                 }
 
                 analysisData = parsed;
-                const summaryText = parsed.summary || parsed.explanation || parsed.analysis?.fullAnalysis || '';
+                const summaryText = parsed.preview_text || '';
 
-                if (summaryText || parsed.analysis) {
-                    populateStep2(parsed, summaryText, false);
+                if (summaryText || parsed.recordId) {
+                    populateStep2({
+                        analysis: {},
+                        taxYear: extractTaxYearFromText(letterText) || null,
+                        recordId: parsed.recordId,
+                    }, summaryText, false);
                     const extractedYear =
-                        analysisData.taxYear ||
+                        currentAnalysis?.resolvedTaxYear ||
                         currentAnalysis?.taxYear ||
                         extractTaxYearFromText(letterText);
                     currentTaxYear = (extractedYear ? String(extractedYear) : '') || currentTaxYear || '';
@@ -2502,6 +2509,15 @@ You must respond by April 30, 2024.`;
             const adminMode = await initAdminMode();
             if (adminMode) console.log('[ADMIN] Payment check bypassed');
 
+            isPublicPreviewEntry = readPublicPreviewEntryFlag();
+            if (!isPublicPreviewEntry && !shouldBypassPayment()) {
+                const { data: { user: authGateUser } } = await supabaseWizard.auth.getUser();
+                if (!authGateUser) {
+                    window.location.href = '/login';
+                    return;
+                }
+            }
+
             const signOutBtn = document.getElementById('wizardSignOut');
             if (signOutBtn) {
                 signOutBtn.addEventListener('click', async () => {
@@ -2510,7 +2526,6 @@ You must respond by April 30, 2024.`;
                 });
             }
 
-            isPublicPreviewEntry = readPublicPreviewEntryFlag();
             if (isPublicPreviewEntry) {
                 try {
                     const u = new URL(window.location.href);
@@ -2538,12 +2553,7 @@ You must respond by April 30, 2024.`;
                     window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
                     return;
                 }
-                const br = await fetch('/api/billing-status', {
-                    headers: { Authorization: 'Bearer ' + tok }
-                });
-                const b = await br.json().catch(() => ({}));
-                // Preview-first UX: open wizard without sending unpaid users to /pricing; paywall is on step 2 after preview.
-                fullAnalysisUnlocked = br.ok && b.active === true;
+                fullAnalysisUnlocked = true;
             }
 
             const dateEl = document.getElementById('fillDate');
@@ -2551,7 +2561,7 @@ You must respond by April 30, 2024.`;
 
             const paywallAfterBtn = document.getElementById('paywallAfterPreviewBtn');
             if (paywallAfterBtn) {
-                paywallAfterBtn.addEventListener('click', () => {
+                paywallAfterBtn.addEventListener('click', async () => {
                     let t = (letterText || '').trim();
                     if (!t) {
                         t = (document.getElementById('pasteNoticeText')?.value || '').trim();
@@ -2566,7 +2576,19 @@ You must respond by April 30, 2024.`;
                         localStorage.setItem('tlh_pending_letter', t);
                         localStorage.setItem('tlh_awaiting_full', '1');
                     } catch (e) { /* ignore */ }
-                    window.location.href = '/payment.html';
+                    if (!analysisData || !analysisData.recordId) {
+                        paywallAfterBtn.disabled = true;
+                        try {
+                            await analyzeLetter();
+                        } finally {
+                            paywallAfterBtn.disabled = false;
+                        }
+                    }
+                    if (!analysisData || !analysisData.recordId) {
+                        alert('Analysis did not complete. Please try again.');
+                        return;
+                    }
+                    window.location.href = '/payment.html?job_id=' + encodeURIComponent(analysisData.recordId);
                 });
             }
 

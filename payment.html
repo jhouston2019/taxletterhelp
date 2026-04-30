@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Payment – Unlock AI Tax Letter Analysis</title>
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+    </script>
 </head>
 
 <body style="background:#f8fafc; color:#0f172a; font-family:'Inter',sans-serif; margin:0; padding:0; line-height:1.5;">
@@ -77,8 +81,12 @@
         </div>
     </footer>
 
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+    </script>
     <script type="module">
         import { initAdminMode, shouldBypassPayment } from './src/utils/admin-mode.js';
+        import { getAccessToken } from './src/components/Auth.js';
         
         // Initialize admin mode on page load
         document.addEventListener('DOMContentLoaded', async () => {
@@ -95,6 +103,19 @@
                 window.location.href = '/wizard';
                 return;
             }
+
+            const params = new URLSearchParams(window.location.search || '');
+            const job_id = params.get('job_id');
+            if (!job_id) {
+                alert('Missing job. Return to the wizard and run analysis first.');
+                return;
+            }
+
+            const token = await getAccessToken();
+            if (!token) {
+                window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+                return;
+            }
             
             // Show loading state
             button.disabled = true;
@@ -107,8 +128,9 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token,
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({ job_id })
                 });
                 
                 const data = await response.json().catch(() => ({}));

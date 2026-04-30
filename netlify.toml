@@ -45,6 +45,11 @@
   status = 200
 
 [[redirects]]
+  from = "/result/:job_id"
+  to = "/result.html?job_id=:job_id"
+  status = 200
+
+[[redirects]]
   from = "/pricing"
   to = "/pricing.html"
   status = 200
