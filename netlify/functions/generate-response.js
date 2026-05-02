@@ -13,6 +13,24 @@ const { getUserFromBearer } = require("./_request-auth.js");
 const LETTER_GENERATION_MODEL = "gpt-4o";
 const LETTER_GENERATION_MAX_TOKENS = 4000;
 const LETTER_GENERATION_TEMPERATURE = 0.3;
+const MIN_LETTER_LENGTH_FOR_SAVE = 200;
+
+/** Retry OpenAI transient failures once; throws with second failure. */
+async function createLetterCompletion(openai, completionParams) {
+  try {
+    return await openai.chat.completions.create(completionParams);
+  } catch (firstErr) {
+    console.warn("OpenAI completion failed, retrying once:", firstErr?.message || String(firstErr));
+    return await openai.chat.completions.create(completionParams);
+  }
+}
+
+function validateLetterBeforeSave(letter) {
+  const s = typeof letter === "string" ? letter.trim() : "";
+  if (s.length < MIN_LETTER_LENGTH_FOR_SAVE) {
+    throw new Error("Invalid letter output");
+  }
+}
 
 /** Master notice bucket — runs first on raw notice text (deterministic). */
 function classifyNotice(noticeText) {
@@ -340,7 +358,7 @@ const mainHandler = async (event) => {
           [letterText, summary].filter((s) => s && String(s).trim()).join("\n\n")
         );
         const augmentedUser = `INPUT_JSON:\n${JSON.stringify(expertPayload, null, 2)}\n\nCLASSIFICATION_HINT:\n${reasoningContext}\n\n---\n\n${userPrompt}`;
-        const completion = await openai.chat.completions.create({
+        const completion = await createLetterCompletion(openai, {
           model: LETTER_GENERATION_MODEL,
           temperature: LETTER_GENERATION_TEMPERATURE,
           max_tokens: LETTER_GENERATION_MAX_TOKENS,
@@ -398,6 +416,7 @@ const mainHandler = async (event) => {
       
       // Update the existing record (if provided)
       if (recordId) {
+        validateLetterBeforeSave(letter);
         const supabase = getSupabaseAdmin();
         const { error } = await supabase
           .from("tax_letter_jobs")
@@ -466,7 +485,7 @@ LEGACY / WIZARD PATH:
     }
     legacyUserContent += `Generate the complete IRS response per STRUCTURE REQUIREMENT in system prompt (sections through CONCLUSION), then ACTION CHECKLIST. Anchor every claim to INPUT_JSON, CLASSIFICATION_HINT, notice text, and taxpayer-provided information.`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await createLetterCompletion(openai, {
       model: LETTER_GENERATION_MODEL,
       temperature: LETTER_GENERATION_TEMPERATURE,
       max_tokens: LETTER_GENERATION_MAX_TOKENS,
@@ -480,6 +499,7 @@ LEGACY / WIZARD PATH:
 
     // Update the existing record (if provided)
     if (recordId) {
+      validateLetterBeforeSave(letter);
       const supabase = getSupabaseAdmin();
       const { error } = await supabase
         .from("tax_letter_jobs")
