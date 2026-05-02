@@ -736,6 +736,19 @@
                 rgba(255,255,255,0.7) 100%
             );
         }
+        .irs-warning {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255, 0, 0, 0.08);
+            border-left: 4px solid #ff3b30;
+            font-size: 14px;
+        }
+        .authority-block {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
         .preview-cta {
             margin-top: 20px;
             padding-top: 16px;
@@ -743,6 +756,15 @@
             font-size: 0.95rem;
             line-height: 1.5;
             color: #cbd5e1;
+        }
+        .cta-headline {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .cta-sub {
+            font-size: 14px;
+            margin-bottom: 12px;
         }
         .preview-cta button {
             display: inline-block;
@@ -863,10 +885,33 @@
             <div id="preview-container" hidden>
                 <div id="preview-visible" class="preview-visible"></div>
                 <div id="preview-blurred" class="preview-blurred"></div>
+                <div class="irs-warning">
+                  The IRS has already flagged discrepancies in your return.
+
+                  Responding incorrectly — or not at all — can result in:
+                  • Additional tax assessments  
+                  • Penalties and interest  
+                  • Escalation to audit  
+
+                  Your full response letter is already prepared.
+                </div>
+                <div class="authority-block">
+                  This response is structured using IRS evaluation standards and tax law principles — the same framework used by professionals handling IRS disputes.
+                </div>
                 <div class="preview-cta">
-                    Your full IRS response letter is ready.
-                    Unlock the complete version to submit immediately.
-                    <button type="button" onclick="goToPayment()">Unlock Full Letter — $19</button>
+
+                  <div class="cta-headline">
+                    Unlock Your Complete IRS Response Letter — Ready to Submit
+                  </div>
+
+                  <div class="cta-sub">
+                    Unlock the full version to review, download, and submit immediately.
+                  </div>
+
+                  <button type="button" onclick="goToPayment()">
+                    Unlock Full Letter — $19
+                  </button>
+
                 </div>
             </div>
 
