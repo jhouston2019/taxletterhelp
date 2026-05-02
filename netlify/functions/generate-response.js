@@ -541,17 +541,20 @@ LEGACY / WIZARD PATH:
       body: JSON.stringify({ success: true }),
     };
   } catch (error) {
-    trackError(error, { 
-      functionName: 'generate-response',
+    trackError(error, {
+      functionName: "generate-response",
+      phase: "generate_response_outer",
     });
     console.error("Error in generate-response:", error);
-    return { 
-      statusCode: 500, 
+    return {
+      statusCode: 500,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({ error: error.message }) 
+      body: JSON.stringify({
+        error: "We couldn't generate your response. Please try again.",
+      }),
     };
   }
 };
