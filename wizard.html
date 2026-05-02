@@ -707,7 +707,7 @@
             box-sizing: border-box;
         }
 
-        #preview-container {
+        #preview-container.preview-container {
             margin: 0 0 20px 0;
             padding: 18px 20px;
             border-radius: 12px;
@@ -715,26 +715,84 @@
             background: #0f172a;
             color: #e2e8f0;
         }
-        .preview-visible {
-            white-space: pre-wrap;
-            margin-bottom: 16px;
+        .step-block {
+            margin-bottom: 1.25rem;
         }
-        .preview-blurred {
+        .step-block-title {
+            margin: 0 0 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .step-body-wrap {
+            margin: 0;
+        }
+        .step-body-text {
             white-space: pre-wrap;
-            filter: blur(6px);
-            user-select: none;
-            pointer-events: none;
+            line-height: 1.55;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        .blur-medium {
             position: relative;
         }
-        .preview-blurred::after {
-            content: "";
+        .blur-medium-inner {
+            filter: blur(6px);
+            opacity: 0.6;
+            position: relative;
+            white-space: pre-wrap;
+            line-height: 1.55;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        .blur-heavy {
+            position: relative;
+            pointer-events: none;
+            user-select: none;
+        }
+        .blur-heavy-inner {
+            filter: blur(10px);
+            opacity: 0.35;
+            user-select: none;
+            white-space: pre-wrap;
+            line-height: 1.55;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        .blur-heavy::after {
+            content: "Unlock to view full response letter";
             position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0) 0%,
-                rgba(255,255,255,0.7) 100%
-            );
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            pointer-events: none;
+            text-align: center;
+            max-width: 90%;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        .paywall-cta {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #334155;
+            text-align: center;
+        }
+        .paywall-cta button {
+            display: inline-block;
+            padding: 14px 22px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #22c55e, #15803d);
+            color: #fff;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
         }
         .irs-warning {
             margin-top: 20px;
@@ -746,38 +804,11 @@
         .authority-block {
             margin-top: 12px;
             padding: 12px;
-            background: rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.06);
             font-size: 13px;
-        }
-        .preview-cta {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #334155;
-            font-size: 0.95rem;
-            line-height: 1.5;
             color: #cbd5e1;
-        }
-        .cta-headline {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .cta-sub {
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-        .preview-cta button {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 12px 18px;
-            border-radius: 10px;
-            background: linear-gradient(180deg, #22c55e, #15803d);
-            color: #fff;
-            font-weight: 700;
-            font-family: inherit;
-            font-size: 0.95rem;
-            border: none;
-            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid #334155;
         }
     </style>
 </head>
@@ -882,9 +913,8 @@
                 </div>
             </div>
 
-            <div id="preview-container" hidden>
-                <div id="preview-visible" class="preview-visible"></div>
-                <div id="preview-blurred" class="preview-blurred"></div>
+            <div id="preview-container" class="preview-container" hidden>
+                <div id="preview-steps-root" class="preview-steps-root"></div>
                 <div class="irs-warning">
                   The IRS has already flagged discrepancies in your return.
 
@@ -898,20 +928,10 @@
                 <div class="authority-block">
                   This response is structured using IRS evaluation standards and tax law principles — the same framework used by professionals handling IRS disputes.
                 </div>
-                <div class="preview-cta">
-
-                  <div class="cta-headline">
-                    Unlock Your Complete IRS Response Letter — Ready to Submit
-                  </div>
-
-                  <div class="cta-sub">
-                    Unlock the full version to review, download, and submit immediately.
-                  </div>
-
+                <div class="paywall-cta">
                   <button type="button" onclick="goToPayment()">
-                    Unlock Full Letter — $19
+                    Unlock Full Letter — $59
                   </button>
-
                 </div>
             </div>
 
@@ -1513,16 +1533,126 @@ You must respond by April 30, 2024.`;
             return out.length ? out : buildDocList(currentAnalysis);
         }
 
+        function formatFinancialImpactFromAnalysis(analysis) {
+            const fi = (analysis && analysis.financialInfo) || {};
+            const parts = [];
+            if (fi.financialImpact) parts.push('Impact level: ' + String(fi.financialImpact));
+            const amt = fi.proposedChange != null ? fi.proposedChange : fi.balanceDue != null ? fi.balanceDue : fi.largestAmount;
+            if (amt != null && !Number.isNaN(Number(amt))) parts.push('Amount at issue: ' + formatMoney(amt));
+            return parts.length ? parts.join('\n') : '';
+        }
+
+        /** Maps preview API text + existing analysis object into paywall steps (client-side only). */
+        function buildPaywallStepModel(previewText, analysis) {
+            const text = (previewText || '').trim();
+            const sections = splitAnalysisIntoSections(text);
+            const takenBodies = [];
+
+            function takeSection(keywords) {
+                for (const s of sections) {
+                    if (takenBodies.includes(s.body)) continue;
+                    const t = (s.title || '').toLowerCase();
+                    if (keywords.some((k) => t.includes(k))) {
+                        takenBodies.push(s.body);
+                        return s.body;
+                    }
+                }
+                return '';
+            }
+
+            const overrideNt = document.getElementById('noticeTypeOverride')?.value?.trim();
+            const displayType = overrideNt || (analysis && analysis.letterType) || '';
+            let noticeType = displayType
+                ? String(displayType)
+                : takeSection(['notice classification', 'classification', 'notice identification', 'identification']);
+            if (!noticeType) noticeType = 'Notice type and classification — unlock for the full identification block.';
+
+            let summary = takeSection(['risk assessment', 'what happens next', 'issue summary', 'issue', 'summary', 'overview', 'situation']);
+            if (!summary) summary = extractFirstMeaningfulParagraph(text, analysis);
+
+            let financialImpact = takeSection(['financial impact', 'financial', 'amount at issue', 'balance', 'proposed change', 'economic']);
+            if (!financialImpact) financialImpact = formatFinancialImpactFromAnalysis(analysis);
+            if (!financialImpact) financialImpact = 'Financial impact and line-item detail — unlock for the full breakdown.';
+
+            let requiredAction = takeSection([
+                'your required action',
+                'required response procedure',
+                'required action',
+                'procedure',
+                'checklist',
+                'immediate action',
+            ]);
+            if (!requiredAction) {
+                const items = extractProcedureChecklist(text, analysis);
+                requiredAction = items.length
+                    ? items.map((x, i) => i + 1 + '. ' + x).join('\n')
+                    : 'Step-by-step response actions — unlock for the complete checklist.';
+            }
+
+            let responseStrategy = takeSection(['response strategy', 'strategy', 'recommended', 'position', 'how to respond', 'defense', 'approach']);
+            if (!responseStrategy) {
+                const start = Math.floor(text.length * 0.38);
+                const end = Math.floor(text.length * 0.62);
+                responseStrategy = text.slice(start, end).trim();
+            }
+            if (!responseStrategy) responseStrategy = 'Your tailored response strategy is ready — unlock to read the full approach.';
+
+            let letter = takeSection(['draft', 'sample letter', 'response letter', 'letter template', 'written response', 'full letter', 'irs response']);
+            if (!letter) letter = text.slice(Math.floor(text.length * 0.55)).trim();
+            if (!letter) letter = 'Complete formatted IRS response letter — unlock to view, edit, and download.';
+
+            if (letter.slice(0, 120) === summary.slice(0, 120)) {
+                letter = text.slice(Math.floor(text.length * 0.62)).trim() || letter;
+            }
+
+            return {
+                partial: { noticeType, summary, financialImpact, requiredAction },
+                full: { responseStrategy: responseStrategy, letter: letter },
+            };
+        }
+
+        function renderPaywallStepHtml(title, body, blur) {
+            const esc = escapeHtml;
+            const b = body == null || body === '' ? '—' : String(body);
+            let wrapClass = 'step-body-wrap';
+            let innerClass = 'step-body-text';
+            if (blur === 'medium') {
+                wrapClass += ' blur-medium';
+                innerClass = 'blur-medium-inner';
+            } else if (blur === 'heavy') {
+                wrapClass += ' blur-heavy';
+                innerClass = 'blur-heavy-inner';
+            }
+            return (
+                '<div class="step-block">' +
+                '<h3 class="step-block-title">' +
+                esc(title) +
+                '</h3>' +
+                '<div class="' +
+                wrapClass +
+                '"><div class="' +
+                innerClass +
+                '">' +
+                esc(b) +
+                '</div></div></div>'
+            );
+        }
+
         function renderPreview(preview_text) {
             if (!preview_text) return;
-
-            const cutoff = Math.floor(preview_text.length * 0.5);
-
-            const visibleText = preview_text.slice(0, cutoff);
-            const blurredText = preview_text.slice(cutoff);
-
-            document.getElementById("preview-visible").textContent = visibleText;
-            document.getElementById("preview-blurred").textContent = blurredText;
+            const root = document.getElementById('preview-steps-root');
+            if (!root) return;
+            const model = buildPaywallStepModel(preview_text, currentAnalysis);
+            const p = model.partial;
+            const f = model.full;
+            let html = '';
+            html += renderPaywallStepHtml('1. Notice Identification', p.noticeType, '');
+            html += renderPaywallStepHtml('2. Issue Summary', p.summary, '');
+            html += renderPaywallStepHtml('3. Financial Impact', p.financialImpact, '');
+            html += renderPaywallStepHtml('4. Required Action', p.requiredAction, '');
+            html += renderPaywallStepHtml('5. Response Strategy', f.responseStrategy, 'medium');
+            html += renderPaywallStepHtml('6. Full IRS Response Letter', f.letter, 'heavy');
+            root.innerHTML = html;
         }
 
         window.goToPayment = function goToPayment() {
@@ -1625,10 +1755,8 @@ You must respond by April 30, 2024.`;
             } else {
                 if (previewBox) {
                     previewBox.setAttribute("hidden", "");
-                    const pv = document.getElementById("preview-visible");
-                    const pb = document.getElementById("preview-blurred");
-                    if (pv) pv.textContent = "";
-                    if (pb) pb.textContent = "";
+                    const root = document.getElementById("preview-steps-root");
+                    if (root) root.innerHTML = "";
                 }
                 if (fullDetailsEl) fullDetailsEl.style.display = "";
             }
