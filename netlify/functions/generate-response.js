@@ -191,11 +191,13 @@ SUPPORTING DOCUMENTATION
 
 CONCLUSION
 
+ACTION CHECKLIST
+
 Use a standard IRS submission letter framework (appropriate date/addressee, RE line, taxpayer identification placeholders where unknown).
 
 Write primary body in first person from the signer to the IRS (I/my/me) unless constrained instructions say otherwise.
 
-After CONCLUSION, add ACTION CHECKLIST as a numbered list (documents, mailing, deadlines, submission method) for the taxpayer.`;
+The ACTION CHECKLIST section must appear after CONCLUSION under the exact heading ACTION CHECKLIST (all caps acceptable). That section must clearly list concrete next steps the taxpayer should take (for example: gather or attach supporting documents; meet deadlines; mailing address and method; fax or IRS portal submissions if applicable; certified mail). Use numbered or bulleted steps so the taxpayer can follow them without interpreting the IRS letter alone.`;
 
 function buildExpertInputJson(letterText, summary, userData) {
   let ud = {};

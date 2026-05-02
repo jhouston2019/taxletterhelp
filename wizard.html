@@ -2248,7 +2248,7 @@ You must respond by April 30, 2024.`;
             }
 
             const blob = (el.textContent || '');
-            if (!/action checklist/i.test(blob)) return;
+            if (!(/action checklist/i.test(blob) || blob.includes('Next steps'))) return;
             const hr = document.createElement('hr');
             hr.className = 'checklist-label-fallback-hr';
             hr.style.cssText = 'margin:24px 0;border:0;border-top:1px solid #e2e8f0;';
