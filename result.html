@@ -54,14 +54,12 @@
             } else if (!job.is_unlocked && !job.paid) {
                 document.body.innerText = "Locked.";
             } else {
-                const rawLetter = job.letter_full || '';
-                const letterLen = String(rawLetter).trim().length;
-                if (!rawLetter || letterLen < 200) {
+                if (!job.letter_full || job.letter_full.length < 200) {
                     document.body.innerText = "Your response is still being finalized. Please refresh shortly.";
                     return;
                 }
                 full.style.display = 'block';
-                letterBody.textContent = rawLetter;
+                letterBody.textContent = job.letter_full || '';
             }
         }
     </script>

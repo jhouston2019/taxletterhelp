@@ -541,11 +541,8 @@ LEGACY / WIZARD PATH:
       body: JSON.stringify({ success: true }),
     };
   } catch (error) {
-    trackError(error, {
-      functionName: "generate-response",
-      phase: "generate_response_outer",
-    });
-    console.error("Error in generate-response:", error);
+    trackError(error, { phase: "generate_response_outer" });
+
     return {
       statusCode: 500,
       headers: {
