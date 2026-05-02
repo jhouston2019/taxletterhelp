@@ -81,13 +81,29 @@
         }
 
         if (!job) {
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            const retryKey = `tlh_success_retries_${session_id}`;
+            let retries = 0;
+            try {
+                retries = Number(sessionStorage.getItem(retryKey) || 0);
+            } catch (_) { /* sessionStorage unavailable */ }
+
+            if (retries >= 5) {
+                document.body.innerText = "Still finalizing your result. Please check your dashboard in a moment.";
+                return;
+            }
+
+            try {
+                sessionStorage.setItem(retryKey, String(retries + 1));
+            } catch (_) { /* ignore */ }
 
             document.body.innerText = "Finalizing your result…";
+            setTimeout(() => window.location.reload(), 2000);
             return;
         }
+
+        try {
+            sessionStorage.removeItem(`tlh_success_retries_${session_id}`);
+        } catch (_) { /* ignore */ }
 
         window.location.href = `/result/${job.id}`;
     </script>

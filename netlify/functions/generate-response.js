@@ -32,6 +32,42 @@ function validateLetterBeforeSave(letter) {
   }
 }
 
+const LETTER_SAVE_SAFE_ERROR_BODY = JSON.stringify({
+  error: "We couldn't generate a complete response. Please try again.",
+});
+
+const JSON_CORS_HEADERS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+};
+
+/**
+ * Persist letter_full when recordId is set; on validation or DB failure returns HTTP response (caller must return it).
+ */
+async function persistLetterFullOrSafeError(recordId, letter) {
+  if (!recordId) return null;
+  try {
+    validateLetterBeforeSave(letter);
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase
+      .from("tax_letter_jobs")
+      .update({ letter_full: letter })
+      .eq("id", recordId);
+    if (error) throw error;
+    return null;
+  } catch (e) {
+    trackError(e, {
+      functionName: "generate-response",
+      phase: "letter_full_save",
+    });
+    return {
+      statusCode: 500,
+      headers: JSON_CORS_HEADERS,
+      body: LETTER_SAVE_SAFE_ERROR_BODY,
+    };
+  }
+}
+
 /** Master notice bucket — runs first on raw notice text (deterministic). */
 function classifyNotice(noticeText) {
   const t = String(noticeText || "");
@@ -413,16 +449,10 @@ const mainHandler = async (event) => {
       }
       
       const letter = responseResult.responseLetter;
-      
-      // Update the existing record (if provided)
+
       if (recordId) {
-        validateLetterBeforeSave(letter);
-        const supabase = getSupabaseAdmin();
-        const { error } = await supabase
-          .from("tax_letter_jobs")
-          .update({ letter_full: letter })
-          .eq("id", recordId);
-        if (error) console.error("Database update error:", error);
+        const saveFail = await persistLetterFullOrSafeError(recordId, letter);
+        if (saveFail) return saveFail;
       }
 
       return {
@@ -497,15 +527,9 @@ LEGACY / WIZARD PATH:
 
     const letter = completion.choices?.[0]?.message?.content?.trim() || "";
 
-    // Update the existing record (if provided)
     if (recordId) {
-      validateLetterBeforeSave(letter);
-      const supabase = getSupabaseAdmin();
-      const { error } = await supabase
-        .from("tax_letter_jobs")
-        .update({ letter_full: letter })
-        .eq("id", recordId);
-      if (error) console.error("Database update error:", error);
+      const saveFail = await persistLetterFullOrSafeError(recordId, letter);
+      if (saveFail) return saveFail;
     }
 
     return {
