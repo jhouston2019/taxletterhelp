@@ -1,15 +1,8 @@
-import { createRequire } from "module";
+import Busboy from "busboy";
+import pdf from "pdf-parse";
 import OpenAI from "openai";
 
-const require = createRequire(import.meta.url);
-const { getRequestIp, checkIpRateLimit } = require("./_rate-limit-ip.js");
-
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-/** OpenAI-backed extraction — per-IP cap (default 20 / 15 min). */
-const extractMax = () =>
-  Math.max(3, Math.min(200, parseInt(process.env.RATE_LIMIT_EXTRACT_PER_IP, 10) || 20));
-const EXTRACT_WINDOW_MS = 15 * 60 * 1000;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -17,76 +10,119 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+function normalizeHeaders(headers) {
+  const out = {};
+  if (!headers || typeof headers !== "object") return out;
+  for (const [k, v] of Object.entries(headers)) {
+    if (typeof v === "string") out[k.toLowerCase()] = v;
+  }
+  return out;
+}
+
+/** Netlify may send `body` as a UTF-8 string or base64 depending on `isBase64Encoded`. */
+function bodyBuffer(event) {
+  if (event.body == null || event.body === "") return Buffer.alloc(0);
+  if (event.isBase64Encoded) return Buffer.from(event.body, "base64");
+  if (Buffer.isBuffer(event.body)) return event.body;
+  return Buffer.from(String(event.body), "utf8");
+}
+
+function bufferLooksLikePdf(buf) {
+  if (!buf || buf.length < 5) return false;
+  return buf.subarray(0, 5).toString("ascii") === "%PDF-";
+}
+
 export async function handler(event) {
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: CORS, body: "" };
-  }
-
-  const ip = getRequestIp(event);
-  const extractRl = checkIpRateLimit(ip, {
-    namespace: "extract-text",
-    maxRequests: extractMax(),
-    windowMs: EXTRACT_WINDOW_MS,
-  });
-  if (!extractRl.ok) {
-    return {
-      statusCode: 429,
-      headers: {
-        "Content-Type": "application/json",
-        "Retry-After": String(extractRl.retryAfterSec),
-        ...CORS,
-      },
-      body: JSON.stringify({
-        error: "Too many file extractions. Please try again in a few minutes.",
-      }),
-    };
-  }
-
   try {
-    const { imageData, mimeType } = JSON.parse(event.body || "{}");
-    if (!imageData) {
+    console.log("FUNCTION HIT");
+    console.log("HEADERS:", event.headers);
+    console.log("BODY LENGTH:", event.body?.length);
+    console.log("isBase64Encoded:", event.isBase64Encoded);
+
+    if (event.httpMethod === "OPTIONS") {
+      return { statusCode: 204, headers: CORS, body: "" };
+    }
+
+    if (event.httpMethod !== "POST") {
       return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json", ...CORS },
-        body: JSON.stringify({ error: "Missing imageData (base64 payload)" }),
+        statusCode: 405,
+        headers: CORS,
+        body: "Method Not Allowed",
       };
     }
 
-    const type = (mimeType || "image/png").toLowerCase();
-    const extractInstruction =
-      "Extract all text from this file. Return only the text content, preserving the original formatting and structure where reasonable. Do not add commentary or analysis.";
+    const headersNorm = normalizeHeaders(event.headers);
+    const contentType = headersNorm["content-type"] || "";
 
-    let extractedText;
+    if (!contentType.includes("multipart/form-data")) {
+      return {
+        statusCode: 400,
+        headers: { "Content-Type": "application/json", ...CORS },
+        body: JSON.stringify({ error: "Invalid content type" }),
+      };
+    }
 
-    if (type === "application/pdf" || type.includes("pdf")) {
-      if (typeof client.responses?.create !== "function") {
+    const busboy = Busboy({
+      headers: headersNorm,
+    });
+
+    let fileBuffer = null;
+    let mimeType = "";
+    let tookFile = false;
+
+    await new Promise((resolve, reject) => {
+      busboy.on("file", (fieldname, file, info) => {
+        if (tookFile) {
+          file.resume();
+          return;
+        }
+        tookFile = true;
+        const chunks = [];
+        mimeType = (info?.mimeType || "").toLowerCase();
+
+        file.on("data", (data) => {
+          chunks.push(data);
+        });
+        file.on("end", () => {
+          fileBuffer = Buffer.concat(chunks);
+        });
+        file.on("error", reject);
+      });
+
+      busboy.on("finish", resolve);
+      busboy.on("error", reject);
+
+      busboy.end(bodyBuffer(event));
+    });
+
+    if (!fileBuffer || !fileBuffer.length) {
+      throw new Error("No file received");
+    }
+
+    console.log("FILE SIZE:", fileBuffer.length);
+
+    let text = "";
+
+    const declaredPdf =
+      mimeType === "application/pdf" || (mimeType && mimeType.includes("pdf"));
+
+    if (bufferLooksLikePdf(fileBuffer) || declaredPdf) {
+      const parsed = await pdf(fileBuffer).catch((err) => {
+        console.error("PDF PARSE ERROR:", err);
+        throw new Error("PDF parsing failed");
+      });
+      text = (parsed.text || "").trim();
+    } else if (mimeType.startsWith("image/")) {
+      if (!process.env.OPENAI_API_KEY) {
         return {
-          statusCode: 500,
+          statusCode: 400,
           headers: { "Content-Type": "application/json", ...CORS },
-          body: JSON.stringify({
-            error: "PDF extraction requires a newer OpenAI SDK with Responses API (openai ^4.77).",
-          }),
+          body: JSON.stringify({ error: "Image extraction is not configured (missing OPENAI_API_KEY)." }),
         };
       }
-
-      const response = await client.responses.create({
-        model: "gpt-4o-mini",
-        input: [
-          {
-            role: "user",
-            content: [
-              { type: "input_text", text: extractInstruction },
-              {
-                type: "input_file",
-                filename: "document.pdf",
-                file_data: `data:application/pdf;base64,${imageData}`,
-              },
-            ],
-          },
-        ],
-      });
-      extractedText = (response.output_text || "").trim();
-    } else {
+      const b64 = fileBuffer.toString("base64");
+      const extractInstruction =
+        "Extract all text from this file. Return only the text content, preserving the original formatting and structure where reasonable. Do not add commentary or analysis.";
       const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -96,28 +132,39 @@ export async function handler(event) {
               { type: "text", text: extractInstruction },
               {
                 type: "image_url",
-                image_url: { url: `data:${mimeType || "image/png"};base64,${imageData}` },
+                image_url: { url: `data:${mimeType || "image/png"};base64,${b64}` },
               },
             ],
           },
         ],
         max_tokens: 4000,
       });
-      extractedText = (response.choices[0]?.message?.content || "").trim();
+      text = (response.choices[0]?.message?.content || "").trim();
+    } else {
+      return {
+        statusCode: 400,
+        headers: { "Content-Type": "application/json", ...CORS },
+        body: JSON.stringify({
+          error: `Unsupported file type: ${mimeType || "unknown"}. Upload a PDF or image.`,
+        }),
+      };
     }
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json", ...CORS },
-      body: JSON.stringify({ text: extractedText }),
+      body: JSON.stringify({
+        text,
+      }),
     };
-  } catch (error) {
+  } catch (err) {
+    console.error("EXTRACT ERROR:", err);
+
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json", ...CORS },
       body: JSON.stringify({
-        error: "Failed to extract text",
-        details: error.message,
+        error: err.message || "Extraction failed",
       }),
     };
   }

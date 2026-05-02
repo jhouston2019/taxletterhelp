@@ -1998,87 +1998,38 @@ You must respond by April 30, 2024.`;
             setUploadSubmitLoading('extract');
             showStatus('Extracting text...');
 
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const base64Data = e.target.result.split(',')[1];
+            if (file.type.startsWith('image/') || file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const ocrResponse = await fetch('/.netlify/functions/extract-text', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const raw = await ocrResponse.text();
+                    let ocrData;
                     try {
-                        const ocrResponse = await fetch('/.netlify/functions/extract-text', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                imageData: base64Data,
-                                mimeType: file.type
-                            })
-                        });
-                        const raw = await ocrResponse.text();
-                        let ocrData;
-                        try {
-                            ocrData = JSON.parse(raw);
-                        } catch (err) {
-                            if (ocrResponse.status === 504) {
-                                showStatus('Analysis is taking longer than expected. Please try again.');
-                            } else {
-                                showStatus('Extraction failed: server error. Please try again.');
-                            }
-                            setUploadSubmitLoading(null);
-                            return;
-                        }
-                        if (ocrData.text) {
-                            letterText = ocrData.text;
-                            await runFullOrPreviewAfterExtract();
+                        ocrData = JSON.parse(raw);
+                    } catch (err) {
+                        if (ocrResponse.status === 504) {
+                            showStatus('Analysis is taking longer than expected. Please try again.');
                         } else {
-                            showStatus('Failed to extract text from image: ' + (ocrData.error || 'Unknown error'));
-                            setUploadSubmitLoading(null);
+                            showStatus('Extraction failed: server error. Please try again.');
                         }
-                    } catch (error) {
-                        showStatus('OCR failed: ' + error.message);
+                        setUploadSubmitLoading(null);
+                        return;
+                    }
+                    if (typeof ocrData.text === 'string') {
+                        letterText = ocrData.text;
+                        await runFullOrPreviewAfterExtract();
+                    } else {
+                        showStatus('Failed to extract text: ' + (ocrData.error || 'Unknown error'));
                         setUploadSubmitLoading(null);
                     }
-                };
-                reader.readAsDataURL(file);
-                return;
-            }
-
-            if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')) {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const base64Data = e.target.result.split(',')[1];
-                    try {
-                        const ocrResponse = await fetch('/.netlify/functions/extract-text', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                imageData: base64Data,
-                                mimeType: 'application/pdf'
-                            })
-                        });
-                        const raw = await ocrResponse.text();
-                        let ocrData;
-                        try {
-                            ocrData = JSON.parse(raw);
-                        } catch (err) {
-                            if (ocrResponse.status === 504) {
-                                showStatus('Analysis is taking longer than expected. Please try again.');
-                            } else {
-                                showStatus('Extraction failed: server error. Please try again.');
-                            }
-                            setUploadSubmitLoading(null);
-                            return;
-                        }
-                        if (ocrData.text) {
-                            letterText = ocrData.text;
-                            await runFullOrPreviewAfterExtract();
-                        } else {
-                            showStatus('Failed to extract text: ' + (ocrData.error || 'Unknown error'));
-                            setUploadSubmitLoading(null);
-                        }
-                    } catch (error) {
-                        showStatus('Extraction failed: ' + error.message);
-                        setUploadSubmitLoading(null);
-                    }
-                };
-                reader.readAsDataURL(file);
+                } catch (error) {
+                    showStatus('Extraction failed: ' + error.message);
+                    setUploadSubmitLoading(null);
+                }
                 return;
             }
 
