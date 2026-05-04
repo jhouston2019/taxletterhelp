@@ -286,6 +286,13 @@
       font-weight: 500;
     }
 
+    .nested-card--analysis-preview {
+      min-height: 320px;
+    }
+    .nested-card--letter-preview {
+      min-height: 500px;
+    }
+
     .blurred-content {
       filter: blur(5px);
       -webkit-mask-image: linear-gradient(
@@ -317,7 +324,7 @@
       grid-area: 1 / 1;
       min-width: 0;
     }
-    .step-blur-sharp {
+    .step-blur-stack > .step-blur-sharp {
       -webkit-mask-image: linear-gradient(
         to bottom,
         black 0%,
@@ -329,6 +336,62 @@
         black 0%,
         black 35%,
         transparent 50%
+      );
+    }
+    .step-blur-stack--analysis > .step-blur-sharp {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 50%,
+        transparent 65%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 50%,
+        transparent 65%
+      );
+    }
+    .step-blur-stack--analysis > .step-blur-fog.blurred-content {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 50%,
+        black 65%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 50%,
+        black 65%
+      );
+    }
+    .step-blur-stack--letter > .step-blur-sharp {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 60%,
+        transparent 78%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 60%,
+        transparent 78%
+      );
+    }
+    .step-blur-stack--letter > .step-blur-fog.blurred-content {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 60%,
+        black 78%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 60%,
+        black 78%
       );
     }
 
@@ -751,10 +814,11 @@ function letterPaywallCta() {
     </div>`;
 }
 
-function stepBlurStack(innerHtml) {
+function stepBlurStack(innerHtml, blurVariant) {
   if (!shouldBlur()) return innerHtml;
+  const mod = blurVariant === 'analysis' ? ' step-blur-stack--analysis' : blurVariant === 'letter' ? ' step-blur-stack--letter' : '';
   return `
-    <div class="step-blur-stack">
+    <div class="step-blur-stack${mod}">
       <div class="step-blur-sharp">${innerHtml}</div>
       <div class="step-blur-fog blurred-content">${innerHtml}</div>
     </div>`;
@@ -1069,9 +1133,9 @@ function render() {
     const step3BlurBody = `
       <h2 class="step-heading">Analysis</h2>
       <p class="step-sub">Here’s what we found in your notice.</p>
-      <div class="nested-card">${inner}</div>`;
+      <div class="nested-card nested-card--analysis-preview">${inner}</div>`;
     html = `
-      ${stepBlurStack(step3BlurBody)}
+      ${stepBlurStack(step3BlurBody, 'analysis')}
       <div class="btn-row btn-row--nav">
         <button type="button" class="btn-back" onclick="__wizGoStep(2)">Back</button>
         <button type="button" class="btn-primary" onclick="__wizGoStep(4)">Next — Choose Strategy</button>
@@ -1157,9 +1221,9 @@ function render() {
         ${state.letter_full ? '' : '<p class="helper">Unlock this letter from the preview step after payment, or open your paid document from the dashboard.</p>'}
         ${state.redirect_url ? `<p class="helper" style="margin-top:16px">Open your letter: <a href="${escapeHtml(state.redirect_url)}" style="color:#4a9eff">Continue</a></p>` : ''}` : '';
 
-    const letterCard = `<div class="nested-card">${letterBlock}</div>`;
+    const letterCard = `<div class="nested-card nested-card--letter-preview">${letterBlock}</div>`;
     const letterBlockHtml = shouldBlur()
-      ? `${stepBlurStack(letterCard)}${letterPaywallCta()}`
+      ? `${stepBlurStack(letterCard, 'letter')}${letterPaywallCta()}`
       : `${letterCard}${paidExtras}`;
     html = `
       <h2 class="step-heading">Your Letter</h2>
