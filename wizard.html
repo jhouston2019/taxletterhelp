@@ -1222,13 +1222,19 @@ You must respond by April 30, 2024.`;
 
         /** Locked teaser: first ~40% sharp, remaining ~60% blurred (with sentence snap on visible tail). */
         const TEASER_VISIBLE_FRACTION = 0.4;
+        /** Letter step: show more of the body sharp (paywall is below the fold). */
+        const TEASER_LETTER_VISIBLE_FRACTION = 0.55;
 
-        function splitTeaserDeliverable(rawText) {
+        function splitTeaserDeliverable(rawText, visibleFractionOpt) {
             const full = rawText == null || rawText === '' ? '' : String(rawText);
             if (!full.length) {
                 return { visible: '—', blurred: '' };
             }
-            let splitIdx = Math.floor(full.length * TEASER_VISIBLE_FRACTION);
+            const frac =
+                typeof visibleFractionOpt === 'number' && visibleFractionOpt > 0 && visibleFractionOpt < 1
+                    ? visibleFractionOpt
+                    : TEASER_VISIBLE_FRACTION;
+            let splitIdx = Math.floor(full.length * frac);
             if (splitIdx <= 0) splitIdx = Math.min(1, full.length);
             let visible = full.slice(0, splitIdx);
             const windowStart = Math.max(0, visible.length - 120);
@@ -1308,7 +1314,7 @@ You must respond by April 30, 2024.`;
                     '</div>'
                 );
             }
-            const parts = splitTeaserDeliverable(full);
+            const parts = splitTeaserDeliverable(full, TEASER_LETTER_VISIBLE_FRACTION);
             const blurSection =
                 parts.blurred.length > 0
                     ? '<div class="letter-blurred"><div class="step-plain-text">' + escapeHtml(parts.blurred) + '</div></div>'
@@ -1814,18 +1820,27 @@ You must respond by April 30, 2024.`;
 
             let responseStrategy = takeSection(['response strategy', 'strategy', 'recommended', 'position', 'how to respond', 'defense', 'approach']);
             if (!responseStrategy) {
-                const start = Math.floor(text.length * 0.38);
-                const end = Math.floor(text.length * 0.62);
-                responseStrategy = text.slice(start, end).trim();
+                const stratStart = Math.floor(text.length * 0.18);
+                const stratEnd = Math.floor(text.length * 0.44);
+                responseStrategy = stratEnd > stratStart ? text.slice(stratStart, stratEnd).trim() : '';
             }
             if (!responseStrategy) responseStrategy = 'Your tailored response strategy is ready — unlock to read the full approach.';
 
             let letter = takeSection(['draft', 'sample letter', 'response letter', 'letter template', 'written response', 'full letter', 'irs response']);
-            if (!letter) letter = text.slice(Math.floor(text.length * 0.55)).trim();
+            if (!letter) letter = text.slice(Math.floor(text.length * 0.64)).trim();
             if (!letter) letter = 'Complete formatted IRS response letter — unlock to view, edit, and download.';
 
+            if (letter.length > 60 && responseStrategy.length > 60) {
+                const lp = letter.slice(0, 80);
+                if (responseStrategy.includes(lp) || lp.includes(responseStrategy.slice(0, 80))) {
+                    const stratStart = Math.floor(text.length * 0.12);
+                    const stratEnd = Math.floor(text.length * 0.38);
+                    responseStrategy = stratEnd > stratStart ? text.slice(stratStart, stratEnd).trim() : responseStrategy;
+                }
+            }
+
             if (letter.slice(0, 120) === summary.slice(0, 120)) {
-                letter = text.slice(Math.floor(text.length * 0.62)).trim() || letter;
+                letter = text.slice(Math.floor(text.length * 0.68)).trim() || letter;
             }
 
             return {
@@ -1835,8 +1850,8 @@ You must respond by April 30, 2024.`;
         }
 
         /** Max chars written to DOM for locked preview fields (strategy / letter). */
-        const PREVIEW_STRATEGY_DOM_CAP = 120;
-        const PREVIEW_LETTER_DOM_CAP = 200;
+        const PREVIEW_STRATEGY_DOM_CAP = 450;
+        const PREVIEW_LETTER_DOM_CAP = 1200;
         /** Max chars for hidden/supplemental analysis nodes in unpaid preview flow. */
         const PREVIEW_SUPPLEMENTAL_DOM_CAP = 800;
 
