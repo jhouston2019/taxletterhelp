@@ -48,7 +48,7 @@
                 <li style="background:rgba(255, 255, 255, 0.9); border:1px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin:8px 0; text-align:left; display:block; color:#000000;">✓ Deadline calculation and escalation timeline</li>
                 <li style="background:rgba(255, 255, 255, 0.9); border:1px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin:8px 0; text-align:left; display:block; color:#000000;">✓ IRS-compliant response letter (PDF & DOCX)</li>
             </ul>
-            <a href="/payment" style="display:block; width:100%; text-align:center; padding:14px 22px; font-weight:600; text-decoration:none; border-radius:10px; background:linear-gradient(180deg, #3b82f6, #1e40af); color:#ffffff; box-shadow:0 6px 18px rgba(30, 64, 175, 0.35); transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;">Prepare My IRS Response</a>
+            <button type="button" id="pricing-checkout" data-checkout class="pricing-cta-btn" style="display:block; width:100%; text-align:center; padding:14px 22px; font-weight:600; border:none; border-radius:10px; background:linear-gradient(180deg, #3b82f6, #1e40af); color:#ffffff; box-shadow:0 6px 18px rgba(30, 64, 175, 0.35); transition:transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease; cursor:pointer; font-size:1rem;">Prepare My IRS Response</button>
         </div>
 
         <p style="color:#64748b; margin-top:1.5rem;">
@@ -91,7 +91,6 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script type="importmap">
     {
       "imports": {
@@ -100,5 +99,53 @@
     }
     </script>
     <script type="module" src="/src/main.js"></script>
+    <script>
+(function() {
+  function initPricingCheckout() {
+    const btn = document.getElementById("pricing-checkout")
+      || document.querySelector("[data-checkout]")
+      || document.querySelector(".pricing-cta-btn");
+
+    if (!btn) return;
+
+    if (btn.tagName === "A") {
+      btn.removeAttribute("href");
+      btn.style.cursor = "pointer";
+    }
+
+    btn.addEventListener("click", async function(e) {
+      e.preventDefault();
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Redirecting…";
+
+      try {
+        const res = await fetch("/.netlify/functions/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan: "single" }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || data.details || "No checkout URL returned");
+        }
+      } catch (err) {
+        console.error("Pricing checkout error:", err);
+        btn.disabled = false;
+        btn.textContent = originalText;
+        alert("Something went wrong. Please try again.");
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPricingCheckout);
+  } else {
+    initPricingCheckout();
+  }
+})();
+    </script>
 </body>
 </html>

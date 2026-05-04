@@ -1,8 +1,13 @@
 /**
  * Deprecated: response text is produced once in generate-full-job.js (analyze-letter pipeline).
  */
+const { createClient } = require("@supabase/supabase-js");
 const { wrapHandler } = require("./_error-tracking.js");
-const { getUserFromBearer } = require("./_request-auth.js");
+
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 const cors = {
   "Content-Type": "application/json",
@@ -16,9 +21,29 @@ const mainHandler = async (event) => {
     return { statusCode: 204, headers: cors, body: "" };
   }
 
-  const { user } = await getUserFromBearer(event);
-  if (!user) {
-    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: "Unauthorized" }) };
+  const authHeader =
+    event.headers?.authorization ||
+    event.headers?.Authorization ||
+    "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  if (!token) {
+    return {
+      statusCode: 401,
+      headers: cors,
+      body: JSON.stringify({ error: "Authentication required", code: "AUTH_REQUIRED" }),
+    };
+  }
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) {
+    return {
+      statusCode: 401,
+      headers: cors,
+      body: JSON.stringify({ error: "Invalid or expired session", code: "AUTH_INVALID" }),
+    };
   }
 
   return {

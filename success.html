@@ -1,137 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment successful | Tax Letter Defense Pro</title>
-    <meta name="robots" content="noindex, nofollow">
-    <script>
-      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
-      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
-    </script>
-    <style>
-        body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-            font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#0f172a; }
-        .box { text-align:center; padding:2rem; max-width:420px; }
-        .spin { width:40px; height:40px; border:3px solid #e2e8f0; border-top-color:#3b82f6;
-            border-radius:50%; animation:spin 0.9s linear infinite; margin:0 auto 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .btn {
-            display:inline-block;
-            margin-top:1.25rem;
-            padding:12px 22px;
-            background:#2563eb;
-            color:#fff;
-            font-weight:700;
-            border-radius:10px;
-            text-decoration:none;
-            font-family:inherit;
-            border:none;
-            cursor:pointer;
-            font-size:1rem;
-        }
-        .muted { color:#64748b; font-size:0.95rem; margin:0.5rem 0 0; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Confirmed — Tax Letter Defense Pro</title>
+  <meta name="robots" content="noindex" />
+  <script>
+    window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+    window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0a1428;
+      color: #e8edf5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      max-width: 460px;
+      width: 100%;
+      margin: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .icon-loading { background: rgba(74,158,255,0.12); }
+    .icon-success { background: rgba(34,197,94,0.15); }
+    .icon-error { background: rgba(255,100,60,0.12); }
+    h2 { font-size: 22px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    p { color: #8a9ab5; font-size: 14px; line-height: 1.6; }
+    .step-label {
+      font-size: 11px; color: #4a9eff; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(74,158,255,0.2);
+      border-top-color: #4a9eff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn {
+      display: inline-block; margin-top: 20px;
+      padding: 12px 28px; background: #4a9eff;
+      color: #fff; border-radius: 8px;
+      text-decoration: none; font-weight: 600; font-size: 14px;
+    }
+    code {
+      background: rgba(255,255,255,0.08);
+      padding: 2px 6px; border-radius: 4px;
+      font-size: 12px; word-break: break-all;
+    }
+  </style>
 </head>
 <body>
-    <div class="box" id="root">
-        <div class="spin" aria-hidden="true"></div>
-        <p style="margin:0;">Confirming payment…</p>
-    </div>
-    <script type="importmap">
-    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
-    </script>
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js';
+<div class="card" id="card">
+  <div class="icon icon-loading" id="iconEl">
+    <div class="spinner"></div>
+  </div>
+  <div class="step-label" id="stepLabel">Processing Payment</div>
+  <h2 id="heading">Confirming your payment…</h2>
+  <p id="subtext">This takes just a moment. Please don't close this tab.</p>
+</div>
 
-        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+<script type="importmap">
+{ "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+</script>
+<script type="module">
+import { createClient } from '@supabase/supabase-js';
 
-        const params = new URLSearchParams(window.location.search);
-        const session_id = params.get("session_id");
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-        const root = document.getElementById('root');
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get('session_id');
 
-        if (!session_id) {
-            root.innerHTML = '<p>Missing session.</p>';
-            throw new Error("Missing session_id");
-        }
+function setUI({ icon, label, heading, sub }) {
+  const iconEl = document.getElementById('iconEl');
+  const spinnerHtml = `<div class="spinner"></div>`;
+  const checkHtml = `<svg width="28" height="28" fill="none" stroke="#22c55e" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+  const errHtml = `<svg width="28" height="28" fill="none" stroke="#ff6440" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
 
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
+  iconEl.className = `icon icon-${icon}`;
+  iconEl.innerHTML = icon === 'loading' ? spinnerHtml : icon === 'success' ? checkHtml : errHtml;
+  document.getElementById('stepLabel').textContent = label;
+  document.getElementById('heading').textContent = heading;
+  document.getElementById('subtext').innerHTML = sub;
+}
 
-        if (!token) {
-            window.location.href = "/login";
-            throw new Error("No auth");
-        }
+async function pollJobUnlock(jobId, maxAttempts) {
+  const delays = [500, 1000, 2000, 4000, 8000, 8000];
+  for (let i = 0; i < (maxAttempts || 6); i++) {
+    await new Promise(r => setTimeout(r, delays[i] || 8000));
+    try {
+      const { data: job } = await supabase
+        .from('tax_letter_jobs')
+        .select('id, is_unlocked')
+        .eq('id', jobId)
+        .single();
+      if (job?.is_unlocked) return true;
+    } catch (_) { /* ignore */ }
+  }
+  return false;
+}
 
-        const res = await fetch("/.netlify/functions/verify-payment", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ session_id })
-        });
+async function handleGuestPath(sid) {
+  setUI({ icon: 'loading', label: 'Confirming Payment',
+    heading: 'Verifying your payment…', sub: 'One moment.' });
 
-        const data = await res.json();
+  const verifyRes = await fetch('/.netlify/functions/verify-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sid }),
+  });
+  const verifyData = await verifyRes.json();
+  if (!verifyData.paid) {
+    throw new Error(verifyData.error || 'Payment not confirmed by verify-payment');
+  }
 
-        if (!data.success) {
-            root.innerHTML = '<p>Verification failed.</p>';
-            throw new Error("Verification failed");
-        }
+  const email = verifyData.email;
+  const jobId = verifyData.job_id || null;
+  if (!email) {
+    throw new Error('No email on checkout session');
+  }
 
-        let job = null;
+  setUI({ icon: 'loading', label: 'Setting Up Account',
+    heading: 'Creating your account…', sub: 'Almost done.' });
 
-        for (let i = 0; i < 10; i++) {
-            const { data: row } = await supabase
-                .from("tax_letter_jobs")
-                .select("id")
-                .eq("stripe_session_id", session_id)
-                .maybeSingle();
+  const accountRes = await fetch('/.netlify/functions/create-account-from-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sid, email }),
+  });
+  const accountData = await accountRes.json();
+  if (accountRes.status === 409 && accountData.error === 'account_exists') {
+    throw new Error('An account with this email already exists. Sign in to view your letter.');
+  }
+  if (!accountData.access_token) {
+    throw new Error(accountData.error || 'create-account-from-payment did not return tokens');
+  }
 
-            if (row) {
-                job = row;
-                break;
-            }
+  await supabase.auth.setSession({
+    access_token: accountData.access_token,
+    refresh_token: accountData.refresh_token,
+  });
 
-            await new Promise(r => setTimeout(r, 1000));
-        }
+  try {
+    sessionStorage.setItem('last_checkout_session_id', sid);
+  } catch (_) { /* ignore */ }
 
-        if (!job) {
-            const retryKey = `tlh_success_retries_${session_id}`;
-            let retries = 0;
-            try {
-                retries = Number(sessionStorage.getItem(retryKey) || 0);
-            } catch (_) { /* ignore */ }
+  setUI({ icon: 'success', label: 'Payment Confirmed',
+    heading: 'Payment successful!', sub: 'Redirecting to your letter…' });
 
-            if (retries >= 5) {
-                root.innerHTML = '<p style="color:#64748b;">Still finalizing. Open <strong>My documents</strong> in a moment.</p>';
-                throw new Error("timeout");
-            }
+  setTimeout(() => {
+    try {
+      sessionStorage.setItem('payment_complete', 'true');
+    } catch (_) { /* ignore */ }
+    window.location.href = jobId ? `/result/${jobId}` : '/dashboard.html';
+  }, 1200);
+}
 
-            try {
-                sessionStorage.setItem(retryKey, String(retries + 1));
-            } catch (_) { /* ignore */ }
+async function handleLoggedInPath(sid, accessToken) {
+  setUI({ icon: 'loading', label: 'Confirming Payment',
+    heading: 'Verifying your payment…', sub: 'One moment.' });
 
-            root.innerHTML = '<div class="spin" aria-hidden="true"></div><p>Finalizing…</p>';
-            setTimeout(() => window.location.reload(), 2000);
-            throw new Error("retry");
-        }
+  const verifyRes = await fetch('/.netlify/functions/verify-payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ session_id: sid }),
+  });
+  const verifyData = await verifyRes.json();
+  if (!verifyData.paid) {
+    throw new Error(verifyData.error || 'Payment not confirmed');
+  }
 
-        try {
-            sessionStorage.removeItem(`tlh_success_retries_${session_id}`);
-        } catch (_) { /* ignore */ }
+  const jobId = verifyData.job_id;
 
-        const resultUrl = '/result.html?job_id=' + encodeURIComponent(job.id);
+  setUI({ icon: 'success', label: 'Payment Confirmed',
+    heading: 'Payment successful!', sub: 'Loading your letter…' });
 
-        root.innerHTML =
-            '<p style="margin:0 0 8px; font-size:1.35rem; font-weight:700;">Payment successful</p>' +
-            '<p class="muted">Your full response is ready</p>' +
-            '<a class="btn" href="' + resultUrl + '">View My Response</a>';
+  if (jobId) {
+    await pollJobUnlock(jobId, 6);
+    try {
+      sessionStorage.setItem('payment_complete', 'true');
+    } catch (_) { /* ignore */ }
+    window.location.href = `/result/${jobId}`;
+  } else {
+    try {
+      sessionStorage.setItem('payment_complete', 'true');
+    } catch (_) { /* ignore */ }
+    window.location.href = '/dashboard.html';
+  }
+}
 
-        setTimeout(() => {
-            window.location.replace(resultUrl);
-        }, 2800);
-    </script>
+async function run() {
+  if (!sessionId) {
+    setUI({ icon: 'error', label: 'Error',
+      heading: 'Missing session ID',
+      sub: '<a href="/pricing.html" class="btn">Return to Pricing</a>' });
+    return;
+  }
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.access_token) {
+      await handleLoggedInPath(sessionId, session.access_token);
+    } else {
+      await handleGuestPath(sessionId);
+    }
+  } catch (err) {
+    console.error('success.html error:', err);
+    setUI({ icon: 'error', label: 'Something Went Wrong',
+      heading: 'We hit a snag',
+      sub: `${err.message || 'Setup incomplete'}. ` +
+        `If you already paid, contact support with this ID: <code>${sessionId}</code>` +
+        '<br><a href="/dashboard.html" class="btn" style="margin-top:16px">Go to Dashboard</a>'
+    });
+  }
+}
+
+run();
+</script>
 </body>
 </html>

@@ -44,6 +44,11 @@
   status = 200
 
 [[redirects]]
+  from = "/preview/:job_id"
+  to = "/preview.html"
+  status = 200
+
+[[redirects]]
   from = "/pricing"
   to = "/pricing.html"
   status = 200
@@ -142,6 +147,12 @@
   timeout = 26
 
 [functions.analyze-letter]
+  timeout = 26
+
+[functions.get-tax-letter-job]
+  timeout = 26
+
+[functions.create-account-from-payment]
   timeout = 26
 
 [functions.generate-response]

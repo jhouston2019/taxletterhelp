@@ -1,10 +1,15 @@
 const Stripe = require("stripe");
+const { createClient } = require("@supabase/supabase-js");
 const { wrapHandler, trackError } = require("./_error-tracking.js");
-const { getSupabaseAdmin } = require("./_supabase.js");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const ok = () => ({ statusCode: 200, body: "ok" });
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const ok = () => ({ statusCode: 200, headers: { "Content-Type": "application/json" }, body: "ok" });
 
 const mainHandler = async (event) => {
   if (process.env.BYPASS_PAYMENT === "true") {
@@ -13,44 +18,61 @@ const mainHandler = async (event) => {
 
   try {
     const sig = event.headers["stripe-signature"];
-    const rawBody = event.isBase64Encoded ? Buffer.from(event.body, "base64") : Buffer.from(event.body || "");
-    let evt;
+    const rawBody = event.isBase64Encoded
+      ? Buffer.from(event.body || "", "base64")
+      : Buffer.from(event.body || "");
+    let stripeEvent;
 
     try {
-      evt = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
+      stripeEvent = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch {
       return ok();
     }
 
-    if (evt.type === "checkout.session.completed") {
-      const session = evt.data.object;
+    if (stripeEvent.type === "checkout.session.completed") {
+      const stripeSession = stripeEvent.data.object;
+      const jobId = stripeSession.metadata?.job_id;
+      const userId = stripeSession.metadata?.user_id;
+      const stripeSessionId = stripeSession.id;
+      const customerEmail =
+        stripeSession.customer_details?.email || stripeSession.customer_email;
 
-      const jobId = session.metadata?.job_id;
-      if (!jobId) {
-        return ok();
-      }
+      console.log("Webhook: checkout.session.completed", {
+        jobId,
+        userId,
+        stripeSessionId,
+        customerEmail,
+      });
 
-      const supabase = getSupabaseAdmin();
-      const { data: existing } = await supabase
-        .from("tax_letter_jobs")
-        .select("paid, user_id")
-        .eq("id", jobId)
-        .maybeSingle();
+      if (jobId) {
+        const updatePayload = {
+          paid: true,
+          is_unlocked: true,
+          stripe_session_id: stripeSessionId,
+        };
+        if (userId) {
+          updatePayload.user_id = userId;
+        }
 
-      if (!existing?.user_id) {
-        return ok();
-      }
-
-      if (!existing.paid) {
-        await supabase
+        const { error: updateError } = await supabaseAdmin
           .from("tax_letter_jobs")
-          .update({
-            paid: true,
-            is_unlocked: true,
-            stripe_session_id: session.id,
-          })
+          .update(updatePayload)
           .eq("id", jobId);
+
+        if (updateError) {
+          console.error("Webhook: FAILED to unlock job", jobId, updateError.message);
+        } else {
+          console.log("Webhook: successfully unlocked job", jobId);
+        }
+      } else {
+        console.log("Webhook: catalog checkout, no job_id", stripeSessionId);
       }
+
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ received: true }),
+      };
     }
 
     return ok();

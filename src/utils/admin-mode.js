@@ -135,11 +135,11 @@ export function injectAdminBanner() {
 }
 
 /**
- * Bypass payment check (admin mode only)
- * @returns {boolean} - True if should bypass payment
+ * SECURITY: Payment bypass permanently disabled (admin banner may still show for QA).
+ * @returns {boolean}
  */
 export function shouldBypassPayment() {
-  return sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+  return false;
 }
 
 /**

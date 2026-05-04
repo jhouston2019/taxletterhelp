@@ -1,193 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
-      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
-    </script>
-    <title>Preview | Tax Letter Defense Pro</title>
-    <meta name="robots" content="noindex, nofollow">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f1f5f9;
-            color: #0f172a;
-            line-height: 1.6;
-        }
-        .wrap {
-            max-width: 720px;
-            width: 94%;
-            margin: 0 auto;
-            padding: 2rem 1rem 4rem;
-            box-sizing: border-box;
-        }
-        h1 { font-size: 1.35rem; margin: 0 0 1rem; }
-        .block {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.25rem 1.35rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,.06);
-        }
-        .block h2 {
-            font-size: 1rem;
-            margin: 0 0 0.75rem;
-            color: #334155;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 0.5rem;
-        }
-        .meta { font-size: 0.9rem; color: #475569; margin-bottom: 0.75rem; }
-        .meta span { display: inline-block; margin-right: 1rem; margin-bottom: 0.35rem; }
-        .blurred {
-            filter: blur(5px);
-            user-select: none;
-            pointer-events: none;
-            color: #64748b;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        .letter-preview {
-            white-space: pre-wrap;
-            word-break: break-word;
-            font-size: 0.92rem;
-        }
-        .cta {
-            text-align: center;
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .cta p { margin: 0 0 1rem; color: #475569; font-size: 0.95rem; }
-        .cta button {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .cta button:disabled { opacity: 0.6; cursor: wait; }
-        #err { color: #b91c1c; margin-bottom: 1rem; }
-        a.back { color: #2563eb; font-weight: 600; text-decoration: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your IRS Response Letter — Tax Letter Defense Pro</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0a1428;
+      color: #e8edf5;
+      min-height: 100vh;
+    }
+
+    .header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4a9eff;
+      letter-spacing: -0.3px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(74,158,255,0.12);
+      border: 1px solid rgba(74,158,255,0.3);
+      color: #4a9eff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      background: #4a9eff;
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .subtitle {
+      color: #8a9ab5;
+      font-size: 15px;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    /* Analysis summary confidence card */
+    .analysis-card {
+      background: rgba(74,158,255,0.07);
+      border: 1px solid rgba(74,158,255,0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .analysis-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #4a9eff;
+      margin-bottom: 8px;
+    }
+    .analysis-card-summary {
+      font-size: 15px;
+      color: #c8d8ee;
+      line-height: 1.5;
+    }
+
+    /* Value strip */
+    .value-strip {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .value-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: #b0c4de;
+    }
+    .value-item svg { flex-shrink: 0; opacity: 0.7; }
+
+    /* Letter preview with blur */
+    .preview-wrapper {
+      position: relative;
+      margin-bottom: 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .preview-content {
+      background: rgba(255,255,255,0.03);
+      padding: 28px 32px;
+      font-family: "Georgia", serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #c8d8ee;
+      white-space: pre-wrap;
+      min-height: 160px;
+    }
+    .preview-locked {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 140px;
+      pointer-events: none;
+    }
+    .preview-locked::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      background: linear-gradient(
+        to bottom,
+        rgba(10, 20, 40, 0) 0%,
+        rgba(10, 20, 40, 0.95) 100%
+      );
+    }
+
+    /* CTA section */
+    .cta-section {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+    .cta-lock-icon {
+      width: 48px; height: 48px;
+      background: rgba(74,158,255,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .cta-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .cta-subtitle {
+      color: #8a9ab5;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #4a9eff;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+    .cta-button:hover { background: #3a8eef; }
+    .cta-button:active { transform: scale(0.98); }
+    .cta-button:disabled {
+      background: #3a5070;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .cta-price {
+      font-size: 20px;
+    }
+    .cta-guarantee {
+      font-size: 12px;
+      color: #6a7a95;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Hard stop state */
+    .hard-stop-card {
+      background: rgba(255,100,60,0.08);
+      border: 1px solid rgba(255,100,60,0.25);
+      border-radius: 12px;
+      padding: 28px 32px;
+      text-align: center;
+      display: none;
+    }
+    .hard-stop-card.visible { display: block; }
+    .hard-stop-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ff6440;
+      margin-bottom: 10px;
+    }
+    .hard-stop-body {
+      color: #b0c4de;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 80px 24px;
+      color: #6a7a95;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(74,158,255,0.2);
+      border-top-color: #4a9eff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: #ff6440;
+    }
+  </style>
 </head>
 <body>
-    <div class="wrap">
-        <p><a class="back" href="/wizard.html">← Edit notice</a></p>
-        <h1>Preview</h1>
-        <p id="err" role="alert"></p>
 
-        <section class="block" id="blockAnalysis" style="display:none;">
-            <h2>Letter Analysis &amp; Strategy</h2>
-            <div class="meta" id="analysisMeta"></div>
-            <div class="blurred" id="analysisBlur"></div>
-        </section>
+<header class="header">
+  <div class="header-logo">⚖️ Tax Letter Defense Pro</div>
+</header>
 
-        <section class="block" id="blockLetter" style="display:none;">
-            <h2>Your IRS Response Letter</h2>
-            <div class="letter-preview" id="letterVisible"></div>
-            <div class="blurred letter-preview" id="letterBlur" style="margin-top:0.75rem;"></div>
-        </section>
+<div class="container">
 
-        <div class="cta" id="ctaBox" style="display:none;">
-            <p>Your response is ready. Unlock full access to download and submit.</p>
-            <button type="button" id="payBtn">Get Full Response — $59</button>
-        </div>
+  <!-- Loading -->
+  <div id="loadingState" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your analysis…</p>
+  </div>
+
+  <!-- Error -->
+  <div id="errorState" class="error-state" style="display:none;">
+    <p id="errorMsg">Something went wrong. Please try again.</p>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="mainContent" style="display:none;">
+
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span>Analysis Complete</span>
     </div>
 
-    <script type="importmap">
-    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
-    </script>
-    <script type="module">
-        import { getAccessToken } from './src/components/Auth.js';
+    <h1>Your IRS Response Letter is Ready</h1>
+    <p class="subtitle">
+      We've analyzed your notice and drafted a professional response. 
+      Unlock the full letter for $29 — one-time, no subscription.
+    </p>
 
-        const params = new URLSearchParams(window.location.search);
-        const jobId = params.get('job_id');
-        const errEl = document.getElementById('err');
+    <!-- Analysis summary confidence signal -->
+    <div id="analysisCard" class="analysis-card" style="display:none;">
+      <div class="analysis-card-label">What We Found</div>
+      <div id="analysisSummary" class="analysis-card-summary"></div>
+    </div>
 
-        if (!jobId) {
-            errEl.textContent = 'Missing job.';
-        } else {
-            const tok = await getAccessToken();
-            if (!tok) {
-                window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
-            } else {
-                const res = await fetch(
-                    '/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(jobId) + '&want=preview',
-                    { headers: { Authorization: 'Bearer ' + tok } }
-                );
-                const data = await res.json().catch(() => ({}));
+    <!-- Value strip -->
+    <div class="value-strip">
+      <div class="value-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Professional IRS-ready letter
+      </div>
+      <div class="value-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Cites specific IRC sections
+      </div>
+      <div class="value-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Instant download
+      </div>
+    </div>
 
-                if (res.status === 401) {
-                    window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
-                } else if (!res.ok) {
-                    errEl.textContent = data.error || 'Could not load preview.';
-                } else if (data.paid) {
-                    window.location.replace('/result.html?job_id=' + encodeURIComponent(jobId));
-                } else {
-                    const n = data.notice || {};
-                    const r = data.risk || {};
-                    const p = data.preview || {};
+    <!-- Blurred preview -->
+    <div id="previewWrapper" class="preview-wrapper">
+      <div id="previewContent" class="preview-content"></div>
+      <div class="preview-locked"></div>
+    </div>
 
-                    document.getElementById('analysisMeta').innerHTML =
-                        '<span><strong>Type:</strong> ' + escapeHtml(n.type) + '</span>' +
-                        '<span><strong>Tax year:</strong> ' + escapeHtml(n.tax_year) + '</span>' +
-                        '<span><strong>Issue:</strong> ' + escapeHtml(n.issue) + '</span>' +
-                        '<span><strong>Risk:</strong> ' + escapeHtml(r.level) + '</span>';
+    <!-- Hard stop message (shown instead of CTA when hard_stop=true) -->
+    <div id="hardStopCard" class="hard-stop-card">
+      <div class="hard-stop-title">⚠️ Attorney Review Recommended</div>
+      <div id="hardStopMsg" class="hard-stop-body">
+        Based on our analysis, this matter involves issues that may require 
+        representation by a licensed tax professional or attorney. We recommend 
+        consulting a CPA or tax attorney before responding to this notice.
+      </div>
+    </div>
 
-                    document.getElementById('analysisBlur').textContent = p.analysis_hidden || '';
-                    document.getElementById('letterVisible').textContent = p.letter_visible || '';
-                    document.getElementById('letterBlur').textContent = p.letter_hidden || '';
+    <!-- CTA section -->
+    <div id="ctaSection" class="cta-section">
+      <div class="cta-lock-icon">
+        <svg width="22" height="22" fill="none" stroke="#4a9eff" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+      </div>
+      <div class="cta-title">Unlock Your Full Letter</div>
+      <div class="cta-subtitle">
+        One payment unlocks your complete, formatted IRS response letter — 
+        ready to print and mail. No subscription required.
+      </div>
+      <button id="ctaButton" class="cta-button" onclick="startCheckout()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Get Your Full Letter &mdash; <span class="cta-price">$29</span>
+      </button>
+      <div class="cta-guarantee">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Secure payment via Stripe · Instant access after purchase
+      </div>
+    </div>
 
-                    document.getElementById('blockAnalysis').style.display = 'block';
-                    document.getElementById('blockLetter').style.display = 'block';
-                    document.getElementById('ctaBox').style.display = 'block';
+  </div>
+</div>
 
-                    document.getElementById('payBtn').addEventListener('click', async () => {
-                        const btn = document.getElementById('payBtn');
-                        btn.disabled = true;
-                        try {
-                            const r2 = await fetch('/.netlify/functions/create-checkout-session', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: 'Bearer ' + tok,
-                                },
-                                body: JSON.stringify({ job_id: jobId }),
-                            });
-                            const checkout = await r2.json();
-                            if (checkout.url) {
-                                window.location.href = checkout.url;
-                            } else {
-                                errEl.textContent = checkout.error || checkout.details || 'Checkout failed.';
-                                btn.disabled = false;
-                            }
-                        } catch (e) {
-                            errEl.textContent = e.message || 'Checkout failed.';
-                            btn.disabled = false;
-                        }
-                    });
-                }
-            }
-        }
+<script>
+  // Read job_id from path: /preview/abc-123
+  const pathParts = window.location.pathname.replace(/^\/+/, "").split("/");
+  // pathParts[0] = "preview", pathParts[1] = job_id
+  let jobId = pathParts.length >= 2 && pathParts[0] === "preview" ? pathParts[1] : null;
+  if (!jobId) {
+    jobId = new URLSearchParams(window.location.search).get("job_id");
+  }
 
-        function escapeHtml(s) {
-            if (s == null) return '';
-            return String(s)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-    </script>
+  async function init() {
+    if (!jobId) {
+      showError("No letter ID found. Please go back and try again.");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/.netlify/functions/get-tax-letter-job?job_id=${encodeURIComponent(jobId)}`
+      );
+
+      if (res.status === 404) {
+        showError("Letter not found. It may have expired or the link is incorrect.");
+        return;
+      }
+
+      const data = await res.json();
+
+      if (!data.success) {
+        showError(data.error || "Failed to load your letter.");
+        return;
+      }
+
+      // Already paid → go straight to result
+      if (data.is_unlocked || data.unlocked) {
+        window.location.href = "/result/" + jobId;
+        return;
+      }
+
+      renderPreview(data);
+
+    } catch (err) {
+      console.error("Preview load error:", err);
+      showError("Failed to load your letter. Please refresh and try again.");
+    }
+  }
+
+  function renderPreview(data) {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+
+    // Analysis summary
+    if (data.analysis_summary) {
+      document.getElementById("analysisSummary").textContent = data.analysis_summary;
+      document.getElementById("analysisCard").style.display = "block";
+    }
+
+    // Preview text
+    if (data.preview_text) {
+      document.getElementById("previewContent").textContent = data.preview_text;
+    } else {
+      document.getElementById("previewWrapper").style.display = "none";
+    }
+
+    // Hard stop
+    if (data.hard_stop) {
+      document.getElementById("hardStopCard").classList.add("visible");
+      document.getElementById("ctaSection").style.display = "none";
+    }
+  }
+
+  async function startCheckout() {
+    const btn = document.getElementById("ctaButton");
+    btn.disabled = true;
+    btn.textContent = "Redirecting to secure payment…";
+
+    try {
+      const res = await fetch("/.netlify/functions/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: jobId, plan: "single" }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || "No checkout URL returned");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      btn.disabled = false;
+      btn.innerHTML = `Get Your Full Letter &mdash; <span class="cta-price">$29</span>`;
+      alert("Payment setup failed. Please try again.");
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("errorState").style.display = "block";
+    document.getElementById("errorMsg").textContent = msg;
+  }
+
+  init();
+</script>
 </body>
 </html>

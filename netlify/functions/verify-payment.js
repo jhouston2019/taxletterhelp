@@ -16,23 +16,22 @@ function getBearer(event) {
   return h.slice(7).trim();
 }
 
+function sessionEmail(session) {
+  const e =
+    session.customer_details?.email ||
+    session.customer_email ||
+    (typeof session.customer === "object" && session.customer && !session.customer.deleted
+      ? session.customer.email
+      : null);
+  return e ? String(e).trim().toLowerCase() : null;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: cors, body: "" };
   }
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, headers: cors, body: JSON.stringify({ error: "Method not allowed" }) };
-  }
-
-  const token = getBearer(event);
-  if (!token) {
-    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: "Unauthorized", success: false }) };
-  }
-
-  const supabase = getSupabaseAdmin();
-  const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-  if (userErr || !userData?.user?.id) {
-    return { statusCode: 401, headers: cors, body: JSON.stringify({ error: "Unauthorized", success: false }) };
   }
 
   let sid;
@@ -56,18 +55,53 @@ exports.handler = async (event) => {
       expand: ["customer", "line_items"],
     });
 
+    const jobId = session.metadata?.job_id || null;
+    const metaUserId = session.metadata?.user_id || null;
+    const email = sessionEmail(session);
+
+    if (session.payment_status !== "paid") {
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({ success: true, paid: false, pending: true }),
+      };
+    }
+
+    const token = getBearer(event);
+
+    if (!token) {
+      return {
+        statusCode: 200,
+        headers: cors,
+        body: JSON.stringify({
+          success: true,
+          paid: true,
+          verified: true,
+          email: email || null,
+          job_id: jobId,
+        }),
+      };
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !userData?.user?.id) {
+      return { statusCode: 401, headers: cors, body: JSON.stringify({ error: "Unauthorized", success: false }) };
+    }
+
     const user = userData.user;
-    const jobId = session.metadata?.job_id;
+
     if (jobId) {
       const { data: job } = await supabase.from("tax_letter_jobs").select("user_id").eq("id", jobId).maybeSingle();
-      if (!job || String(job.user_id) !== String(user.id || "")) {
+      const uid = job?.user_id;
+      if (uid != null && String(uid) !== String(user.id || "")) {
         return {
           statusCode: 403,
           headers: cors,
           body: JSON.stringify({ error: "Forbidden" }),
         };
       }
-    } else if (String(session.metadata?.user_id || "") !== String(user.id || "")) {
+    } else if (metaUserId && String(metaUserId) !== String(user.id || "")) {
       return {
         statusCode: 403,
         headers: cors,
@@ -75,18 +109,16 @@ exports.handler = async (event) => {
       };
     }
 
-    if (session.payment_status !== "paid") {
-      return {
-        statusCode: 200,
-        headers: cors,
-        body: JSON.stringify({ success: true, pending: true }),
-      };
-    }
-
     return {
       statusCode: 200,
       headers: cors,
-      body: JSON.stringify({ success: true, verified: true }),
+      body: JSON.stringify({
+        success: true,
+        paid: true,
+        verified: true,
+        job_id: jobId,
+        email: email || user.email || null,
+      }),
     };
   } catch (e) {
     console.error("[verify-payment]", e);

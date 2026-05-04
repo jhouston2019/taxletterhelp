@@ -72,7 +72,7 @@
                 }
 
                 if (res.status === 402) {
-                    window.location.replace('/preview.html?job_id=' + encodeURIComponent(job_id));
+                    window.location.replace('/preview/' + encodeURIComponent(job_id));
                     throw new Error('pay');
                 }
 
@@ -80,12 +80,20 @@
 
                 loading.style.display = 'none';
 
-                if (!res.ok || !data.paid) {
-                    document.querySelector('.wrap').innerHTML = '<p>Could not load your response.</p>';
-                } else if (!data.analysis_full || !data.letter_full) {
+                const unlocked = data.is_unlocked || data.unlocked;
+                if (!res.ok || !unlocked || !data.paid) {
+                    window.location.replace('/preview/' + encodeURIComponent(job_id));
+                } else if (!data.letter_full) {
                     document.querySelector('.wrap').innerHTML = '<p>Your response is still being finalized. Refresh shortly.</p>';
                 } else {
-                    document.getElementById('analysisBody').textContent = data.analysis_full;
+                    const analysisText =
+                        (data.analysis_full && String(data.analysis_full)) ||
+                        (data.analysis_json && typeof data.analysis_json.analysisOutput === 'string'
+                            ? data.analysis_json.analysisOutput
+                            : null) ||
+                        data.analysis_summary ||
+                        '';
+                    document.getElementById('analysisBody').textContent = analysisText || '—';
                     document.getElementById('letterBody').textContent = data.letter_full;
                     full.style.display = 'block';
                 }

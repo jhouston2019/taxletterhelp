@@ -1,302 +1,1183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
-      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
-    </script>
-    <title>Add your IRS notice | Tax Letter Defense Pro</title>
-    <meta name="robots" content="noindex, nofollow">
-    <link rel="canonical" href="https://taxletterdefensepro.com/wizard.html">
-    <style>
-        html { background: #0f172a; }
-        body {
-            margin: 0;
-            font-family: 'Inter', system-ui, sans-serif;
-            color: #e2e8f0;
-            min-height: 100vh;
-        }
-        .wrap {
-            max-width: 720px;
-            width: 94%;
-            margin: 0 auto;
-            padding: 2.5rem 1rem 4rem;
-            box-sizing: border-box;
-        }
-        .panel {
-            background: #fff;
-            color: #1e293b;
-            border-radius: 16px;
-            padding: 2rem 1.75rem;
-            box-shadow: 0 4px 24px rgba(0,0,0,.12);
-        }
-        h1 {
-            font-size: 1.5rem;
-            margin: 0 0 0.5rem;
-            color: #0f172a;
-        }
-        .sub { margin: 0 0 1.25rem; color: #64748b; font-size: 0.95rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.9rem; }
-        textarea {
-            width: 100%;
-            min-height: 180px;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-        .drop {
-            border: 2px dashed #94a3b8;
-            border-radius: 12px;
-            padding: 1.25rem;
-            text-align: center;
-            margin-top: 1rem;
-            background: #f8fafc;
-            cursor: pointer;
-        }
-        .drop.drag { border-color: #3b82f6; background: #eff6ff; }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.25rem;
-            padding: 12px 22px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            font-family: inherit;
-            background: #2563eb;
-            color: #fff;
-            width: 100%;
-        }
-        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
-        #status { margin-top: 1rem; font-size: 0.9rem; color: #b45309; min-height: 1.25rem; }
-        .nav-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-        .nav-top a { color: #93c5fd; text-decoration: none; font-weight: 600; }
-        input[type="file"] { display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+    window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+  </script>
+  <title>IRS notice wizard | Tax Letter Defense Pro</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://taxletterdefensepro.com/wizard.html">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0a1428; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      background: #0a1428;
+      color: #e8edf5;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 20, 40, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 20px;
+      backdrop-filter: blur(8px);
+    }
+    .progress-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .progress-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-width: 0;
+    }
+    .progress-step .circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.2);
+      color: #6a7a95;
+      flex-shrink: 0;
+    }
+    .progress-step.future .circle { background: transparent; }
+    .progress-step.active .circle {
+      background: #4a9eff;
+      border-color: #4a9eff;
+      color: #fff;
+    }
+    .progress-step.done .circle {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      color: #22c55e;
+      font-size: 16px;
+    }
+    .progress-step .plabel {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #6a7a95;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    .progress-step.active .plabel { color: #fff; font-weight: 700; }
+    .progress-step.done .plabel { color: #8a9ab5; font-weight: 500; }
+
+    @media (max-width: 640px) {
+      .progress-step:not(.active) .plabel { display: none; }
+      .progress-step .circle { width: 10px; height: 10px; font-size: 0; border-width: 2px; }
+      .progress-step.active .circle {
+        width: auto; height: auto; border-radius: 20px;
+        padding: 8px 12px; font-size: 11px; color: #fff;
+      }
+      .progress-step.done .circle {
+        width: 10px; height: 10px; font-size: 0;
+        background: #22c55e; border-color: #22c55e;
+      }
+    }
+
+    .page-title {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 24px 0;
+      font-size: 14px;
+      color: #4a9eff;
+      font-weight: 700;
+    }
+
+    .wizard-card {
+      max-width: 720px;
+      margin: 16px auto 48px;
+      padding: 40px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+    }
+    @media (max-width: 640px) {
+      .wizard-card { margin: 12px 16px 40px; padding: 24px 20px; }
+    }
+
+    .step-heading { font-size: 24px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+    .step-sub { font-size: 14px; color: #8a9ab5; margin-bottom: 32px; }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      color: #8a9ab5;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      font-family: inherit;
+    }
+    .tab-btn.active { color: #4a9eff; border-bottom-color: #4a9eff; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .upload-zone {
+      border: 2px dashed rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: #4a9eff;
+      background: rgba(74, 158, 255, 0.05);
+    }
+    .upload-zone .hint { font-size: 13px; color: #8a9ab5; margin-top: 8px; }
+    .file-meta { margin-top: 12px; font-size: 13px; color: #b0c4de; }
+
+    label, .lbl { display: block; font-size: 13px; font-weight: 500; color: #b0c4de; margin-bottom: 6px; }
+    .helper { font-size: 12px; color: #6a7a95; margin-top: 4px; }
+    .err { font-size: 12px; color: #ff6440; margin-top: 4px; }
+
+    input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="password"],
+    select, textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #e8edf5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4a9eff;
+      box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.15);
+    }
+    select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .field { margin-bottom: 20px; }
+    .inline-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+    .inline-row input { width: auto; margin-top: 3px; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+      align-items: center;
+    }
+    .btn-primary {
+      background: #4a9eff;
+      color: #fff;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { background: #3a8eef; }
+    .btn-primary:disabled { background: #2a4060; cursor: not-allowed; opacity: 0.85; }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #8a9ab5;
+      font-weight: 600;
+      padding: 13px 24px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.35); color: #b0c4de; }
+
+    .radio-card {
+      display: block;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .radio-card:has(input:checked) {
+      border-color: #4a9eff;
+      background: rgba(74, 158, 255, 0.08);
+    }
+    .radio-card input { margin-right: 10px; }
+    .radio-card .title { font-weight: 600; color: #e8edf5; }
+    .radio-card .sub { font-size: 12px; color: #8a9ab5; margin-top: 4px; }
+
+    .nested-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge {
+      background: rgba(74, 158, 255, 0.12);
+      border: 1px solid rgba(74, 158, 255, 0.25);
+      color: #4a9eff;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .blurred-wrap { position: relative; border-radius: 12px; overflow: hidden; }
+    .blurred-content {
+      filter: blur(5px);
+      opacity: 0.65;
+      user-select: none;
+      pointer-events: none;
+      position: relative;
+    }
+    .blur-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: rgba(10, 20, 40, 0.4);
+      border-radius: 12px;
+      z-index: 10;
+      cursor: pointer;
+    }
+    .blur-overlay.cta-box { cursor: default; }
+    .blur-overlay p { color: #c8d8ee; font-size: 14px; max-width: 320px; margin-top: 8px; }
+
+    .step-full-blur-inner {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 100px;
+    }
+    .step-full-blur-content.blurred-content {
+      filter: blur(5px);
+      opacity: 0.65;
+      user-select: none;
+      pointer-events: none;
+    }
+    .blur-overlay--fullstep {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: rgba(10, 20, 40, 0.45);
+      border-radius: 12px;
+      z-index: 10;
+    }
+
+    .loading-block { text-align: center; padding: 40px 20px; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(74, 158, 255, 0.2);
+      border-top-color: #4a9eff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-status { color: #8a9ab5; font-size: 14px; }
+
+    .hard-stop {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .hard-stop h3 { color: #fbbf24; font-size: 17px; margin-bottom: 8px; }
+    .hard-stop p { color: #c8d8ee; font-size: 14px; }
+    .hard-stop a { color: #4a9eff; font-weight: 600; }
+
+    .api-error {
+      background: rgba(255, 100, 60, 0.08);
+      border: 1px solid rgba(255, 100, 60, 0.25);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .currency-field { position: relative; }
+    .currency-field span {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8a9ab5;
+      font-size: 14px;
+    }
+    .currency-field input { padding-left: 28px; }
+  </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="nav-top">
-            <strong>Tax Letter Defense Pro</strong>
-            <div style="display:flex;gap:1rem;align-items:center;">
-                <a href="/dashboard.html">My documents</a>
-                <button type="button" id="signOutBtn" style="background:transparent;border:1px solid #475569;color:#e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;">Sign out</button>
-            </div>
-        </div>
-        <div class="panel">
-            <h1>Your IRS notice</h1>
-            <p class="sub">Paste the full notice text or upload a PDF or image. One analysis runs—your preview is taken directly from the final output.</p>
 
-            <label for="pasteNoticeText">Notice text</label>
-            <textarea id="pasteNoticeText" placeholder="Paste letter text here…"></textarea>
+<div class="progress-wrap">
+  <div class="progress-inner" id="progressBar"></div>
+</div>
+<div class="page-title">Tax Letter Defense Pro</div>
 
-            <div class="drop" id="dropZone" tabindex="0" role="button" aria-label="Upload file">
-                <div>Drop PDF or image here, or <strong>choose file</strong></div>
-                <input type="file" id="fileInput" accept=".pdf,application/pdf,image/jpeg,image/png,image/jpg">
-            </div>
+<div class="wizard-card" id="wizardRoot">
+  <!-- Steps injected by JS -->
+</div>
 
-            <button type="button" class="btn" id="analyzeBtn" disabled>Continue to preview</button>
-            <div id="status" aria-live="polite"></div>
-        </div>
-    </div>
+<script type="importmap">
+{ "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+</script>
+<script type="module">
+import { createClient } from '@supabase/supabase-js';
 
-    <script type="importmap">
-    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
-    </script>
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js';
-        import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js';
+const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-        const pasteEl = document.getElementById('pasteNoticeText');
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const statusEl = document.getElementById('status');
+const NOTICE_TYPES = [
+  'CP2000', 'CP2501', 'CP3219A', 'CP504', 'CP14', 'CP11', 'CP12', 'CP13',
+  'Letter 531', 'Letter 692', 'Letter 2205', 'Letter 3219', "I'm not sure"
+];
 
-        let letterText = '';
+const TAX_YEARS = ['2024', '2023', '2022', '2021', '2020', '2019', 'Earlier'];
 
-        function setStatus(msg) { statusEl.textContent = msg || ''; }
+const ANALYSIS_LOADING_MSGS = [
+  'Reading your notice…',
+  'Identifying key issues…',
+  'Checking IRS procedures…',
+  'Drafting your analysis…',
+];
 
-        function syncBtn() {
-            const pasted = (pasteEl.value || '').trim().length >= 40;
-            analyzeBtn.disabled = !pasted && !(letterText && letterText.trim().length >= 40);
+const LETTER_LOADING_MSGS = [
+  'Building your letter…',
+  'Referencing IRS procedures…',
+  'Formatting your response…',
+  'Almost done…',
+];
+
+const state = {
+  step: 1,
+  inputMode: 'upload',
+  noticeText: '',
+  fileData: null,
+  fileType: '',
+  fileName: '',
+  fileSize: 0,
+  rawFile: null,
+  pdfExtractedText: '',
+  noticeDate: '',
+  noticeType: '',
+  filingStatus: '',
+  taxYear: '',
+  address: '',
+  email: '',
+  disputeAmount: '',
+  resolutionAsk: '',
+  situationDescription: '',
+  taxpayerName: '',
+  ssnLast4: '',
+  tone: 'neutral',
+  goal: '',
+  additionalContext: '',
+  jobId: null,
+  analysisJobId: null,
+  analysis_json: null,
+  hard_stop: false,
+  redirect_url: '',
+  preview_text: '',
+  letter_full: null,
+  loading: false,
+  loadingMsgIndex: 0,
+  apiError: '',
+  fieldErrors: {},
+  accessToken: null,
+  isLoggedIn: false,
+};
+
+let isPaid = false;
+
+let loadingInterval = null;
+
+function mapToneForApi(tone) {
+  if (tone === 'conciliatory') return 'conciliatory and cooperative — resolution-focused';
+  if (tone === 'firm') return 'firm and assertive — confident in my position';
+  return 'professional and balanced';
+}
+
+function citationsList(a) {
+  if (!a || typeof a !== 'object') return [];
+  const hooks = a.regulatory_hooks;
+  const cit = a.citations;
+  if (Array.isArray(hooks) && hooks.length) return hooks.map(String);
+  if (Array.isArray(cit) && cit.length) return cit.map(String);
+  const intel = a.intelligence;
+  if (intel?.classification?.noticeType) {
+    return [`Notice classification: ${intel.classification.noticeType}`];
+  }
+  return [];
+}
+
+function shouldBlur() {
+  return !isPaid;
+}
+
+async function initSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    state.accessToken = session.access_token;
+    state.isLoggedIn = true;
+    if (session.user?.email) state.email = session.user.email;
+    try {
+      const r = await fetch('/.netlify/functions/billing-status', {
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      });
+      if (r.ok) {
+        const d = await r.json();
+        if (d.active === true && d.plan_type && String(d.plan_type).toLowerCase() !== 'none') {
+          isPaid = true;
         }
+      }
+    } catch (_) { /* ignore */ }
+  } else {
+    state.accessToken = null;
+    state.isLoggedIn = false;
+  }
 
-        pasteEl.addEventListener('input', () => {
-            letterText = pasteEl.value.trim();
-            syncBtn();
-        });
+  try {
+    if (sessionStorage.getItem('payment_complete') === 'true') {
+      isPaid = true;
+      sessionStorage.removeItem('payment_complete');
+    }
+  } catch (_) { /* ignore */ }
+}
 
-        document.getElementById('signOutBtn').addEventListener('click', async () => {
-            await signOut();
-            window.location.href = '/';
-        });
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
 
-        dropZone.addEventListener('click', () => fileInput.click());
+async function extractPdfText(file) {
+  const fd = new FormData();
+  fd.append('file', file, file.name || 'notice.pdf');
+  const res = await fetch('/.netlify/functions/extract-text', { method: 'POST', body: fd });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Could not read PDF.'); }
+  if (!res.ok) throw new Error(data.error || 'PDF extraction failed');
+  const t = (data.text || '').trim();
+  if (!t) throw new Error('No text could be extracted from this PDF.');
+  return t;
+}
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag');
-            const f = e.dataTransfer?.files?.[0];
-            if (f) handleFile(f);
-        });
+async function ensureNoticeTextForApi() {
+  let text = state.noticeText.trim();
+  if (state.inputMode === 'upload' && state.rawFile) {
+    const mime = (state.fileType || '').toLowerCase();
+    if (mime.includes('pdf')) {
+      if (!state.pdfExtractedText) {
+        state.pdfExtractedText = await extractPdfText(state.rawFile);
+      }
+      text = state.pdfExtractedText;
+    }
+  }
+  return text;
+}
 
-        fileInput.addEventListener('change', () => {
-            const f = fileInput.files?.[0];
-            if (f) handleFile(f);
-        });
+function buildWizardJson() {
+  return {
+    taxpayerName: state.taxpayerName.trim(),
+    ssnLast4: state.ssnLast4.trim(),
+    address: state.address.trim(),
+    email: state.email.trim(),
+    disputeAmount: state.disputeAmount.trim(),
+    resolutionAsk: state.resolutionAsk.trim(),
+    noticeDate: state.noticeDate,
+    taxYear: state.taxYear,
+    filingStatus: state.filingStatus,
+    situationDescription: state.situationDescription.trim(),
+    userNoticeType: state.noticeType,
+  };
+}
 
-        async function handleFile(file) {
-            const user = await getCurrentUser();
-            if (!user) {
-                window.location.href = '/login.html?next=' + encodeURIComponent('/wizard.html');
-                return;
-            }
+function buildStrategyJson() {
+  return {
+    tone: mapToneForApi(state.tone),
+    approach: state.goal || 'Dispute with supporting documentation',
+    goal: state.goal,
+    strategy: state.goal,
+    additionalContext: state.additionalContext.trim(),
+  };
+}
 
-            const okTypes = /pdf|jpeg|jpg|png/i.test(file.type || '') || /\.pdf$/i.test(file.name || '');
-            if (!okTypes) {
-                setStatus('Only PDF, JPG, and PNG are supported.');
-                return;
-            }
+async function buildAnalyzeBody(includeStrategy) {
+  const text = await ensureNoticeTextForApi();
+  const wizardJson = buildWizardJson();
+  const body = {
+    text,
+    userEmail: state.email.trim() || null,
+    wizardJson,
+    usageSessionId: (() => {
+      try { return sessionStorage.getItem('last_checkout_session_id') || undefined; }
+      catch (_) { return undefined; }
+    })(),
+  };
 
-            analyzeBtn.disabled = true;
-            setStatus('Extracting text…');
+  if (state.inputMode === 'upload' && state.rawFile && state.fileData) {
+    const mime = (state.fileType || '').toLowerCase();
+    if (mime.includes('image')) {
+      body.imageUrl = state.fileData;
+    } else if (!mime.includes('pdf')) {
+      body.fileUrl = state.fileData;
+    }
+  }
 
-            try {
-                if (file.type.startsWith('image/') || file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    const ocrResponse = await fetch('/.netlify/functions/extract-text', {
-                        method: 'POST',
-                        body: formData,
-                    });
-                    const raw = await ocrResponse.text();
-                    let ocrData;
-                    try {
-                        ocrData = JSON.parse(raw);
-                    } catch {
-                        setStatus('Extraction failed. Try pasting the text instead.');
-                        analyzeBtn.disabled = false;
-                        syncBtn();
-                        return;
-                    }
-                    if (typeof ocrData.text === 'string' && ocrData.text.trim()) {
-                        letterText = ocrData.text.trim();
-                        pasteEl.value = letterText.slice(0, 120000);
-                        syncBtn();
-                        setStatus('Text extracted. Review above, then continue.');
-                    } else {
-                        setStatus((ocrData.error || 'Could not read this file.') + ' Paste the notice text instead.');
-                    }
-                }
-            } catch (err) {
-                setStatus(err.message || 'Upload failed.');
-            }
-            analyzeBtn.disabled = false;
-            syncBtn();
-        }
+  if (includeStrategy) {
+    body.strategyJson = buildStrategyJson();
+    body.job_id = state.jobId;
+  }
 
-        analyzeBtn.addEventListener('click', async () => {
-            const user = await getCurrentUser();
-            if (!user) {
-                window.location.href = '/login.html?next=' + encodeURIComponent('/wizard.html');
-                return;
-            }
+  return body;
+}
 
-            const text = (pasteEl.value || '').trim() || letterText.trim();
-            if (text.length < 40) {
-                setStatus('Add more notice text (at least a few lines).');
-                return;
-            }
+async function postAnalyzeLetter(includeStrategy) {
+  const body = await buildAnalyzeBody(includeStrategy);
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.accessToken) headers.Authorization = 'Bearer ' + state.accessToken;
+  const res = await fetch('/.netlify/functions/analyze-letter', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { data = { error: raw || 'Invalid response' }; }
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
 
-            const token = await getAccessToken();
-            if (!token) {
-                window.location.href = '/login.html?next=' + encodeURIComponent('/wizard.html');
-                return;
-            }
+async function fetchJob(jobId) {
+  const res = await fetch('/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(jobId));
+  const data = await res.json();
+  if (!res.ok || !data.success) throw new Error(data.error || 'Could not load job');
+  return data;
+}
 
-            analyzeBtn.disabled = true;
-            setStatus('Generating preview…');
+function startLoadingMessages(messages) {
+  stopLoadingMessages();
+  state.loadingMsgIndex = 0;
+  loadingInterval = setInterval(() => {
+    state.loadingMsgIndex = (state.loadingMsgIndex + 1) % messages.length;
+    render();
+  }, 2500);
+}
 
-            try {
-                const analysisResponse = await fetch('/.netlify/functions/analyze-letter', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: 'Bearer ' + token,
-                    },
-                    body: JSON.stringify({ text }),
-                });
+function stopLoadingMessages() {
+  if (loadingInterval) {
+    clearInterval(loadingInterval);
+    loadingInterval = null;
+  }
+}
 
-                const analysisText = await analysisResponse.text();
-                let parsed;
-                try {
-                    parsed = JSON.parse(analysisText);
-                } catch {
-                    setStatus('Analysis failed. Please try again.');
-                    analyzeBtn.disabled = false;
-                    syncBtn();
-                    return;
-                }
+function scrollToFirstError() {
+  const el = document.querySelector('.err:not(:empty)');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
-                if (analysisResponse.status === 401) {
-                    window.location.href = '/login.html?next=' + encodeURIComponent('/wizard.html');
-                    return;
-                }
-                if (!analysisResponse.ok) {
-                    setStatus(parsed.error || 'Analysis failed.');
-                    analyzeBtn.disabled = false;
-                    syncBtn();
-                    return;
-                }
+function validateStep1() {
+  state.fieldErrors = {};
+  let ok = true;
+  const hasText = state.noticeText.trim().length > 0;
+  const hasFile = !!(state.rawFile || (state.inputMode === 'upload' && state.fileName));
+  if (state.inputMode === 'paste' && !hasText) {
+    state.fieldErrors.noticeText = 'Paste your notice text or switch to upload.';
+    ok = false;
+  }
+  if (state.inputMode === 'upload' && !hasFile && !hasText) {
+    state.fieldErrors.file = 'Upload a file or paste text in the other tab.';
+    ok = false;
+  }
+  if (!state.noticeDate) {
+    state.fieldErrors.noticeDate = 'Enter the date on the notice.';
+    ok = false;
+  }
+  if (!state.noticeType) {
+    state.fieldErrors.noticeType = 'Select a notice type or “I’m not sure”.';
+    ok = false;
+  }
+  return ok;
+}
 
-                const jobId = parsed.job_id || parsed.recordId;
-                if (!jobId) {
-                    setStatus('Missing job id from server.');
-                    analyzeBtn.disabled = false;
-                    syncBtn();
-                    return;
-                }
+function validateStep2() {
+  state.fieldErrors = {};
+  let ok = true;
+  if (!state.taxpayerName.trim()) {
+    state.fieldErrors.taxpayerName = 'Required';
+    ok = false;
+  }
+  if (!/^\d{4}$/.test(state.ssnLast4)) {
+    state.fieldErrors.ssnLast4 = 'Enter exactly 4 digits.';
+    ok = false;
+  }
+  if (!state.filingStatus) {
+    state.fieldErrors.filingStatus = 'Select filing status.';
+    ok = false;
+  }
+  if (!state.taxYear) {
+    state.fieldErrors.taxYear = 'Select tax year.';
+    ok = false;
+  }
+  if (!state.address.trim()) {
+    state.fieldErrors.address = 'Required';
+    ok = false;
+  }
+  if (state.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
+    state.fieldErrors.email = 'Enter a valid email.';
+    ok = false;
+  }
+  if (!state.resolutionAsk.trim()) {
+    state.fieldErrors.resolutionAsk = 'Required';
+    ok = false;
+  }
+  return ok;
+}
 
-                window.location.href = '/preview.html?job_id=' + encodeURIComponent(jobId);
-            } catch (e) {
-                setStatus(e.message || 'Request failed.');
-                analyzeBtn.disabled = false;
-                syncBtn();
-            }
-        });
+function validateStep4() {
+  state.fieldErrors = {};
+  if (!state.goal) {
+    state.fieldErrors.goal = 'Select a primary goal.';
+    return false;
+  }
+  return true;
+}
 
-        (async function init() {
-            const user = await getCurrentUser();
-            if (!user) {
-                window.location.href = '/login.html?next=' + encodeURIComponent('/wizard.html');
-                return;
-            }
-            syncBtn();
-        })();
-    </script>
+function renderProgress() {
+  const labels = ['Upload', 'Details', 'Analysis', 'Strategy', 'Letter'];
+  const el = document.getElementById('progressBar');
+  el.innerHTML = labels.map((lbl, i) => {
+    const n = i + 1;
+    let cls = 'progress-step';
+    if (n < state.step) cls += ' done';
+    else if (n === state.step) cls += ' active';
+    else cls += ' future';
+    const inner = n < state.step ? '✓' : String(n);
+    return `<div class="${cls}"><div class="circle">${inner}</div><div class="plabel">${lbl}</div></div>`;
+  }).join('');
+}
+
+function lockIconSvg() {
+  return `<svg width="36" height="36" style="margin-bottom:8px" fill="none" stroke="#4a9eff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`;
+}
+
+function fullStepBlurOverlay() {
+  return `
+    <div class="blur-overlay blur-overlay--fullstep cta-box">
+      ${lockIconSvg()}
+      <p style="margin:0;color:#fff;font-size:16px;font-weight:700;max-width:340px;line-height:1.35">Unlock your full analysis and letter — $29</p>
+      <button type="button" id="stepBlurCheckout" class="btn-primary" style="margin-top:14px" onclick="startCheckout(event)">Get Your Letter — $29</button>
+      <p class="err" id="checkoutErrStep" style="margin-top:10px"></p>
+    </div>`;
+}
+
+function wrapStep345(stepInnerHtml) {
+  if (!shouldBlur()) return stepInnerHtml;
+  return `
+    <div class="step-full-blur-inner">
+      <div class="step-full-blur-content blurred-content">${stepInnerHtml}</div>
+      ${fullStepBlurOverlay()}
+    </div>`;
+}
+
+window.__wizGoStep = (n) => { state.step = n; render(); };
+
+window.__wizSetTab = (mode) => {
+  state.inputMode = mode;
+  render();
+};
+
+window.__wizFilePick = () => document.getElementById('fileInput').click();
+
+window.__wizOnFile = async (input) => {
+  const file = input.files?.[0];
+  state.fieldErrors = {};
+  if (!file) return;
+  const ok = /pdf|jpeg|jpg|png/i.test(file.type || '') || /\.pdf$/i.test(file.name || '');
+  if (!ok) {
+    state.fieldErrors.file = 'Use PDF, JPG, or PNG.';
+    render();
+    return;
+  }
+  state.rawFile = file;
+  state.fileName = file.name;
+  state.fileSize = file.size;
+  state.fileType = file.type || 'application/octet-stream';
+  state.fileData = await readFileAsDataURL(file);
+  state.pdfExtractedText = '';
+  if ((state.fileType || '').toLowerCase().includes('pdf')) {
+    try {
+      state.pdfExtractedText = await extractPdfText(file);
+    } catch (err) {
+      state.fieldErrors.file = err.message || 'Could not read PDF';
+    }
+  }
+  render();
+};
+
+window.__wizDrop = (e) => {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  const f = e.dataTransfer?.files?.[0];
+  if (f) {
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    document.getElementById('fileInput').files = dt.files;
+    window.__wizOnFile(document.getElementById('fileInput'));
+  }
+};
+
+window.__wizAnalyze = async () => {
+  if (!validateStep2()) { render(); scrollToFirstError(); return; }
+  state.apiError = '';
+  state.loading = true;
+  renderProgress();
+  render();
+  startLoadingMessages(ANALYSIS_LOADING_MSGS);
+  try {
+    const hasImageOnly =
+      state.inputMode === 'upload' &&
+      state.rawFile &&
+      (state.fileType || '').toLowerCase().includes('image');
+    const textProbe = await ensureNoticeTextForApi();
+    if (!textProbe.trim() && !hasImageOnly) {
+      throw new Error('No notice text. Paste text or upload a readable PDF or image.');
+    }
+    const data = await postAnalyzeLetter(false);
+    state.jobId = data.job_id;
+    state.analysisJobId = data.job_id;
+    state.hard_stop = !!data.hard_stop;
+    state.redirect_url = data.redirect_url || '';
+    const job = await fetchJob(data.job_id);
+    state.analysis_json = job.analysis_json;
+    state.step = 3;
+  } catch (err) {
+    state.apiError = err.message || 'Analysis failed';
+  } finally {
+    stopLoadingMessages();
+    state.loading = false;
+    renderProgress();
+    render();
+  }
+};
+
+window.__wizGenerateLetter = async () => {
+  if (!validateStep4()) { render(); scrollToFirstError(); return; }
+  state.apiError = '';
+  state.loading = true;
+  render();
+  startLoadingMessages(LETTER_LOADING_MSGS);
+  try {
+    const hasImageOnly =
+      state.inputMode === 'upload' &&
+      state.rawFile &&
+      (state.fileType || '').toLowerCase().includes('image');
+    const textProbe = await ensureNoticeTextForApi();
+    if (!textProbe.trim() && !hasImageOnly) throw new Error('Notice text missing.');
+    const data = await postAnalyzeLetter(true);
+    state.jobId = data.job_id;
+    state.redirect_url = data.redirect_url || '';
+    const job = await fetchJob(data.job_id);
+    state.preview_text = job.preview_text || data.preview_excerpt || '';
+    state.letter_full = job.letter_full || null;
+    state.step = 5;
+  } catch (err) {
+    state.apiError = err.message || 'Could not generate letter';
+  } finally {
+    stopLoadingMessages();
+    state.loading = false;
+    render();
+  }
+};
+
+window.__wizRetryAnalyze = () => { window.__wizAnalyze(); };
+
+async function startCheckout(ev) {
+  if (ev && ev.stopPropagation) ev.stopPropagation();
+  const btn = document.getElementById('stepBlurCheckout');
+  const errEl = document.getElementById('checkoutErrStep');
+  if (errEl) errEl.textContent = '';
+  if (!state.jobId) {
+    if (errEl) errEl.textContent = 'No letter session yet. Finish the wizard first.';
+    return;
+  }
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Redirecting…';
+  }
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.accessToken) headers.Authorization = 'Bearer ' + state.accessToken;
+    const res = await fetch('/.netlify/functions/create-checkout-session', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ job_id: state.jobId, plan: 'single' }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || data.details || 'No checkout URL');
+    }
+  } catch (e) {
+    if (errEl) errEl.textContent = e.message || 'Payment setup failed.';
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Get Your Letter — $29';
+    }
+  }
+}
+window.startCheckout = startCheckout;
+
+window.__wizDownload = () => {
+  const t = state.letter_full || '';
+  const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'irs-response-letter.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+window.__wizCopy = async () => {
+  try {
+    await navigator.clipboard.writeText(state.letter_full || '');
+  } catch (_) { /* ignore */ }
+};
+
+function bindInputs() {
+  const set = (k, v) => { state[k] = v; };
+  document.querySelectorAll('[data-bind]').forEach((el) => {
+    const k = el.getAttribute('data-bind');
+    const ev = el.tagName === 'SELECT' || el.type === 'radio' ? 'change' : 'input';
+    el.addEventListener(ev, () => {
+      if (el.type === 'radio') {
+        if (el.checked) set(k, el.value);
+      } else {
+        set(k, el.value);
+      }
+    });
+  });
+}
+
+function render() {
+  renderProgress();
+  const root = document.getElementById('wizardRoot');
+  let html = '';
+
+  if (state.step === 1) {
+    const notSure = state.noticeType === "I'm not sure";
+    html = `
+      <h2 class="step-heading">Upload Your IRS Notice</h2>
+      <p class="step-sub">Add your notice as a file or paste the text. We’ll analyze it in the next steps.</p>
+      <div class="tabs">
+        <button type="button" class="tab-btn ${state.inputMode === 'upload' ? 'active' : ''}" onclick="__wizSetTab('upload')">Upload File</button>
+        <button type="button" class="tab-btn ${state.inputMode === 'paste' ? 'active' : ''}" onclick="__wizSetTab('paste')">Paste Text</button>
+      </div>
+      <div class="tab-panel ${state.inputMode === 'upload' ? 'active' : ''}">
+        <div class="upload-zone" id="dropZone"
+          onclick="__wizFilePick()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="__wizDrop(event)">
+          <div><strong>Drop your file here</strong> or click to browse</div>
+          <div class="hint">PDF, JPG, or PNG</div>
+          ${state.fileName ? `<div class="file-meta">${escapeHtml(state.fileName)} (${fmtSize(state.fileSize)})</div>` : ''}
+          <input type="file" id="fileInput" hidden accept=".pdf,.png,.jpg,.jpeg,image/*,application/pdf" onchange="__wizOnFile(this)">
+        </div>
+        <div class="err">${state.fieldErrors.file || ''}</div>
+      </div>
+      <div class="tab-panel ${state.inputMode === 'paste' ? 'active' : ''}">
+        <div class="field">
+          <label class="lbl">Notice text</label>
+          <textarea data-bind="noticeText" placeholder="Paste the full text of your IRS notice here…">${escapeHtml(state.noticeText)}</textarea>
+          <div class="err">${state.fieldErrors.noticeText || ''}</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:24px">
+        <label class="lbl">Date on the notice</label>
+        <input type="date" data-bind="noticeDate" value="${state.noticeDate}">
+        <div class="err">${state.fieldErrors.noticeDate || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Notice type</label>
+        <select data-bind="noticeType">
+          <option value="">Select…</option>
+          ${NOTICE_TYPES.map(t => `<option value="${escapeHtml(t)}" ${state.noticeType === t ? 'selected' : ''}>${escapeHtml(t)}</option>`).join('')}
+        </select>
+        ${notSure ? '<p class="helper">No problem — we\'ll detect it automatically</p>' : ''}
+        <div class="err">${state.fieldErrors.noticeType || ''}</div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-primary" onclick="step1Next()">Next — Add Your Details</button>
+      </div>`;
+  }
+
+  if (state.step === 2) {
+    html = `
+      <h2 class="step-heading">Your Details</h2>
+      <p class="step-sub">These details are used to personalize your IRS response letter.</p>
+      <div class="field">
+        <label class="lbl">Full name (as on your tax return)</label>
+        <input type="text" data-bind="taxpayerName" value="${escapeHtml(state.taxpayerName)}" autocomplete="name">
+        <div class="err">${state.fieldErrors.taxpayerName || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Last 4 of SSN</label>
+        <input type="password" data-bind="ssnLast4" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" value="${escapeHtml(state.ssnLast4)}" autocomplete="off">
+        <div class="helper">Used only to reference your account in the letter</div>
+        <div class="err">${state.fieldErrors.ssnLast4 || ''}</div>
+      </div>
+      <div class="field">
+        <span class="lbl">Filing status</span>
+        ${['Single', 'Married Filing Jointly', 'Married Filing Separately', 'Head of Household', 'Qualifying Widow(er)'].map(fs => `
+          <label class="inline-row"><input type="radio" name="fs" value="${escapeHtml(fs)}" ${state.filingStatus === fs ? 'checked' : ''} data-bind="filingStatus"> ${escapeHtml(fs)}</label>
+        `).join('')}
+        <div class="err">${state.fieldErrors.filingStatus || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Tax year</label>
+        <select data-bind="taxYear">
+          <option value="">Select…</option>
+          ${TAX_YEARS.map(y => `<option value="${y}" ${state.taxYear === y ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+        <div class="err">${state.fieldErrors.taxYear || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Mailing address</label>
+        <textarea data-bind="address" placeholder="Street, city, state, ZIP">${escapeHtml(state.address)}</textarea>
+        <div class="err">${state.fieldErrors.address || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Email address <span style="font-weight:400;color:#6a7a95">(optional)</span></label>
+        <input type="email" data-bind="email" value="${escapeHtml(state.email)}" autocomplete="email">
+        <div class="err">${state.fieldErrors.email || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">Dispute amount <span style="font-weight:400;color:#6a7a95">(optional)</span></label>
+        <div class="currency-field">
+          <span>$</span>
+          <input type="number" data-bind="disputeAmount" step="0.01" min="0" placeholder="0.00" value="${escapeHtml(state.disputeAmount)}">
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Resolution request</label>
+        <textarea data-bind="resolutionAsk" placeholder="e.g. Please review my account and remove the proposed assessment of $X — I have documentation showing this income was already reported.">${escapeHtml(state.resolutionAsk)}</textarea>
+        <div class="err">${state.fieldErrors.resolutionAsk || ''}</div>
+      </div>
+      <div class="field">
+        <label class="lbl">In your own words, what’s going on? <span style="font-weight:400;color:#6a7a95">(optional)</span></label>
+        <textarea data-bind="situationDescription" placeholder="Any context that would help us draft a stronger letter…">${escapeHtml(state.situationDescription)}</textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" onclick="__wizGoStep(1)">Back</button>
+        <button type="button" class="btn-primary" onclick="__wizAnalyze()" ${state.loading ? 'disabled' : ''}>Analyze My Notice →</button>
+      </div>
+      ${state.loading ? `<div class="loading-block"><div class="spinner"></div><p class="loading-status">${ANALYSIS_LOADING_MSGS[state.loadingMsgIndex % ANALYSIS_LOADING_MSGS.length]}</p></div>` : ''}
+      ${state.apiError && state.step === 2 ? `<div class="api-error">${escapeHtml(state.apiError)}<br><button type="button" class="btn-primary" style="margin-top:12px" onclick="__wizRetryAnalyze()">Try Again</button></div>` : ''}`;
+  }
+
+  if (state.step === 3) {
+    const a = state.analysis_json || {};
+    const badges = citationsList(a);
+    const inner = `
+      <p style="color:#8a9ab5;font-size:13px;margin-bottom:12px"><strong style="color:#4a9eff">Detected type</strong> ${escapeHtml(String(a.notice_type || '—'))}</p>
+      <p style="margin-bottom:8px"><strong>Primary issue</strong><br>${escapeHtml(String(a.primary_issue || '—'))}</p>
+      <p style="margin-bottom:8px"><strong>Tax year</strong><br>${escapeHtml(String(a.tax_year || state.taxYear || '—'))}</p>
+      ${a.irs_amount !== '' && a.irs_amount != null ? `<p style="margin-bottom:8px"><strong>IRS claimed amount</strong><br>${escapeHtml(String(a.irs_amount))}</p>` : ''}
+      <p style="margin-bottom:8px"><strong>Summary</strong><br>${escapeHtml(String(a.summary || a.analysis_summary || '—'))}</p>
+      ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge">${escapeHtml(b)}</span>`).join('')}</div>` : ''}`;
+    const step3Inner = `
+      <h2 class="step-heading">Analysis</h2>
+      <p class="step-sub">Here’s what we found in your notice.</p>
+      ${state.hard_stop ? `
+        <div class="hard-stop">
+          <h3>Professional Review Recommended</h3>
+          <p>This notice may involve issues requiring a licensed tax attorney or CPA. We recommend consulting a professional before responding.</p>
+          <p style="margin-top:12px"><a href="https://www.irs.gov/taxpayer-advocate" target="_blank" rel="noopener">Find a Tax Professional →</a></p>
+        </div>` : ''}
+      <div class="nested-card">${inner}</div>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" onclick="__wizGoStep(2)">Back</button>
+        <button type="button" class="btn-primary" onclick="__wizGoStep(4)" ${state.hard_stop ? 'disabled' : ''}>Next — Choose Strategy</button>
+      </div>`;
+    html = wrapStep345(step3Inner);
+  }
+
+  if (state.step === 4) {
+    const toneCards = [
+      { id: 'conciliatory', title: 'Conciliatory', sub: 'Cooperative and resolution-focused' },
+      { id: 'neutral', title: 'Neutral', sub: 'Professional and balanced' },
+      { id: 'firm', title: 'Firm', sub: 'Assertive — I’m confident I’m right' },
+    ];
+    const goals = [
+      'Dispute the full amount',
+      'Dispute part of the amount',
+      'Request more time to respond',
+      'Request a payment plan',
+      'Provide missing documentation',
+      'Other',
+    ];
+    const toneHtml = toneCards.map(tc => `
+      <label class="radio-card">
+        <input type="radio" name="tone" value="${tc.id}" ${state.tone === tc.id ? 'checked' : ''} data-bind="tone">
+        <span class="title">${tc.title}</span>
+        <div class="sub">${tc.sub}</div>
+      </label>
+    `).join('');
+    const goalsHtml = goals.map(g => `
+      <label class="inline-row" style="margin-bottom:8px">
+        <input type="radio" name="goal" value="${escapeHtml(g)}" ${state.goal === g ? 'checked' : ''} data-bind="goal">
+        ${escapeHtml(g)}
+      </label>
+    `).join('');
+    const formHtml = `
+      <div class="nested-card">
+        <div class="field">
+          <span class="lbl">Tone</span>
+          ${toneHtml}
+        </div>
+        <div class="field">
+          <span class="lbl">Primary goal</span>
+          ${goalsHtml}
+          <div class="err">${state.fieldErrors.goal || ''}</div>
+        </div>
+        <div class="field">
+          <label class="lbl">Additional context <span style="font-weight:400;color:#6a7a95">(optional)</span></label>
+          <textarea data-bind="additionalContext" placeholder="Specific points to address, documents you'll attach, or anything else that would strengthen your response…">${escapeHtml(state.additionalContext)}</textarea>
+        </div>
+      </div>`;
+    const strategyPreview = `
+      <p style="margin:0 0 8px;color:#b0c4de;font-size:14px"><strong style="color:#e8edf5">Recommended angles</strong> tailored to your ${escapeHtml(String(state.analysis_json?.notice_type || 'notice'))}:</p>
+      <ul style="margin:0;padding-left:1.25rem;color:#c8d8ee;font-size:14px;line-height:1.7">
+        <li>Align your position with the facts in your letter and supporting documents.</li>
+        <li>Cite applicable IRS procedures and deadlines where they strengthen your case.</li>
+        <li>Request the specific resolution you described in your details step.</li>
+      </ul>`;
+    const step4Inner = `
+      <h2 class="step-heading">Strategy</h2>
+      <p class="step-sub">Choose how you want to approach your response.</p>
+      ${formHtml}
+      <p class="helper" style="margin:20px 0 8px">Personalized strategy summary</p>
+      <div class="nested-card">${strategyPreview}</div>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" onclick="__wizGoStep(3)">Back</button>
+        <button type="button" class="btn-primary" onclick="__wizGenerateLetter()" ${state.loading ? 'disabled' : ''}>Generate My Letter →</button>
+      </div>
+      ${state.loading ? `<div class="loading-block"><div class="spinner"></div><p class="loading-status">${LETTER_LOADING_MSGS[state.loadingMsgIndex % LETTER_LOADING_MSGS.length]}</p></div>` : ''}
+      ${state.apiError ? `<div class="api-error">${escapeHtml(state.apiError)}<br><button type="button" class="btn-primary" style="margin-top:12px" onclick="__wizGenerateLetter()">Try Again</button></div>` : ''}`;
+    html = wrapStep345(step4Inner);
+  }
+
+  if (state.step === 5) {
+    const displayText = state.letter_full || state.preview_text || '';
+    const letterText = escapeHtml(displayText);
+    const letterBlock = `<div style="white-space:pre-wrap;font-family:Georgia,serif;font-size:14px;line-height:1.75;color:#c8d8ee">${letterText}</div>`;
+    const paidExtras = !shouldBlur() ? `
+        <div class="btn-row" style="margin-top:20px">
+          ${state.letter_full ? `
+          <button type="button" class="btn-primary" onclick="__wizDownload()">Download Letter</button>
+          <button type="button" class="btn-secondary" onclick="__wizCopy()">Copy to Clipboard</button>` : ''}
+        </div>
+        ${state.letter_full ? '' : '<p class="helper">Unlock this letter from the preview step after payment, or open your paid document from the dashboard.</p>'}
+        ${state.redirect_url ? `<p class="helper" style="margin-top:16px">Open your letter: <a href="${escapeHtml(state.redirect_url)}" style="color:#4a9eff">Continue</a></p>` : ''}` : '';
+
+    const step5Inner = `
+      <h2 class="step-heading">Your Letter</h2>
+      <p class="step-sub">Review your draft, then unlock the full letter.</p>
+      <div class="nested-card">${letterBlock}</div>
+      ${paidExtras}
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" onclick="__wizGoStep(4)">Back</button>
+      </div>`;
+    html = wrapStep345(step5Inner);
+  }
+
+  root.innerHTML = html;
+  hydrateBindings();
+  bindInputs();
+}
+
+function hydrateBindings() {
+  document.querySelectorAll('[data-bind]').forEach((el) => {
+    const k = el.getAttribute('data-bind');
+    if (k === 'filingStatus' || k === 'tone' || k === 'goal') return;
+    const v = state[k];
+    if (el.type === 'radio') return;
+    if (document.activeElement === el) return;
+    if (el.value !== undefined && String(v) !== el.value) {
+      el.value = v ?? '';
+    }
+  });
+}
+
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function fmtSize(n) {
+  if (!n && n !== 0) return '';
+  if (n < 1024) return n + ' B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+  return (n / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+window.step1Next = () => {
+  if (!validateStep1()) { render(); scrollToFirstError(); return; }
+  state.step = 2;
+  render();
+};
+
+await initSession();
+render();
+</script>
 </body>
 </html>

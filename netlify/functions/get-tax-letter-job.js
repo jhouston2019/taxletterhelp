@@ -1,175 +1,89 @@
-const { wrapHandler, trackError } = require("./_error-tracking.js");
-const { getSupabaseAdmin } = require("./_supabase.js");
-const { getUserFromBearer } = require("./_request-auth.js");
+const { createClient } = require("@supabase/supabase-js");
 
-const corsHeaders = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-function readJobId(event) {
-  const q = event.queryStringParameters || {};
-  if (q.job_id || q.jobId) return q.job_id || q.jobId;
-  try {
-    const b = JSON.parse(event.body || "{}");
-    return b.job_id || b.jobId || null;
-  } catch {
-    return null;
-  }
-}
-
-function readWant(event) {
-  const q = event.queryStringParameters || {};
-  if (q.want) return q.want;
-  try {
-    const b = JSON.parse(event.body || "{}");
-    return b.want || "full";
-  } catch {
-    return "full";
-  }
-}
-
-/** Build preview-only payload matching frontend contract (no full analysis/letter). */
-function unifiedFromRow(row) {
-  if (row.job_full_json && typeof row.job_full_json === "object") return row.job_full_json;
-  const aj = row.analysis_json && typeof row.analysis_json === "object" ? row.analysis_json : null;
-  if (aj && aj.notice && aj.letter_full && aj.analysis_full) return aj;
-  return null;
-}
-
-function previewPayloadFromRow(row) {
-  const snap = row.preview_snapshot && typeof row.preview_snapshot === "object" ? row.preview_snapshot : null;
-  if (snap && snap.notice && snap.risk && snap.preview) return snap;
-
-  const full = unifiedFromRow(row);
-  if (full && full.notice && full.risk && full.preview) {
-    return {
-      notice: full.notice,
-      risk: full.risk,
-      preview: full.preview,
-    };
-  }
-
-  return null;
-}
-
-function fullPayloadFromRow(row) {
-  const full = unifiedFromRow(row);
-  const letter = row.letter_full || full?.letter_full || "";
-  if (!full) {
-    return {
-      notice: {},
-      risk: {},
-      strategy: [],
-      analysis_full: "",
-      letter_full: letter,
-      preview: {},
-    };
-  }
-  return {
-    notice: full.notice,
-    risk: full.risk,
-    strategy: Array.isArray(full.strategy) ? full.strategy : [],
-    analysis_full: full.analysis_full || "",
-    letter_full: letter,
-    preview: full.preview || {},
+exports.handler = async (event) => {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Content-Type": "application/json",
   };
-}
 
-const mainHandler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: corsHeaders, body: "" };
-  }
-  if (event.httpMethod !== "GET" && event.httpMethod !== "POST") {
-    return { statusCode: 405, headers: corsHeaders, body: JSON.stringify({ error: "Method not allowed" }) };
+    return { statusCode: 200, headers, body: "" };
   }
 
-  const { user } = await getUserFromBearer(event);
-  if (!user) {
-    return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: "Unauthorized" }) };
-  }
+  const jobId =
+    event.queryStringParameters?.job_id ||
+    (event.body ? JSON.parse(event.body).job_id : null);
 
-  const jobId = readJobId(event);
   if (!jobId) {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "job_id required" }) };
-  }
-
-  const want = String(readWant(event) || "full").toLowerCase();
-
-  try {
-    const supabase = getSupabaseAdmin();
-    const { data: row, error } = await supabase
-      .from("tax_letter_jobs")
-      .select("id, user_id, paid, is_unlocked, preview_snapshot, letter_full, analysis_json")
-      .eq("id", jobId)
-      .maybeSingle();
-
-    if (error) throw error;
-    if (!row || String(row.user_id) !== String(user.id)) {
-      return { statusCode: 403, headers: corsHeaders, body: JSON.stringify({ error: "Forbidden" }) };
-    }
-
-    const paid = !!(row.paid && row.is_unlocked);
-
-    if (want === "preview") {
-      const prev = previewPayloadFromRow(row);
-      if (!prev) {
-        return {
-          statusCode: 404,
-          headers: corsHeaders,
-          body: JSON.stringify({ error: "Preview not available for this job" }),
-        };
-      }
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          paid,
-          job_id: row.id,
-          notice: prev.notice,
-          risk: prev.risk,
-          preview: prev.preview,
-        }),
-      };
-    }
-
-    if (!paid) {
-      return {
-        statusCode: 402,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          error: "Payment required",
-          code: "PAYMENT_REQUIRED",
-          job_id: row.id,
-        }),
-      };
-    }
-
-    const payload = fullPayloadFromRow(row);
     return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        paid: true,
-        job_id: row.id,
-        notice: payload.notice,
-        risk: payload.risk,
-        strategy: payload.strategy,
-        analysis_full: payload.analysis_full,
-        letter_full: payload.letter_full,
-        preview: payload.preview,
-      }),
-    };
-  } catch (e) {
-    trackError(e, { functionName: "get-tax-letter-job" });
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: "Failed to load job" }),
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: "job_id is required" }),
     };
   }
+
+  const { data: job, error } = await supabaseAdmin
+    .from("tax_letter_jobs")
+    .select(
+      "id, created_at, user_id, analysis_json, strategy_json, wizard_json, " +
+        "letter_full, preview_text, paid, is_unlocked, hard_stop, stripe_session_id"
+    )
+    .eq("id", jobId)
+    .single();
+
+  if (error || !job) {
+    return {
+      statusCode: 404,
+      headers,
+      body: JSON.stringify({ error: "Job not found" }),
+    };
+  }
+
+  // SECURITY: server enforces is_unlocked — never trust client
+  const isUnlocked = job.is_unlocked === true;
+
+  // Build analysis_summary from analysis_json for preview confidence signal
+  let analysisSummary = null;
+  if (job.analysis_json) {
+    const a = job.analysis_json;
+    analysisSummary =
+      a.summary ||
+      a.analysis_summary ||
+      (a.notice_type ? `${a.notice_type} — ${a.primary_issue || ""}`.trim() : null) ||
+      "IRS notice analyzed";
+  }
+
+  const analysisFull =
+    job.analysis_json && typeof job.analysis_json.analysisOutput === "string"
+      ? job.analysis_json.analysisOutput
+      : analysisSummary;
+
+  const responseBody = {
+    success: true,
+    job_id: job.id,
+    hard_stop: job.hard_stop || false,
+    analysis_summary: analysisSummary,
+    analysis_full: analysisFull,
+    analysis_json: job.analysis_json,
+    strategy_json: job.strategy_json,
+    preview_text: job.preview_text || null,
+    paid: job.paid || false,
+    is_unlocked: isUnlocked,
+    unlocked: isUnlocked,
+    locked: !isUnlocked,
+    // Only return full letter if actually unlocked in DB
+    letter_full: isUnlocked ? job.letter_full : null,
+  };
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify(responseBody),
+  };
 };
-
-exports.handler = wrapHandler(mainHandler, "get-tax-letter-job");

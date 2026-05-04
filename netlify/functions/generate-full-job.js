@@ -1,237 +1,138 @@
-/**
- * Single deterministic AI pipeline: one completion produces strategy + analysis + letter slots.
- * Classification and amounts are deterministic (no AI).
- */
 const OpenAI = require("openai");
-const {
-  classifyIRSNotice,
-  extractFinancialInfo,
-  extractPrimaryTaxYearFromText,
-  extractDeadlineInfo,
-} = require("./irs-intelligence/classification-engine.js");
 
-const MODEL = process.env.OPENAI_TAX_JOB_MODEL || "gpt-4o";
-const TEMPERATURE = 0;
-
-function formatUsdAmountForLetter(amount) {
-  if (amount == null || Number.isNaN(Number(amount))) {
-    return "the amount stated in the notice";
+let _openai;
+function getOpenAI() {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(amount));
-}
-
-/** Notice.amount is numeric | null (structured). */
-function pickNoticeAmount(fi) {
-  const n = (v) => (v != null && !Number.isNaN(Number(v)) ? Number(v) : null);
-  return n(fi.balanceDue) ?? n(fi.proposedChange) ?? n(fi.largestAmount) ?? null;
-}
-
-function deadlineString(deadlineInfo, classification) {
-  if (deadlineInfo?.deadlineDate) return String(deadlineInfo.deadlineDate);
-  if (deadlineInfo?.daysFromNoticeDate != null) {
-    return `Respond within ${deadlineInfo.daysFromNoticeDate} days of the notice date`;
-  }
-  if (classification?.typicalDeadlineDays != null) {
-    return `Typical response window: ${classification.typicalDeadlineDays} days`;
-  }
-  return null;
+  return _openai;
 }
 
 /**
- * First floor(n*0.25) chars visible; rest hidden (mandatory split).
+ * Generate a complete IRS response letter from wizard data + analysis.
+ *
+ * @param {Object} payload
+ * @param {string} payload.noticeText - Raw IRS notice text from upload/paste
+ * @param {Object} payload.analysisJson - Full analysis output from notice extraction
+ * @param {Object} payload.strategyJson - Selected response strategy
+ * @param {Object} payload.wizardJson - All wizard field values (taxpayer details etc.)
+ * @returns {{ letterFull: string, previewText: string }}
  */
-function quarterSplit(text) {
-  const s = String(text ?? "");
-  const len = s.length;
-  if (!len) return { visible: "", hidden: "" };
-  const cut = Math.floor(len * 0.25);
-  return { visible: s.slice(0, cut), hidden: s.slice(cut) };
-}
+async function generateFullJob(payload) {
+  const { noticeText, analysisJson, strategyJson, wizardJson } = payload;
 
-function buildLetterFull({
-  noticeTypeLabel,
-  taxYearLabel,
-  amountDisplayString,
-  issue_explanation,
-  core_argument,
-  supporting_docs,
-}) {
-  return `[USER NAME]
-[ADDRESS]
+  const a = analysisJson || {};
+  const s = strategyJson || {};
+  const w = wizardJson || {};
 
-[DATE]
+  const noticeType = a.notice_type || a.noticeType || "IRS Notice";
+  const noticeNumber = a.notice_number || a.cp_number || "";
+  const taxYear = a.tax_year || w.taxYear || w.tax_year || "";
+  const primaryIssue = a.primary_issue || a.primaryIssue || "";
+  const irsAmount = a.irs_amount || a.amount_owed || w.disputeAmount || "";
+  const tone = s.tone || "professional and firm";
+  const responseApproach = s.approach || s.strategy || "dispute with supporting documentation";
+  const taxpayerName = w.taxpayerName || w.full_name || "[TAXPAYER NAME]";
+  const taxpayerSSN = w.ssnLast4 ? `XXX-XX-${w.ssnLast4}` : "[SSN]";
+  const filingStatus = w.filingStatus || w.filing_status || "";
+  const resolutionAsk = w.resolutionAsk || w.resolution_ask || "a full review and correction of my account";
+  const taxpayerAddress = w.address || "[TAXPAYER ADDRESS]";
+  const dateOfNotice = w.noticeDate || a.notice_date || "[DATE OF NOTICE]";
 
-Internal Revenue Service
+  const systemPrompt = `You are an expert tax professional and IRS correspondence specialist with 
+20+ years of experience helping taxpayers respond to IRS notices. You write clear, professional, 
+legally sound response letters that cite relevant IRS procedures, IRC sections, and taxpayer rights.
 
-Re: Notice ${noticeTypeLabel} – Tax Year ${taxYearLabel}
+Your letters:
+- Open with a clear re: line referencing the specific notice type and number
+- State the taxpayer's position clearly and without ambiguity
+- Reference specific IRC sections, Treasury Regulations, or IRS procedures where applicable
+- Include a numbered list of factual assertions and supporting points
+- Close with a specific, reasonable request for resolution
+- Maintain a ${tone} tone throughout
+- Are formatted as a formal business letter ready to mail to the IRS
 
-To Whom It May Concern,
+You never fabricate facts. You use only information provided. If information is missing, 
+you note what documentation the taxpayer should attach.`;
 
-I am writing in response to the above-referenced notice concerning a discrepancy in reported income.
+  const userPrompt = `Generate a complete, professional IRS response letter with these details:
 
-The amount in question, totaling ${amountDisplayString}, is not an accurate representation of my taxable income for the period stated. The discrepancy appears to stem from ${issue_explanation}.
+NOTICE INFORMATION:
+- Notice Type: ${noticeType}${noticeNumber ? ` (${noticeNumber})` : ""}
+- Tax Year in Question: ${taxYear}
+- Primary Issue: ${primaryIssue}
+- IRS Claimed Amount (if any): ${irsAmount}
+- Date of Notice: ${dateOfNotice}
 
-Specifically, ${core_argument}.
+TAXPAYER INFORMATION:
+- Name: ${taxpayerName}
+- SSN: ${taxpayerSSN}
+- Filing Status: ${filingStatus}
+- Address: ${taxpayerAddress}
 
-I am prepared to provide documentation supporting the correct reporting of my income, including ${supporting_docs}.
+RESPONSE STRATEGY:
+- Approach: ${responseApproach}
+- Resolution Requested: ${resolutionAsk}
 
-Based on the above, I respectfully request that the proposed adjustment be reconsidered and corrected.
+FULL ANALYSIS CONTEXT:
+${JSON.stringify(a, null, 2)}
 
-Sincerely,
-[USER NAME]`;
-}
+ADDITIONAL WIZARD DETAILS:
+${JSON.stringify(w, null, 2)}
 
-function normalizeRiskLevel(v) {
-  const x = String(v || "").toUpperCase();
-  if (x === "LOW" || x === "MEDIUM" || x === "HIGH") return x;
-  return "MEDIUM";
-}
+ORIGINAL IRS NOTICE TEXT (use for facts only; do not invent amounts or dates not present):
+${String(noticeText || "").slice(0, 120000)}
 
-function ensureStrategyArray(strategy) {
-  if (!Array.isArray(strategy)) return [];
-  return strategy.map((s) => String(s || "").trim()).filter(Boolean);
-}
+Write the complete letter now. Format it as a proper IRS response letter with date, return address 
+block, IRS address block, Re: line, body paragraphs, and signature block. The letter should be 
+professional, specific, and persuasive. Reference the exact notice type and any notice number. 
+Include what documentation the taxpayer should attach.`;
 
-function parseJsonFromCompletion(content) {
-  const raw = String(content || "").trim();
-  if (!raw) throw new Error("Empty model output");
-  let jsonStr = raw;
-  const fence = raw.match(/^```(?:json)?\s*([\s\S]*?)```$/im);
-  if (fence) jsonStr = fence[1].trim();
-  const parsed = JSON.parse(jsonStr);
-  if (!parsed || typeof parsed !== "object") throw new Error("Invalid JSON shape");
-  return parsed;
-}
-
-/**
- * @param {string} inputText Raw IRS notice text
- * @returns {Promise<object>} Unified job object (exact consumer shape)
- */
-async function generateFullJob(inputText) {
-  const letterText = String(inputText || "").trim();
-  if (!letterText) throw new Error("No input text");
-
-  const classification = classifyIRSNotice(letterText);
-  const fi = extractFinancialInfo(letterText);
-  const taxYear =
-    extractPrimaryTaxYearFromText(letterText) ||
-    (fi.taxYear != null ? String(fi.taxYear) : null) ||
-    "";
-  const deadlineInfo = extractDeadlineInfo(letterText);
-  const noticeAmount = pickNoticeAmount(fi);
-
-  const notice = {
-    type: classification.noticeType || "UNKNOWN",
-    tax_year: taxYear || "Unknown",
-    amount: noticeAmount,
-    issue: "",
-    deadline: deadlineString(deadlineInfo, classification),
-  };
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
-
-  const openai = new OpenAI({ apiKey });
-
-  const system = `You are a tax notice analyst and IRS response drafter. You MUST respond with a single JSON object only (no markdown, no prose outside JSON).
-
-Required JSON keys:
-- "risk_level": one of LOW, MEDIUM, HIGH
-- "risk_summary": one concise paragraph (plain text)
-- "strategy": array of 4 to 6 short strings — actionable strategic points that align with the letter arguments you will produce
-- "analysis_full": single string, thorough letter analysis and strategy narrative for the taxpayer (plain text or light markdown). Integrate the strategy points naturally.
-- "notice_issue_short": short plain-language issue summary (max 200 characters) for UI display
-- "issue_explanation": fills template slot — explains the discrepancy source (no placeholders)
-- "core_argument": fills template slot — core factual/legal argument (no placeholders)
-- "supporting_docs": fills template slot — comma-separated or sentence listing documents (no placeholders)
-
-Hard bans in YOUR generated string values only (issue_explanation, core_argument, supporting_docs, analysis_full, risk_summary, strategy items, notice_issue_short): do not use the phrases "it appears", "you may consider", or "based on the information provided" (case insensitive). Use direct statements.
-
-The IRS letter text is authoritative — do not invent dollar amounts or notice codes not supported by the text.
-
-JSON only.`;
-
-  const userPayload = `IRS NOTICE TEXT:\n"""${letterText.slice(0, 48000)}"""\n\nDETERMINISTIC_CLASSIFICATION:\n${JSON.stringify(
-    {
-      noticeType: classification.noticeType,
-      description: classification.description,
-      urgencyLevel: classification.urgencyLevel,
-      financialHints: {
-        balanceDue: fi.balanceDue,
-        proposedChange: fi.proposedChange,
-        largestAmount: fi.largestAmount,
-      },
-      taxYearHint: taxYear,
-    },
-    null,
-    2
-  )}`;
-
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    temperature: TEMPERATURE,
-    max_tokens: 6000,
-    response_format: { type: "json_object" },
+  const completion = await getOpenAI().chat.completions.create({
+    model: "gpt-4o",
     messages: [
-      { role: "system", content: system },
-      { role: "user", content: userPayload },
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
     ],
+    temperature: 0.3,
+    max_tokens: 2000,
   });
 
-  const content = completion.choices?.[0]?.message?.content;
-  const ai = parseJsonFromCompletion(content);
+  const letterFull = completion.choices[0]?.message?.content?.trim();
 
-  const risk = {
-    level: normalizeRiskLevel(ai.risk_level),
-    summary: String(ai.risk_summary || "").trim() || "Risk assessment completed.",
-  };
-
-  const strategy = ensureStrategyArray(ai.strategy);
-  const analysis_full = String(ai.analysis_full || "").trim();
-  const notice_issue_short = String(ai.notice_issue_short || "").trim().slice(0, 200);
-  notice.issue = notice_issue_short || (classification.description ? String(classification.description).slice(0, 200) : "Notice issue summary unavailable.");
-
-  const issue_explanation = String(ai.issue_explanation || "").trim();
-  const core_argument = String(ai.core_argument || "").trim();
-  const supporting_docs = String(ai.supporting_docs || "").trim();
-
-  if (!issue_explanation || !core_argument || !supporting_docs) {
-    throw new Error("Incomplete AI letter slots");
+  if (!letterFull) {
+    throw new Error("OpenAI returned empty letter content");
   }
-  if (!analysis_full) throw new Error("Incomplete analysis");
 
-  const amountDisplayString = formatUsdAmountForLetter(notice.amount);
-  const letter_full = buildLetterFull({
-    noticeTypeLabel: notice.type,
-    taxYearLabel: notice.tax_year,
-    amountDisplayString,
-    issue_explanation,
-    core_argument,
-    supporting_docs,
-  });
+  const previewText = previewFromLetter(letterFull, analysisJson);
 
-  const qa = quarterSplit(analysis_full);
-  const ql = quarterSplit(letter_full);
-  const preview = {
-    analysis_visible: qa.visible,
-    analysis_hidden: qa.hidden,
-    letter_visible: ql.visible,
-    letter_hidden: ql.hidden,
-  };
-
-  return {
-    notice,
-    risk,
-    strategy,
-    analysis_full,
-    letter_full,
-    preview,
-  };
+  return { letterFull, previewText };
 }
 
-module.exports = {
-  generateFullJob,
-  quarterSplit,
-  buildLetterFull,
-  formatUsdAmountForLetter,
-};
+/**
+ * Extract a teaser preview (~400 chars) from the full letter.
+ * Stops at a sentence boundary near the 400 char mark.
+ */
+function previewFromLetter(letterFull, analysisJson) {
+  if (!letterFull) return "";
+
+  const MAX_CHARS = 400;
+
+  // Try to find a sentence boundary near the limit
+  const chunk = letterFull.slice(0, MAX_CHARS + 100);
+  const sentenceEnd = chunk.lastIndexOf(". ", MAX_CHARS);
+
+  let preview;
+  if (sentenceEnd > 200) {
+    preview = letterFull.slice(0, sentenceEnd + 1);
+  } else {
+    preview = letterFull.slice(0, MAX_CHARS);
+    // Don't cut mid-word
+    const lastSpace = preview.lastIndexOf(" ");
+    if (lastSpace > 300) preview = preview.slice(0, lastSpace);
+  }
+
+  return preview.trim() + "...";
+}
+
+module.exports = { generateFullJob, previewFromLetter };
