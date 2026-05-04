@@ -19,9 +19,9 @@
             border-radius:12px;
             padding:1.25rem 1.5rem;
             margin-bottom:1.25rem;
-            white-space:pre-wrap;
             word-break:break-word;
         }
+        .card-body-pre { white-space:pre-wrap; }
         .card h2 { font-size:1rem; color:#334155; margin:0 0 0.75rem; }
         #loading { color:#64748b; }
         a { color:#2563eb; font-weight:600; }
@@ -33,6 +33,61 @@
             padding-top: 16px;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
+        .result-letter-preview-wrap {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            min-height: 200px;
+            background: #fff;
+        }
+        .result-letter-preview-content {
+            white-space: pre-wrap;
+            padding: 1.25rem 1.5rem;
+            font-family: Georgia, serif;
+            font-size: 15px;
+            line-height: 1.75;
+            color: #1a2332;
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            max-height: none;
+        }
+        .result-letter-preview-fade {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 55%;
+            background: linear-gradient(to bottom, transparent, rgba(248,250,252,0.92));
+            pointer-events: none;
+        }
+        .result-cta {
+            text-align: center;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        .result-cta-lead {
+            margin: 0 0 0.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .result-cta-btn {
+            display: inline-block;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-family: inherit;
+        }
+        .result-cta-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .result-cta-err { color: #dc2626; font-size: 13px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -41,13 +96,33 @@
         <h1>Full response</h1>
         <p id="loading">Loading…</p>
         <article id="full" style="display:none;">
-            <div class="card">
-                <h2>Letter Analysis &amp; Strategy</h2>
-                <div id="analysisBody"></div>
+            <div class="card" id="analysis">
+                <h2>Letter analysis</h2>
+                <div id="analysisBody" class="card-body-pre"></div>
             </div>
-            <div class="card">
+            <div class="card" id="strategy">
+                <h2>Strategy</h2>
+                <div id="strategyBody" class="card-body-pre"></div>
+            </div>
+            <div class="card" id="letter">
                 <h2>IRS Response Letter</h2>
-                <div id="letterBody"></div>
+                <div id="letterUnlockedWrap" style="display:none;">
+                    <div id="letterBodyFull" class="card-body-pre"></div>
+                </div>
+                <div id="letterLockedWrap" style="display:none;">
+                    <div class="result-letter-preview-wrap">
+                        <div id="letterPreviewText" class="result-letter-preview-content"></div>
+                        <div class="result-letter-preview-fade" aria-hidden="true"></div>
+                    </div>
+                    <div class="result-cta">
+                        <p class="result-cta-lead">Unlock your full letter — $29</p>
+                        <button type="button" class="result-cta-btn" id="resultPayBtn">Get Your Letter — $29</button>
+                        <p class="result-cta-err" id="resultPayErr"></p>
+                    </div>
+                </div>
+                <div id="letterPendingWrap" style="display:none;">
+                    <p style="color:#64748b;margin:0;">Your letter is still being finalized. Refresh in a moment.</p>
+                </div>
             </div>
             <p class="result-pro-disclaimer">Have questions about your response? Consider consulting a licensed tax professional or CPA.</p>
         </article>
@@ -58,12 +133,101 @@
     <script type="module">
         import { getAccessToken } from '/src/components/Auth.js';
 
-        const params = new URLSearchParams(window.location.search);
-        const job_id = params.get('job_id');
+        function getJobIdFromLocation() {
+            const q = new URLSearchParams(window.location.search).get('job_id');
+            if (q) return q;
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            if (parts.length >= 2 && parts[0] === 'result') return parts[1];
+            const last = parts[parts.length - 1];
+            if (last && !/\.html$/i.test(last)) return last;
+            return null;
+        }
+
+        const jobId = getJobIdFromLocation();
+
         const loading = document.getElementById('loading');
         const full = document.getElementById('full');
 
-        if (!job_id) {
+        function analysisTextFromData(data) {
+            return (
+                (data.analysis_full && String(data.analysis_full)) ||
+                (data.analysis_json && typeof data.analysis_json.analysisOutput === 'string'
+                    ? data.analysis_json.analysisOutput
+                    : null) ||
+                data.analysis_summary ||
+                ''
+            );
+        }
+
+        function strategyTextFromData(data) {
+            if (!data.strategy_json) return '—';
+            const s = data.strategy_json;
+            if (typeof s === 'string') return s;
+            try {
+                return JSON.stringify(s, null, 2);
+            } catch (_) {
+                return String(s);
+            }
+        }
+
+        function applyUnlockedLetter(data) {
+            document.getElementById('analysisBody').textContent = analysisTextFromData(data) || '—';
+            document.getElementById('strategyBody').textContent = strategyTextFromData(data);
+            const letter = data.letter_full || '';
+            if (letter) {
+                document.getElementById('letterBodyFull').textContent = letter;
+                document.getElementById('letterUnlockedWrap').style.display = 'block';
+                document.getElementById('letterLockedWrap').style.display = 'none';
+                document.getElementById('letterPendingWrap').style.display = 'none';
+            } else {
+                document.getElementById('letterUnlockedWrap').style.display = 'none';
+                document.getElementById('letterLockedWrap').style.display = 'none';
+                document.getElementById('letterPendingWrap').style.display = 'block';
+            }
+        }
+
+        function applyLockedLetter(data) {
+            document.getElementById('analysisBody').textContent = analysisTextFromData(data) || '—';
+            document.getElementById('strategyBody').textContent = strategyTextFromData(data);
+            document.getElementById('letterPreviewText').textContent = data.preview_text || 'Preview not available yet.';
+            document.getElementById('letterUnlockedWrap').style.display = 'none';
+            document.getElementById('letterLockedWrap').style.display = 'block';
+            document.getElementById('letterPendingWrap').style.display = 'none';
+        }
+
+        async function wireCheckout(token) {
+            const btn = document.getElementById('resultPayBtn');
+            const errEl = document.getElementById('resultPayErr');
+            btn.addEventListener('click', async () => {
+                errEl.textContent = '';
+                btn.disabled = true;
+                try {
+                    const res = await fetch('/.netlify/functions/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: 'Bearer ' + token,
+                        },
+                        body: JSON.stringify({ job_id: jobId, plan: 'single' }),
+                    });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                    else throw new Error(data.error || data.details || 'No checkout URL');
+                } catch (e) {
+                    errEl.textContent = e.message || 'Payment setup failed.';
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        function scrollToHash() {
+            const h = window.location.hash;
+            if (!h) return;
+            const el = document.querySelector(h);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        if (!jobId) {
             loading.textContent = 'Not found.';
         } else {
             const tok = await getAccessToken();
@@ -71,7 +235,7 @@
                 window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
             } else {
                 const res = await fetch(
-                    '/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(job_id) + '&want=full',
+                    '/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(jobId),
                     { headers: { Authorization: 'Bearer ' + tok } }
                 );
 
@@ -80,31 +244,29 @@
                     throw new Error('auth');
                 }
 
-                if (res.status === 402) {
-                    window.location.replace('/preview/' + encodeURIComponent(job_id));
-                    throw new Error('pay');
+                if (res.status === 404) {
+                    loading.textContent = 'Letter not found.';
+                    throw new Error('notfound');
                 }
 
                 const data = await res.json().catch(() => ({}));
 
                 loading.style.display = 'none';
 
-                const unlocked = data.is_unlocked || data.unlocked;
-                if (!res.ok || !unlocked || !data.paid) {
-                    window.location.replace('/preview/' + encodeURIComponent(job_id));
-                } else if (!data.letter_full) {
-                    document.querySelector('.wrap').innerHTML = '<p>Your response is still being finalized. Refresh shortly.</p>';
+                if (!res.ok || data.success === false) {
+                    loading.style.display = 'block';
+                    loading.textContent = data.error || 'Could not load this letter.';
                 } else {
-                    const analysisText =
-                        (data.analysis_full && String(data.analysis_full)) ||
-                        (data.analysis_json && typeof data.analysis_json.analysisOutput === 'string'
-                            ? data.analysis_json.analysisOutput
-                            : null) ||
-                        data.analysis_summary ||
-                        '';
-                    document.getElementById('analysisBody').textContent = analysisText || '—';
-                    document.getElementById('letterBody').textContent = data.letter_full;
+                    const unlocked = data.is_unlocked === true || data.unlocked === true;
+
+                    if (unlocked) {
+                        applyUnlockedLetter(data);
+                    } else {
+                        applyLockedLetter(data);
+                        await wireCheckout(tok);
+                    }
                     full.style.display = 'block';
+                    requestAnimationFrame(scrollToHash);
                 }
             }
         }

@@ -39,7 +39,7 @@
     </script>
     <script type="module">
         import { createClient } from '@supabase/supabase-js';
-        import { getCurrentUser, getAccessToken, signOut } from './src/components/Auth.js';
+        import { getCurrentUser, getAccessToken, signOut } from '/src/components/Auth.js';
 
         const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
@@ -82,12 +82,21 @@
             for (const job of data) {
                 const notice = 'IRS notice';
                 const dt = new Date(job.created_at).toLocaleString();
-                const unlocked = !!(job.paid || job.is_unlocked);
-                const badge = unlocked
-                    ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Unlocked</span>'
+                const complete = job.is_unlocked === true;
+                const badge = complete
+                    ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Complete</span>'
                     : '<span style="background:#a16207;color:#fef9c3;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">In Progress</span>';
 
-                const resultLink = job.id ? `<a href="/result.html?job_id=${encodeURIComponent(job.id)}" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open result</a>` : '';
+                const base = job.id ? `/result/${encodeURIComponent(job.id)}` : '';
+                const analysisLink = base
+                    ? `<a href="${base}#analysis" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">View Analysis</a>`
+                    : '';
+                const strategyLink = base
+                    ? `<a href="${base}#strategy" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">View Strategy</a>`
+                    : '';
+                const letterLink = base
+                    ? `<a href="${base}#letter" style="background:#2563eb;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open Letter</a>`
+                    : '';
                 cards.push(`
                     <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
                         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.75rem; align-items:flex-start;">
@@ -97,7 +106,9 @@
                                 <div style="margin-top:0.5rem;">${badge}</div>
                             </div>
                             <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                                ${resultLink}
+                                ${analysisLink}
+                                ${strategyLink}
+                                ${letterLink}
                                 <a href="/wizard" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">New notice</a>
                             </div>
                         </div>

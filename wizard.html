@@ -273,6 +273,8 @@
       font-size: 14px;
       line-height: 1.75;
       color: #1a2332;
+      max-height: none;
+      overflow: visible;
     }
 
     .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -287,10 +289,13 @@
     }
 
     .nested-card--analysis-preview {
-      min-height: 320px;
+      min-height: 480px;
+    }
+    .nested-card--strategy-preview {
+      min-height: 400px;
     }
     .nested-card--letter-preview {
-      min-height: 500px;
+      min-height: 600px;
     }
 
     .blurred-content {
@@ -298,14 +303,14 @@
       -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        transparent 35%,
-        black 50%
+        transparent 40%,
+        black 55%
       );
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        transparent 35%,
-        black 50%
+        transparent 40%,
+        black 55%
       );
       user-select: none;
       pointer-events: none;
@@ -328,70 +333,14 @@
       -webkit-mask-image: linear-gradient(
         to bottom,
         black 0%,
-        black 35%,
-        transparent 50%
+        black 40%,
+        transparent 55%
       );
       mask-image: linear-gradient(
         to bottom,
         black 0%,
-        black 35%,
-        transparent 50%
-      );
-    }
-    .step-blur-stack--analysis > .step-blur-sharp {
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        black 0%,
-        black 50%,
-        transparent 65%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        black 0%,
-        black 50%,
-        transparent 65%
-      );
-    }
-    .step-blur-stack--analysis > .step-blur-fog.blurred-content {
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 50%,
-        black 65%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 50%,
-        black 65%
-      );
-    }
-    .step-blur-stack--letter > .step-blur-sharp {
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        black 0%,
-        black 60%,
-        transparent 78%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        black 0%,
-        black 60%,
-        transparent 78%
-      );
-    }
-    .step-blur-stack--letter > .step-blur-fog.blurred-content {
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 60%,
-        black 78%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 60%,
-        black 78%
+        black 40%,
+        transparent 55%
       );
     }
 
@@ -814,11 +763,10 @@ function letterPaywallCta() {
     </div>`;
 }
 
-function stepBlurStack(innerHtml, blurVariant) {
+function stepBlurStack(innerHtml) {
   if (!shouldBlur()) return innerHtml;
-  const mod = blurVariant === 'analysis' ? ' step-blur-stack--analysis' : blurVariant === 'letter' ? ' step-blur-stack--letter' : '';
   return `
-    <div class="step-blur-stack${mod}">
+    <div class="step-blur-stack">
       <div class="step-blur-sharp">${innerHtml}</div>
       <div class="step-blur-fog blurred-content">${innerHtml}</div>
     </div>`;
@@ -1135,7 +1083,7 @@ function render() {
       <p class="step-sub">Here’s what we found in your notice.</p>
       <div class="nested-card nested-card--analysis-preview">${inner}</div>`;
     html = `
-      ${stepBlurStack(step3BlurBody, 'analysis')}
+      ${stepBlurStack(step3BlurBody)}
       <div class="btn-row btn-row--nav">
         <button type="button" class="btn-back" onclick="__wizGoStep(2)">Back</button>
         <button type="button" class="btn-primary" onclick="__wizGoStep(4)">Next — Choose Strategy</button>
@@ -1194,7 +1142,7 @@ function render() {
       </ul>`;
     const step4BlurTail = `
       <p class="helper" style="margin:20px 0 8px">Personalized strategy summary</p>
-      <div class="nested-card">${strategyPreview}</div>`;
+      <div class="nested-card nested-card--strategy-preview">${strategyPreview}</div>`;
     html = `
       <h2 class="step-heading">Strategy</h2>
       <p class="step-sub">Choose how you want to approach your response.</p>
@@ -1223,7 +1171,7 @@ function render() {
 
     const letterCard = `<div class="nested-card nested-card--letter-preview">${letterBlock}</div>`;
     const letterBlockHtml = shouldBlur()
-      ? `${stepBlurStack(letterCard, 'letter')}${letterPaywallCta()}`
+      ? `${stepBlurStack(letterCard)}${letterPaywallCta()}`
       : `${letterCard}${paidExtras}`;
     html = `
       <h2 class="step-heading">Your Letter</h2>
