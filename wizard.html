@@ -40,6 +40,11 @@
             flex-wrap: nowrap;
         }
 
+        /* Locked preview: hide Strategy pill; Letter shows as step 3 (JS renumbers). */
+        .wizard-steps--three-step-preview .wizard-step[data-step="3"] {
+            display: none;
+        }
+
         .wizard-step {
             flex: 1;
             display: flex;
@@ -1081,7 +1086,7 @@
         let fullAnalysisUnlocked = false;
         /** /analysis-preview → ?flow=preview: allow preview without login (session-persisted). */
         let isPublicPreviewEntry = false;
-        /** Result shell: which synthetic step is shown in #resultContainer (analyze | strategy | letter). */
+        /** Result shell: which synthetic step is shown in #resultContainer (analyze | letter). */
         let resultViewStep = 'analyze';
         let resultViewData = null;
 
@@ -1194,6 +1199,7 @@ You must respond by April 30, 2024.`;
             if (hidePanelsForResultShell) {
                 syncResultFlowWizardPills();
             }
+            updatePaywallStepperChrome();
 
             if (n === 2 && !hidePanelsForResultShell) {
                 setPaywallAfterPreview(resultViewData != null && !fullAnalysisUnlocked);
@@ -1207,8 +1213,17 @@ You must respond by April 30, 2024.`;
             }
         }
 
+        function updatePaywallStepperChrome() {
+            const ws = document.getElementById('wizardSteps');
+            if (!ws) return;
+            const on = resultViewData != null;
+            ws.classList.toggle('wizard-steps--three-step-preview', on);
+            const n4 = document.querySelector('.wizard-step[data-step="4"] .wizard-step-num');
+            if (n4) n4.textContent = on ? '3' : '4';
+        }
+
         function syncResultFlowWizardPills() {
-            const map = { analyze: 2, strategy: 3, letter: 4 };
+            const map = { analyze: 2, letter: 4 };
             const active = map[resultViewStep] || 2;
             for (let i = 1; i <= 4; i++) {
                 const stepEl = document.querySelector('.wizard-step[data-step="' + i + '"]');
@@ -1263,36 +1278,10 @@ You must respond by April 30, 2024.`;
                 '<div class="teaser-visible step-plain-text">' + esc(parts.visible) + '</div>' +
                 blurSection +
                 '<div class="step-actions-row">' +
-                '<button type="button" class="btn-primary-wizard step-continue-btn" onclick="window.goToStrategyView()">Continue →</button>' +
-                '</div>' +
-                '<div class="paywall-cta">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Analysis — $29</button>' +
-                '</div>' +
-                '</div>'
-            );
-        }
-
-        function renderStrategyView(data) {
-            const esc = escapeHtml;
-            const strategy = !data || data.strategy == null || data.strategy === '' ? '—' : String(data.strategy);
-            const parts = splitTeaserDeliverable(strategy);
-            const blurSection =
-                parts.blurred.length > 0
-                    ? '<div class="blur-heavy"><div class="step-plain-text">' + esc(parts.blurred) + '</div></div>'
-                    : '';
-            return (
-                '<div class="step-page">' +
-                '<div class="step-page-nav">' +
-                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToAnalyzeView()">← Back</button>' +
-                '</div>' +
-                '<h2>Response Strategy</h2>' +
-                '<div class="teaser-visible step-plain-text">' + esc(parts.visible) + '</div>' +
-                blurSection +
-                '<div class="step-actions-row">' +
                 '<button type="button" class="btn-primary-wizard step-continue-btn" onclick="window.goToLetterView()">Continue →</button>' +
                 '</div>' +
                 '<div class="paywall-cta">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Strategy — $29</button>' +
+                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Analysis — $29</button>' +
                 '</div>' +
                 '</div>'
             );
@@ -1304,7 +1293,7 @@ You must respond by April 30, 2024.`;
                 return (
                     '<div class="step-page">' +
                     '<div class="step-page-nav">' +
-                    '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToStrategyView()">← Back</button>' +
+                    '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToAnalyzeView()">← Back</button>' +
                     '</div>' +
                     '<h2>Your IRS Response Letter</h2>' +
                     '<p class="step-plain-text" style="margin:0;color:#94a3b8;">—</p>' +
@@ -1322,7 +1311,7 @@ You must respond by April 30, 2024.`;
             return (
                 '<div class="step-page">' +
                 '<div class="step-page-nav">' +
-                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToStrategyView()">← Back</button>' +
+                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToAnalyzeView()">← Back</button>' +
                 '</div>' +
                 '<h2>Your IRS Response Letter</h2>' +
                 '<div class="letter-visible">' + escapeHtml(parts.visible) + '</div>' +
@@ -1341,14 +1330,12 @@ You must respond by April 30, 2024.`;
             if (resultViewStep === 'analyze') {
                 container.innerHTML = renderAnalyzeView(resultViewData);
             }
-            if (resultViewStep === 'strategy') {
-                container.innerHTML = renderStrategyView(resultViewData);
-            }
             if (resultViewStep === 'letter') {
                 container.innerHTML = renderLetterView(resultViewData);
             }
             if (resultViewData != null) {
                 syncResultFlowWizardPills();
+                updatePaywallStepperChrome();
             }
         }
 
@@ -1385,11 +1372,6 @@ You must respond by April 30, 2024.`;
             renderResultStep();
         }
 
-        window.goToStrategyView = function () {
-            resultViewStep = 'strategy';
-            renderResultStep();
-        };
-
         window.goToLetterView = function () {
             resultViewStep = 'letter';
             renderResultStep();
@@ -1401,11 +1383,6 @@ You must respond by April 30, 2024.`;
 
         window.goBackToAnalyzeView = function () {
             resultViewStep = 'analyze';
-            renderResultStep();
-        };
-
-        window.goBackToStrategyView = function () {
-            resultViewStep = 'strategy';
             renderResultStep();
         };
 
@@ -1776,9 +1753,36 @@ You must respond by April 30, 2024.`;
             const text = (previewText || '').trim();
             const sections = splitAnalysisIntoSections(text);
             const takenBodies = [];
+            const letterTitleKw = [
+                'draft',
+                'sample letter',
+                'response letter',
+                'letter template',
+                'written response',
+                'full letter',
+                'irs response',
+            ];
+            let letterSectionIndex = sections.length;
+            for (let i = 0; i < sections.length; i++) {
+                const tl = (sections[i].title || '').toLowerCase();
+                if (letterTitleKw.some((k) => tl.includes(k))) {
+                    letterSectionIndex = i;
+                    break;
+                }
+            }
+            let textBeforeLetter = text;
+            if (letterSectionIndex < sections.length) {
+                const lb = sections[letterSectionIndex].body || '';
+                const marker = lb.slice(0, Math.min(80, lb.length)).trim();
+                const idx = marker.length > 24 ? text.indexOf(marker) : -1;
+                if (idx > 0) textBeforeLetter = text.slice(0, idx);
+            }
 
-            function takeSection(keywords) {
-                for (const s of sections) {
+            function takeSection(keywords, endExclusive) {
+                const lim =
+                    endExclusive == null || endExclusive > sections.length ? sections.length : Math.max(0, endExclusive);
+                for (let i = 0; i < lim; i++) {
+                    const s = sections[i];
                     if (takenBodies.includes(s.body)) continue;
                     const t = (s.title || '').toLowerCase();
                     if (keywords.some((k) => t.includes(k))) {
@@ -1818,24 +1822,34 @@ You must respond by April 30, 2024.`;
                     : 'Step-by-step response actions — unlock for the complete checklist.';
             }
 
-            let responseStrategy = takeSection(['response strategy', 'strategy', 'recommended', 'position', 'how to respond', 'defense', 'approach']);
+            let responseStrategy = takeSection(
+                ['response strategy', 'strategy', 'recommended', 'position', 'how to respond', 'defense', 'approach'],
+                letterSectionIndex
+            );
             if (!responseStrategy) {
-                const stratStart = Math.floor(text.length * 0.18);
-                const stratEnd = Math.floor(text.length * 0.44);
-                responseStrategy = stratEnd > stratStart ? text.slice(stratStart, stratEnd).trim() : '';
+                const src = textBeforeLetter.length > 80 ? textBeforeLetter : text;
+                const stratStart = Math.floor(src.length * 0.18);
+                const stratEnd = Math.floor(src.length * 0.44);
+                responseStrategy = stratEnd > stratStart ? src.slice(stratStart, stratEnd).trim() : '';
             }
             if (!responseStrategy) responseStrategy = 'Your tailored response strategy is ready — unlock to read the full approach.';
 
-            let letter = takeSection(['draft', 'sample letter', 'response letter', 'letter template', 'written response', 'full letter', 'irs response']);
+            let letter = '';
+            if (letterSectionIndex < sections.length) {
+                letter = sections[letterSectionIndex].body || '';
+                if (letter && !takenBodies.includes(letter)) takenBodies.push(letter);
+            }
+            if (!letter) letter = takeSection(letterTitleKw);
             if (!letter) letter = text.slice(Math.floor(text.length * 0.64)).trim();
             if (!letter) letter = 'Complete formatted IRS response letter — unlock to view, edit, and download.';
 
             if (letter.length > 60 && responseStrategy.length > 60) {
                 const lp = letter.slice(0, 80);
                 if (responseStrategy.includes(lp) || lp.includes(responseStrategy.slice(0, 80))) {
-                    const stratStart = Math.floor(text.length * 0.12);
-                    const stratEnd = Math.floor(text.length * 0.38);
-                    responseStrategy = stratEnd > stratStart ? text.slice(stratStart, stratEnd).trim() : responseStrategy;
+                    const src = textBeforeLetter.length > 80 ? textBeforeLetter : text;
+                    const stratStart = Math.floor(src.length * 0.12);
+                    const stratEnd = Math.floor(src.length * 0.38);
+                    responseStrategy = stratEnd > stratStart ? src.slice(stratStart, stratEnd).trim() : responseStrategy;
                 }
             }
 
@@ -1867,6 +1881,7 @@ You must respond by April 30, 2024.`;
 
         function populateStep2(apiPayload, fullText) {
             resultViewData = null;
+            updatePaywallStepperChrome();
             const resultContainerReset = document.getElementById("resultContainer");
             if (resultContainerReset) resultContainerReset.innerHTML = "";
 
@@ -2909,7 +2924,7 @@ You must respond by April 30, 2024.`;
 
         /**
          * After Stripe checkout (success.html → here with from_checkout=1&job_id=).
-         * Loads paid job, skips teaser, goes to letter step or strategy step.
+         * Loads paid job, skips teaser, goes to strategy step (generate) or letter step if ready.
          */
         async function resumeWizardFromPaidJob(jobId) {
             if (!jobId || !currentUser) return false;
