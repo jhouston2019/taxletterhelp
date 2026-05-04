@@ -307,6 +307,10 @@
     .step-blur-stack {
       display: grid;
       min-width: 0;
+      pointer-events: none;
+    }
+    .step-blur-stack a {
+      pointer-events: auto;
     }
     .step-blur-stack > .step-blur-sharp,
     .step-blur-stack > .step-blur-fog {
@@ -360,18 +364,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-status { color: #8a9ab5; font-size: 14px; }
-
-    .hard-stop {
-      background: #ffffff;
-      color: #1a2332;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-    }
-    .hard-stop h3 { color: #b45309; font-size: 17px; margin-bottom: 8px; }
-    .hard-stop p { color: #1a2332; font-size: 14px; }
-    .hard-stop a { color: #4a9eff; font-weight: 600; }
 
     .api-error {
       background: #ffffff;
@@ -460,7 +452,6 @@ const state = {
   jobId: null,
   analysisJobId: null,
   analysis_json: null,
-  hard_stop: false,
   redirect_url: '',
   preview_text: '',
   letter_full: null,
@@ -835,7 +826,6 @@ window.__wizAnalyze = async () => {
     const data = await postAnalyzeLetter(false);
     state.jobId = data.job_id;
     state.analysisJobId = data.job_id;
-    state.hard_stop = !!data.hard_stop;
     state.redirect_url = data.redirect_url || '';
     const job = await fetchJob(data.job_id);
     state.analysis_json = job.analysis_json;
@@ -1079,18 +1069,12 @@ function render() {
     const step3BlurBody = `
       <h2 class="step-heading">Analysis</h2>
       <p class="step-sub">Here’s what we found in your notice.</p>
-      ${state.hard_stop ? `
-        <div class="hard-stop">
-          <h3>Professional Review Recommended</h3>
-          <p>This notice may involve issues requiring a licensed tax attorney or CPA. We recommend consulting a professional before responding.</p>
-          <p style="margin-top:12px"><a href="https://www.irs.gov/taxpayer-advocate" target="_blank" rel="noopener">Find a Tax Professional →</a></p>
-        </div>` : ''}
       <div class="nested-card">${inner}</div>`;
     html = `
       ${stepBlurStack(step3BlurBody)}
       <div class="btn-row btn-row--nav">
         <button type="button" class="btn-back" onclick="__wizGoStep(2)">Back</button>
-        <button type="button" class="btn-primary" onclick="__wizGoStep(4)" ${state.hard_stop ? 'disabled' : ''}>Next — Choose Strategy</button>
+        <button type="button" class="btn-primary" onclick="__wizGoStep(4)">Next — Choose Strategy</button>
       </div>`;
   }
 
