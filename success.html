@@ -165,14 +165,20 @@ async function handleGuestPath(sid) {
   } catch (_) { /* ignore */ }
 
   setUI({ icon: 'success', label: 'Payment Confirmed',
-    heading: 'Payment successful!', sub: 'Redirecting to your letter…' });
+    heading: 'Payment successful!', sub: 'Loading your letter…' });
 
-  setTimeout(() => {
+  if (jobId) {
+    await pollJobUnlock(jobId, 6);
     try {
       sessionStorage.setItem('payment_complete', 'true');
     } catch (_) { /* ignore */ }
-    window.location.href = jobId ? `/result/${jobId}` : '/dashboard.html';
-  }, 1200);
+    window.location.href = `/result/${jobId}`;
+  } else {
+    try {
+      sessionStorage.setItem('payment_complete', 'true');
+    } catch (_) { /* ignore */ }
+    window.location.href = '/dashboard.html';
+  }
 }
 
 async function handleLoggedInPath(sid, accessToken) {

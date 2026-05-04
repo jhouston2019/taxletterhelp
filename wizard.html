@@ -144,19 +144,21 @@
     .tab-panel.active { display: block; }
 
     .upload-zone {
-      border: 2px dashed rgba(255,255,255,0.2);
+      background-color: #ffffff;
+      border: 2px dashed #cbd5e1;
       border-radius: 12px;
       padding: 40px 20px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
+      color: #1a2332;
     }
     .upload-zone:hover, .upload-zone.dragover {
       border-color: #4a9eff;
       background: rgba(74, 158, 255, 0.05);
     }
-    .upload-zone .hint { font-size: 13px; color: #8a9ab5; margin-top: 8px; }
-    .file-meta { margin-top: 12px; font-size: 13px; color: #b0c4de; }
+    .upload-zone .hint { font-size: 13px; color: #475569; margin-top: 8px; }
+    .upload-zone .file-meta { margin-top: 12px; font-size: 13px; color: #64748b; }
 
     label, .lbl { display: block; font-size: 13px; font-weight: 500; color: #b0c4de; margin-bottom: 6px; }
     .helper { font-size: 12px; color: #6a7a95; margin-top: 4px; }
@@ -289,13 +291,13 @@
     }
 
     .nested-card--analysis-preview {
-      min-height: 480px;
+      min-height: 600px;
     }
     .nested-card--strategy-preview {
       min-height: 400px;
     }
     .nested-card--letter-preview {
-      min-height: 600px;
+      min-height: 800px;
     }
 
     .blurred-content {
@@ -341,6 +343,29 @@
         black 0%,
         black 40%,
         transparent 55%
+      );
+    }
+
+    .step-blur-stack--letter > .step-blur-sharp {
+      -webkit-mask-image: linear-gradient(
+        to bottom, black 0%, black 55%, transparent 70%
+      );
+      mask-image: linear-gradient(
+        to bottom, black 0%, black 55%, transparent 70%
+      );
+    }
+    .step-blur-stack--letter > .step-blur-fog.blurred-content {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 55%,
+        black 70%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 55%,
+        black 70%
       );
     }
 
@@ -763,10 +788,11 @@ function letterPaywallCta() {
     </div>`;
 }
 
-function stepBlurStack(innerHtml) {
+function stepBlurStack(innerHtml, blurVariant) {
   if (!shouldBlur()) return innerHtml;
+  const mod = blurVariant === 'letter' ? ' step-blur-stack--letter' : '';
   return `
-    <div class="step-blur-stack">
+    <div class="step-blur-stack${mod}">
       <div class="step-blur-sharp">${innerHtml}</div>
       <div class="step-blur-fog blurred-content">${innerHtml}</div>
     </div>`;
@@ -1171,7 +1197,7 @@ function render() {
 
     const letterCard = `<div class="nested-card nested-card--letter-preview">${letterBlock}</div>`;
     const letterBlockHtml = shouldBlur()
-      ? `${stepBlurStack(letterCard)}${letterPaywallCta()}`
+      ? `${stepBlurStack(letterCard, 'letter')}${letterPaywallCta()}`
       : `${letterCard}${paidExtras}`;
     html = `
       <h2 class="step-heading">Your Letter</h2>
