@@ -105,7 +105,15 @@
             sessionStorage.removeItem(`tlh_success_retries_${session_id}`);
         } catch (_) { /* ignore */ }
 
-        window.location.href = `/result/${job.id}`;
+        const mainBox = document.querySelector('.box');
+        if (mainBox) {
+            mainBox.innerHTML = '<p style="margin:0 0 8px; font-size:1.35rem; font-weight:700; color:#0f172a;">Payment confirmed</p>' +
+                '<p style="margin:0; font-size:0.95rem; color:#64748b;">Opening your response workspace…</p>';
+        }
+
+        setTimeout(() => {
+            window.location.replace('/wizard?from_checkout=1&job_id=' + encodeURIComponent(job.id));
+        }, 1600);
     </script>
 </body>
 </html>

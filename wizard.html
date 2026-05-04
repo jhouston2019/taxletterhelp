@@ -2338,7 +2338,7 @@ You must respond by April 30, 2024.`;
                         analysis: {},
                         taxYear: extractTaxYearFromText(letterText) || null,
                         recordId: parsed.recordId,
-                        analysisTeaser: analysisTeaserBody,
+                        analysisTeaser: fullAnalysisUnlocked ? '' : analysisTeaserBody,
                     }, analysisTeaserBody);
                     const extractedYear =
                         currentAnalysis?.resolvedTaxYear ||
@@ -2810,6 +2810,86 @@ You must respond by April 30, 2024.`;
             }
         });
 
+        /**
+         * After Stripe checkout (success.html → here with from_checkout=1&job_id=).
+         * Loads paid job, skips teaser, goes to letter step or strategy step.
+         */
+        async function resumeWizardFromPaidJob(jobId) {
+            if (!jobId || !currentUser) return false;
+            let job = null;
+            for (let attempt = 0; attempt < 5; attempt++) {
+                const { data: row, error } = await supabaseWizard
+                    .from('tax_letter_jobs')
+                    .select('id, inputs_json, analysis_json, preview_text, letter_full, paid, is_unlocked')
+                    .eq('id', jobId)
+                    .maybeSingle();
+                if (error || !row) return false;
+                job = row;
+                if (job.paid || job.is_unlocked) break;
+                await new Promise((r) => setTimeout(r, 1200));
+            }
+            if (!job || (!job.paid && !job.is_unlocked)) return false;
+
+            fullAnalysisUnlocked = true;
+            analysisData = { recordId: job.id };
+            const inputText =
+                job.inputs_json && typeof job.inputs_json.text === 'string' ? job.inputs_json.text : '';
+            if (inputText) {
+                letterText = inputText;
+                const ta = document.getElementById('pasteNoticeText');
+                if (ta) ta.value = inputText;
+            }
+            const aj = job.analysis_json && typeof job.analysis_json === 'object' ? job.analysis_json : {};
+            currentAnalysis = Object.assign({}, aj);
+            const teaser = job.preview_text != null ? String(job.preview_text) : '';
+            const fullTextForDom = teaser || letterText || '';
+
+            populateStep2(
+                {
+                    analysis: currentAnalysis,
+                    taxYear: currentAnalysis.taxYear || extractTaxYearFromText(letterText) || null,
+                    recordId: job.id,
+                    analysisTeaser: '',
+                },
+                fullTextForDom
+            );
+
+            selectedStrategy = computeRecommendedStrategy();
+            document.querySelectorAll('#strategyGrid .strategy-card').forEach((card) => {
+                card.classList.toggle('strategy-card--selected', card.dataset.strategy === selectedStrategy);
+            });
+
+            const letterOk = job.letter_full && String(job.letter_full).trim().length >= 200;
+            if (letterOk) {
+                generatedLetter = applyFormPlaceholdersToMarkdown(cleanGeneratedLetterMarkdown(job.letter_full));
+                renderLetterMarkdown(generatedLetter);
+                const nt = currentAnalysis.letterType || '—';
+                const ty =
+                    document.getElementById('taxYearOverride')?.value?.trim() ||
+                    currentAnalysis.taxYear ||
+                    currentAnalysis.financialInfo?.taxYear ||
+                    currentTaxYear ||
+                    extractTaxYearFromText(letterText || '') ||
+                    '—';
+                const stratLabels = {
+                    DISPUTE: 'Dispute',
+                    AGREE: 'Agree & resolve',
+                    PENALTY_ABATEMENT: 'Penalty abatement',
+                    EXTENSION: 'Extension',
+                    CUSTOM: 'Other / custom',
+                };
+                document.getElementById('letterSubheading').textContent =
+                    nt + ' | Tax year ' + ty + ' | Strategy: ' + (stratLabels[selectedStrategy] || selectedStrategy);
+                hideStatus();
+                goToStep(4);
+            } else {
+                refreshStrategyUI();
+                goToStep(3);
+            }
+            setPaywallAfterPreview(false);
+            return true;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const adminMode = await initAdminMode();
             if (adminMode) console.log('[ADMIN] Payment check bypassed');
@@ -2858,7 +2938,35 @@ You must respond by April 30, 2024.`;
                     window.location.href = '/login.html?next=' + encodeURIComponent('/wizard');
                     return;
                 }
-                fullAnalysisUnlocked = true;
+                fullAnalysisUnlocked = false;
+                try {
+                    const bs = await fetch('/api/billing-status', {
+                        headers: { Authorization: 'Bearer ' + tok },
+                    });
+                    if (bs.ok) {
+                        const snap = await bs.json();
+                        const rem = snap.usage && snap.usage.remaining;
+                        if (snap.active === true && (rem === null || rem > 0)) {
+                            fullAnalysisUnlocked = true;
+                        }
+                    }
+                } catch (e) {
+                    /* keep false — unpaid users see blurred teaser until checkout */
+                }
+            }
+
+            const sp = new URLSearchParams(window.location.search);
+            let skippedDefaultLanding = false;
+            if (sp.get('from_checkout') === '1' && sp.get('job_id')) {
+                skippedDefaultLanding = await resumeWizardFromPaidJob(sp.get('job_id'));
+                if (skippedDefaultLanding) {
+                    try {
+                        const u = new URL(window.location.href);
+                        u.searchParams.delete('from_checkout');
+                        u.searchParams.delete('job_id');
+                        window.history.replaceState({}, '', u.pathname + (u.search || ''));
+                    } catch (e) { /* ignore */ }
+                }
             }
 
             const dateEl = document.getElementById('fillDate');
@@ -2897,7 +3005,6 @@ You must respond by April 30, 2024.`;
                 });
             }
 
-            const sp = new URLSearchParams(window.location.search);
             let pendingLetter = null;
             try {
                 pendingLetter = localStorage.getItem('tlh_pending_letter');
@@ -2906,7 +3013,9 @@ You must respond by April 30, 2024.`;
             // Post-checkout only: account-setup → /wizard?resume=1 (avoids re-running on every visit if localStorage is stale)
             const shouldAutoFull = fullAnalysisUnlocked && pendingLetter && sp.get('resume') === '1';
 
-            if (shouldAutoFull) {
+            if (skippedDefaultLanding) {
+                /* resumeWizardFromPaidJob already navigated to step 3 or 4 */
+            } else if (shouldAutoFull) {
                 letterText = pendingLetter;
                 const ta0 = document.getElementById('pasteNoticeText');
                 if (ta0) ta0.value = pendingLetter;
