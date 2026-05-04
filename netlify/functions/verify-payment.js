@@ -57,7 +57,17 @@ exports.handler = async (event) => {
     });
 
     const user = userData.user;
-    if (String(session.metadata?.user_id || "") !== String(user.id || "")) {
+    const jobId = session.metadata?.job_id;
+    if (jobId) {
+      const { data: job } = await supabase.from("tax_letter_jobs").select("user_id").eq("id", jobId).maybeSingle();
+      if (!job || String(job.user_id) !== String(user.id || "")) {
+        return {
+          statusCode: 403,
+          headers: cors,
+          body: JSON.stringify({ error: "Forbidden" }),
+        };
+      }
+    } else if (String(session.metadata?.user_id || "") !== String(user.id || "")) {
       return {
         statusCode: 403,
         headers: cors,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment confirmed | Tax Letter Defense Pro</title>
+    <title>Payment successful | Tax Letter Defense Pro</title>
     <meta name="robots" content="noindex, nofollow">
     <script>
       window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
@@ -11,17 +11,32 @@
     </script>
     <style>
         body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-            font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#64748b; }
-        .box { text-align:center; padding:2rem; }
+            font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#0f172a; }
+        .box { text-align:center; padding:2rem; max-width:420px; }
         .spin { width:40px; height:40px; border:3px solid #e2e8f0; border-top-color:#3b82f6;
             border-radius:50%; animation:spin 0.9s linear infinite; margin:0 auto 1rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .btn {
+            display:inline-block;
+            margin-top:1.25rem;
+            padding:12px 22px;
+            background:#2563eb;
+            color:#fff;
+            font-weight:700;
+            border-radius:10px;
+            text-decoration:none;
+            font-family:inherit;
+            border:none;
+            cursor:pointer;
+            font-size:1rem;
+        }
+        .muted { color:#64748b; font-size:0.95rem; margin:0.5rem 0 0; }
     </style>
 </head>
 <body>
-    <div class="box">
+    <div class="box" id="root">
         <div class="spin" aria-hidden="true"></div>
-        <p style="margin:0; font-size:1rem;">Confirming payment…</p>
+        <p style="margin:0;">Confirming payment…</p>
     </div>
     <script type="importmap">
     { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
@@ -34,8 +49,10 @@
         const params = new URLSearchParams(window.location.search);
         const session_id = params.get("session_id");
 
+        const root = document.getElementById('root');
+
         if (!session_id) {
-            document.body.innerText = "Missing session.";
+            root.innerHTML = '<p>Missing session.</p>';
             throw new Error("Missing session_id");
         }
 
@@ -59,21 +76,21 @@
         const data = await res.json();
 
         if (!data.success) {
-            document.body.innerText = "Verification failed.";
+            root.innerHTML = '<p>Verification failed.</p>';
             throw new Error("Verification failed");
         }
 
         let job = null;
 
         for (let i = 0; i < 10; i++) {
-            const { data } = await supabase
+            const { data: row } = await supabase
                 .from("tax_letter_jobs")
                 .select("id")
                 .eq("stripe_session_id", session_id)
                 .maybeSingle();
 
-            if (data) {
-                job = data;
+            if (row) {
+                job = row;
                 break;
             }
 
@@ -85,35 +102,36 @@
             let retries = 0;
             try {
                 retries = Number(sessionStorage.getItem(retryKey) || 0);
-            } catch (_) { /* sessionStorage unavailable */ }
+            } catch (_) { /* ignore */ }
 
             if (retries >= 5) {
-                document.body.innerText = "Still finalizing your result. Please check your dashboard in a moment.";
-                return;
+                root.innerHTML = '<p style="color:#64748b;">Still finalizing. Open <strong>My documents</strong> in a moment.</p>';
+                throw new Error("timeout");
             }
 
             try {
                 sessionStorage.setItem(retryKey, String(retries + 1));
             } catch (_) { /* ignore */ }
 
-            document.body.innerText = "Finalizing your result…";
+            root.innerHTML = '<div class="spin" aria-hidden="true"></div><p>Finalizing…</p>';
             setTimeout(() => window.location.reload(), 2000);
-            return;
+            throw new Error("retry");
         }
 
         try {
             sessionStorage.removeItem(`tlh_success_retries_${session_id}`);
         } catch (_) { /* ignore */ }
 
-        const mainBox = document.querySelector('.box');
-        if (mainBox) {
-            mainBox.innerHTML = '<p style="margin:0 0 8px; font-size:1.35rem; font-weight:700; color:#0f172a;">Payment confirmed</p>' +
-                '<p style="margin:0; font-size:0.95rem; color:#64748b;">Opening your response workspace…</p>';
-        }
+        const resultUrl = '/result.html?job_id=' + encodeURIComponent(job.id);
+
+        root.innerHTML =
+            '<p style="margin:0 0 8px; font-size:1.35rem; font-weight:700;">Payment successful</p>' +
+            '<p class="muted">Your full response is ready</p>' +
+            '<a class="btn" href="' + resultUrl + '">View My Response</a>';
 
         setTimeout(() => {
-            window.location.replace('/wizard?from_checkout=1&job_id=' + encodeURIComponent(job.id));
-        }, 1600);
+            window.location.replace(resultUrl);
+        }, 2800);
     </script>
 </body>
 </html>

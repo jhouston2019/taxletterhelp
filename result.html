@@ -9,57 +9,86 @@
       window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
       window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
     </script>
+    <style>
+        body { margin:0; font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#0f172a; line-height:1.65; }
+        .wrap { max-width:900px; margin:0 auto; padding:2rem 1rem 4rem; box-sizing:border-box; }
+        h1 { font-size:1.35rem; margin:0 0 1rem; }
+        .card {
+            background:#fff;
+            border:1px solid #e2e8f0;
+            border-radius:12px;
+            padding:1.25rem 1.5rem;
+            margin-bottom:1.25rem;
+            white-space:pre-wrap;
+            word-break:break-word;
+        }
+        .card h2 { font-size:1rem; color:#334155; margin:0 0 0.75rem; }
+        #loading { color:#64748b; }
+        a { color:#2563eb; font-weight:600; }
+    </style>
 </head>
-<body style="margin:0; font-family:'Inter',system-ui,sans-serif; background:#f8fafc; color:#0f172a;">
-    <div id="root" style="max-width:900px; margin:0 auto; padding:2rem;">
-        <p id="loading" style="color:#64748b;">Loading…</p>
+<body>
+    <div class="wrap">
+        <p><a href="/dashboard.html">← My documents</a></p>
+        <h1>Full response</h1>
+        <p id="loading">Loading…</p>
         <article id="full" style="display:none;">
-            <h1 style="font-size:1.25rem;">Your response letter</h1>
-            <div id="letterBody" style="margin-top:1rem; white-space:pre-wrap; line-height:1.6;"></div>
+            <div class="card">
+                <h2>Letter Analysis &amp; Strategy</h2>
+                <div id="analysisBody"></div>
+            </div>
+            <div class="card">
+                <h2>IRS Response Letter</h2>
+                <div id="letterBody"></div>
+            </div>
         </article>
     </div>
     <script type="importmap">
     { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
     </script>
     <script type="module">
-        import { createClient } from '@supabase/supabase-js';
+        import { getAccessToken } from './src/components/Auth.js';
 
         const params = new URLSearchParams(window.location.search);
         const job_id = params.get('job_id');
-        const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
         const loading = document.getElementById('loading');
         const full = document.getElementById('full');
-        const letterBody = document.getElementById('letterBody');
 
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            loading.style.display = 'none';
-            document.body.innerText = "Unauthorized.";
-        } else if (!job_id) {
-            loading.style.display = 'none';
-            document.body.innerText = "Not found.";
+        if (!job_id) {
+            loading.textContent = 'Not found.';
         } else {
-            const { data: job } = await supabase
-                .from('tax_letter_jobs')
-                .select('*')
-                .eq('id', job_id)
-                .eq('user_id', user.id)
-                .maybeSingle();
-
-            loading.style.display = 'none';
-
-            if (!job) {
-                document.body.innerText = "Not found.";
-            } else if (!job.is_unlocked && !job.paid) {
-                document.body.innerText = "Locked.";
+            const tok = await getAccessToken();
+            if (!tok) {
+                window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
             } else {
-                if (!job.letter_full || job.letter_full.length < 200) {
-                    document.body.innerText = "Your response is still being finalized. Please refresh shortly.";
-                    return;
+                const res = await fetch(
+                    '/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(job_id) + '&want=full',
+                    { headers: { Authorization: 'Bearer ' + tok } }
+                );
+
+                if (res.status === 401) {
+                    window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+                    throw new Error('auth');
                 }
-                full.style.display = 'block';
-                letterBody.textContent = job.letter_full || '';
+
+                if (res.status === 402) {
+                    window.location.replace('/preview.html?job_id=' + encodeURIComponent(job_id));
+                    throw new Error('pay');
+                }
+
+                const data = await res.json().catch(() => ({}));
+
+                loading.style.display = 'none';
+
+                if (!res.ok || !data.paid) {
+                    document.querySelector('.wrap').innerHTML = '<p>Could not load your response.</p>';
+                } else if (!data.analysis_full || !data.letter_full) {
+                    document.querySelector('.wrap').innerHTML = '<p>Your response is still being finalized. Refresh shortly.</p>';
+                } else {
+                    document.getElementById('analysisBody').textContent = data.analysis_full;
+                    document.getElementById('letterBody').textContent = data.letter_full;
+                    full.style.display = 'block';
+                }
             }
         }
     </script>

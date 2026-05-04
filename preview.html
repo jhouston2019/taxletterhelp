@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      window.SUPABASE_URL = "https://khmyjozungzgfxzvmsca.supabase.co";
+      window.SUPABASE_ANON_KEY = "sb_publishable_yPZadaFSXQG2gHpZo2DFlw_BtAr8MQ1";
+    </script>
+    <title>Preview | Tax Letter Defense Pro</title>
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+        .wrap {
+            max-width: 720px;
+            width: 94%;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem;
+            box-sizing: border-box;
+        }
+        h1 { font-size: 1.35rem; margin: 0 0 1rem; }
+        .block {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem 1.35rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .block h2 {
+            font-size: 1rem;
+            margin: 0 0 0.75rem;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .meta { font-size: 0.9rem; color: #475569; margin-bottom: 0.75rem; }
+        .meta span { display: inline-block; margin-right: 1rem; margin-bottom: 0.35rem; }
+        .blurred {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            color: #64748b;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .letter-preview {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.92rem;
+        }
+        .cta {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .cta p { margin: 0 0 1rem; color: #475569; font-size: 0.95rem; }
+        .cta button {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .cta button:disabled { opacity: 0.6; cursor: wait; }
+        #err { color: #b91c1c; margin-bottom: 1rem; }
+        a.back { color: #2563eb; font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <p><a class="back" href="/wizard.html">← Edit notice</a></p>
+        <h1>Preview</h1>
+        <p id="err" role="alert"></p>
+
+        <section class="block" id="blockAnalysis" style="display:none;">
+            <h2>Letter Analysis &amp; Strategy</h2>
+            <div class="meta" id="analysisMeta"></div>
+            <div class="blurred" id="analysisBlur"></div>
+        </section>
+
+        <section class="block" id="blockLetter" style="display:none;">
+            <h2>Your IRS Response Letter</h2>
+            <div class="letter-preview" id="letterVisible"></div>
+            <div class="blurred letter-preview" id="letterBlur" style="margin-top:0.75rem;"></div>
+        </section>
+
+        <div class="cta" id="ctaBox" style="display:none;">
+            <p>Your response is ready. Unlock full access to download and submit.</p>
+            <button type="button" id="payBtn">Get Full Response — $59</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2?bundle" } }
+    </script>
+    <script type="module">
+        import { getAccessToken } from './src/components/Auth.js';
+
+        const params = new URLSearchParams(window.location.search);
+        const jobId = params.get('job_id');
+        const errEl = document.getElementById('err');
+
+        if (!jobId) {
+            errEl.textContent = 'Missing job.';
+        } else {
+            const tok = await getAccessToken();
+            if (!tok) {
+                window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+            } else {
+                const res = await fetch(
+                    '/.netlify/functions/get-tax-letter-job?job_id=' + encodeURIComponent(jobId) + '&want=preview',
+                    { headers: { Authorization: 'Bearer ' + tok } }
+                );
+                const data = await res.json().catch(() => ({}));
+
+                if (res.status === 401) {
+                    window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+                } else if (!res.ok) {
+                    errEl.textContent = data.error || 'Could not load preview.';
+                } else if (data.paid) {
+                    window.location.replace('/result.html?job_id=' + encodeURIComponent(jobId));
+                } else {
+                    const n = data.notice || {};
+                    const r = data.risk || {};
+                    const p = data.preview || {};
+
+                    document.getElementById('analysisMeta').innerHTML =
+                        '<span><strong>Type:</strong> ' + escapeHtml(n.type) + '</span>' +
+                        '<span><strong>Tax year:</strong> ' + escapeHtml(n.tax_year) + '</span>' +
+                        '<span><strong>Issue:</strong> ' + escapeHtml(n.issue) + '</span>' +
+                        '<span><strong>Risk:</strong> ' + escapeHtml(r.level) + '</span>';
+
+                    document.getElementById('analysisBlur').textContent = p.analysis_hidden || '';
+                    document.getElementById('letterVisible').textContent = p.letter_visible || '';
+                    document.getElementById('letterBlur').textContent = p.letter_hidden || '';
+
+                    document.getElementById('blockAnalysis').style.display = 'block';
+                    document.getElementById('blockLetter').style.display = 'block';
+                    document.getElementById('ctaBox').style.display = 'block';
+
+                    document.getElementById('payBtn').addEventListener('click', async () => {
+                        const btn = document.getElementById('payBtn');
+                        btn.disabled = true;
+                        try {
+                            const r2 = await fetch('/.netlify/functions/create-checkout-session', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + tok,
+                                },
+                                body: JSON.stringify({ job_id: jobId }),
+                            });
+                            const checkout = await r2.json();
+                            if (checkout.url) {
+                                window.location.href = checkout.url;
+                            } else {
+                                errEl.textContent = checkout.error || checkout.details || 'Checkout failed.';
+                                btn.disabled = false;
+                            }
+                        } catch (e) {
+                            errEl.textContent = e.message || 'Checkout failed.';
+                            btn.disabled = false;
+                        }
+                    });
+                }
+            }
+        }
+
+        function escapeHtml(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>

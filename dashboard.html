@@ -87,7 +87,7 @@
                     ? '<span style="background:#166534;color:#dcfce7;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">Unlocked</span>'
                     : '<span style="background:#a16207;color:#fef9c3;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">In Progress</span>';
 
-                const resultLink = job.id ? `<a href="/result/${job.id}" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open result</a>` : '';
+                const resultLink = job.id ? `<a href="/result.html?job_id=${encodeURIComponent(job.id)}" style="background:#334155;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;">Open result</a>` : '';
                 cards.push(`
                     <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
                         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.75rem; align-items:flex-start;">

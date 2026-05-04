@@ -100,11 +100,9 @@ const mainHandler = async (event) => {
       customer_creation: 'always',
       customer_email: user.email,
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/pricing`,
+      cancel_url: `${site}/preview.html?job_id=${encodeURIComponent(jobId)}`,
       metadata: {
-        job_id: jobId,
-        user_id: user.id,
-        product_type: "tax_letter",
+        job_id: String(jobId),
       },
     });
 

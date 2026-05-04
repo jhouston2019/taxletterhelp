@@ -25,21 +25,19 @@ const mainHandler = async (event) => {
     if (evt.type === "checkout.session.completed") {
       const session = evt.data.object;
 
-      const jobId = session.metadata.job_id;
-      const userId = session.metadata.user_id;
-
-      if (!jobId || !userId) {
+      const jobId = session.metadata?.job_id;
+      if (!jobId) {
         return ok();
       }
 
       const supabase = getSupabaseAdmin();
       const { data: existing } = await supabase
         .from("tax_letter_jobs")
-        .select("paid")
+        .select("paid, user_id")
         .eq("id", jobId)
         .maybeSingle();
 
-      if (!existing) {
+      if (!existing?.user_id) {
         return ok();
       }
 
@@ -49,7 +47,6 @@ const mainHandler = async (event) => {
           .update({
             paid: true,
             is_unlocked: true,
-            user_id: userId,
             stripe_session_id: session.id,
           })
           .eq("id", jobId);
