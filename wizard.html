@@ -734,9 +734,26 @@
             font-size: 1.35rem;
             color: #f8fafc;
         }
+        .step-page-nav {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .step-page-nav .step-back-btn {
+            margin: 0;
+        }
+        .teaser-visible {
+            line-height: 1.55;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
         .blur-heavy {
-            filter: blur(10px);
-            opacity: 0.3;
+            filter: blur(6px);
+            opacity: 0.55;
         }
         .step-plain-text {
             white-space: pre-wrap;
@@ -744,7 +761,8 @@
             font-size: 0.95rem;
         }
         .letter-visible,
-        .letter-blurred {
+        .letter-blurred,
+        .teaser-visible {
             white-space: pre-wrap;
         }
         .letter-visible {
@@ -755,8 +773,18 @@
             padding-bottom: 10px;
         }
         .letter-blurred {
-            filter: blur(12px);
-            opacity: 0.25;
+            filter: blur(6px);
+            opacity: 0.5;
+        }
+        .step-page .btn-outline {
+            background: rgba(15, 23, 42, 0.65);
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+        .step-page .btn-outline:hover {
+            background: rgba(30, 41, 59, 0.95);
+            border-color: #94a3b8;
+            color: #f8fafc;
         }
         .paywall-cta {
             margin-top: 24px;
@@ -768,6 +796,16 @@
         }
         .step-page .step-continue-btn {
             margin-top: 20px;
+        }
+        .step-page .step-actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .step-page .step-actions-row .step-continue-btn {
+            margin-top: 0;
         }
         .paywall-cta .paywall-cta-btn,
         .step-page .paywall-cta button {
@@ -1182,16 +1220,47 @@ You must respond by April 30, 2024.`;
             }
         }
 
+        /** Locked teaser: first ~40% sharp, remaining ~60% blurred (with sentence snap on visible tail). */
+        const TEASER_VISIBLE_FRACTION = 0.4;
+
+        function splitTeaserDeliverable(rawText) {
+            const full = rawText == null || rawText === '' ? '' : String(rawText);
+            if (!full.length) {
+                return { visible: '—', blurred: '' };
+            }
+            let splitIdx = Math.floor(full.length * TEASER_VISIBLE_FRACTION);
+            if (splitIdx <= 0) splitIdx = Math.min(1, full.length);
+            let visible = full.slice(0, splitIdx);
+            const windowStart = Math.max(0, visible.length - 120);
+            const lastPeriod = visible.lastIndexOf('.');
+            if (lastPeriod > windowStart) {
+                visible = visible.slice(0, lastPeriod + 1);
+            }
+            const blurred = full.slice(visible.length);
+            return { visible, blurred };
+        }
+
         function renderAnalyzeView(data) {
             const esc = escapeHtml;
             const summary = !data || data.summary == null || data.summary === '' ? '—' : String(data.summary);
+            const parts = splitTeaserDeliverable(summary);
+            const blurSection =
+                parts.blurred.length > 0
+                    ? '<div class="blur-heavy"><div class="step-plain-text">' + esc(parts.blurred) + '</div></div>'
+                    : '';
             return (
                 '<div class="step-page">' +
+                '<div class="step-page-nav">' +
+                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToIntakeFromResultFlow()">← Back</button>' +
+                '</div>' +
                 '<h2>Notice Analysis</h2>' +
-                '<div class="blur-heavy"><div class="step-plain-text">' + esc(summary) + '</div></div>' +
+                '<div class="teaser-visible step-plain-text">' + esc(parts.visible) + '</div>' +
+                blurSection +
+                '<div class="step-actions-row">' +
                 '<button type="button" class="btn-primary-wizard step-continue-btn" onclick="window.goToStrategyView()">Continue →</button>' +
+                '</div>' +
                 '<div class="paywall-cta">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Analysis — $59</button>' +
+                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Analysis — $29</button>' +
                 '</div>' +
                 '</div>'
             );
@@ -1200,13 +1269,24 @@ You must respond by April 30, 2024.`;
         function renderStrategyView(data) {
             const esc = escapeHtml;
             const strategy = !data || data.strategy == null || data.strategy === '' ? '—' : String(data.strategy);
+            const parts = splitTeaserDeliverable(strategy);
+            const blurSection =
+                parts.blurred.length > 0
+                    ? '<div class="blur-heavy"><div class="step-plain-text">' + esc(parts.blurred) + '</div></div>'
+                    : '';
             return (
                 '<div class="step-page">' +
+                '<div class="step-page-nav">' +
+                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToAnalyzeView()">← Back</button>' +
+                '</div>' +
                 '<h2>Response Strategy</h2>' +
-                '<div class="blur-heavy"><div class="step-plain-text">' + esc(strategy) + '</div></div>' +
+                '<div class="teaser-visible step-plain-text">' + esc(parts.visible) + '</div>' +
+                blurSection +
+                '<div class="step-actions-row">' +
                 '<button type="button" class="btn-primary-wizard step-continue-btn" onclick="window.goToLetterView()">Continue →</button>' +
+                '</div>' +
                 '<div class="paywall-cta">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Strategy — $59</button>' +
+                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Strategy — $29</button>' +
                 '</div>' +
                 '</div>'
             );
@@ -1214,47 +1294,35 @@ You must respond by April 30, 2024.`;
 
         function renderLetterView(data) {
             const full = (data && data.letter) ? String(data.letter) : '';
-            const allBlurredTemplate = () => (
-                '<div class="step-page">' +
-                '<h2>Your IRS Response Letter</h2>' +
-                '<div class="letter-blurred"><div class="step-plain-text">' + escapeHtml(full) + '</div></div>' +
-                '<div class="paywall-cta big">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Letter — $59</button>' +
-                '</div>' +
-                '</div>'
-            );
-
-            if (full.length <= 500) {
-                return allBlurredTemplate();
+            if (!full.trim()) {
+                return (
+                    '<div class="step-page">' +
+                    '<div class="step-page-nav">' +
+                    '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToStrategyView()">← Back</button>' +
+                    '</div>' +
+                    '<h2>Your IRS Response Letter</h2>' +
+                    '<p class="step-plain-text" style="margin:0;color:#94a3b8;">—</p>' +
+                    '<div class="paywall-cta big">' +
+                    '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Letter — $29</button>' +
+                    '</div>' +
+                    '</div>'
+                );
             }
-
-            const minVisible = 400;
-            const targetSplit = Math.max(minVisible, Math.floor(full.length * 0.3));
-
-            let visible = full.slice(0, targetSplit);
-
-            const windowStart = Math.max(0, visible.length - 120);
-            const lastPeriod = visible.lastIndexOf('.');
-
-            if (lastPeriod > windowStart) {
-                visible = visible.slice(0, lastPeriod + 1);
-            }
-
-            const hidden = full.slice(visible.length);
-
-            if (hidden.trim().length < 80) {
-                return allBlurredTemplate();
-            }
-
-            const safeVisible = escapeHtml(visible);
-            const safeHidden = escapeHtml(hidden);
+            const parts = splitTeaserDeliverable(full);
+            const blurSection =
+                parts.blurred.length > 0
+                    ? '<div class="letter-blurred"><div class="step-plain-text">' + escapeHtml(parts.blurred) + '</div></div>'
+                    : '';
             return (
                 '<div class="step-page">' +
+                '<div class="step-page-nav">' +
+                '<button type="button" class="btn-outline step-back-btn" onclick="window.goBackToStrategyView()">← Back</button>' +
+                '</div>' +
                 '<h2>Your IRS Response Letter</h2>' +
-                '<div class="letter-visible">' + safeVisible + '</div>' +
-                '<div class="letter-blurred"><div class="step-plain-text">' + safeHidden + '</div></div>' +
+                '<div class="letter-visible">' + escapeHtml(parts.visible) + '</div>' +
+                blurSection +
                 '<div class="paywall-cta big">' +
-                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Letter — $59</button>' +
+                '<button type="button" class="paywall-cta-btn" onclick="goToPayment()">Unlock Full Letter — $29</button>' +
                 '</div>' +
                 '</div>'
             );
@@ -1318,6 +1386,20 @@ You must respond by April 30, 2024.`;
 
         window.goToLetterView = function () {
             resultViewStep = 'letter';
+            renderResultStep();
+        };
+
+        window.goBackToIntakeFromResultFlow = function () {
+            goToStep(1);
+        };
+
+        window.goBackToAnalyzeView = function () {
+            resultViewStep = 'analyze';
+            renderResultStep();
+        };
+
+        window.goBackToStrategyView = function () {
+            resultViewStep = 'strategy';
             renderResultStep();
         };
 
