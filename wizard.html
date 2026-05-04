@@ -165,13 +165,17 @@
     input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="password"],
     select, textarea {
       width: 100%;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #e8edf5;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #1a2332;
       padding: 10px 14px;
       border-radius: 8px;
       font-size: 14px;
       font-family: inherit;
+    }
+    select, select option {
+      background: #ffffff;
+      color: #1a2332;
     }
     textarea { min-height: 100px; resize: vertical; }
     input:focus, select:focus, textarea:focus {
@@ -191,6 +195,9 @@
       gap: 12px;
       margin-top: 28px;
       align-items: center;
+    }
+    .btn-row--nav .btn-primary {
+      margin-left: auto;
     }
     .btn-primary {
       background: #4a9eff;
@@ -219,11 +226,27 @@
     }
     .btn-secondary:hover { border-color: rgba(255,255,255,0.35); color: #b0c4de; }
 
+    .btn-back {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #8a9ab5;
+      padding: 13px 28px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+    .btn-back:hover {
+      border-color: rgba(255,255,255,0.35);
+      color: #b0c4de;
+    }
+
     .radio-card {
       display: block;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       padding: 16px;
       cursor: pointer;
       margin-bottom: 10px;
@@ -232,16 +255,24 @@
       border-color: #4a9eff;
       background: rgba(74, 158, 255, 0.08);
     }
-    .radio-card input { margin-right: 10px; }
-    .radio-card .title { font-weight: 600; color: #e8edf5; }
-    .radio-card .sub { font-size: 12px; color: #8a9ab5; margin-top: 4px; }
+    .radio-card input { margin-right: 10px; accent-color: #4a9eff; }
+    .radio-card .title { font-weight: 600; color: #1a2332; }
+    .radio-card .sub { font-size: 12px; color: #6a7a95; margin-top: 4px; }
 
     .nested-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #ffffff;
+      color: #1a2332;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 24px;
       margin-top: 16px;
+    }
+    .nested-card .letter-preview-body {
+      white-space: pre-wrap;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #1a2332;
     }
 
     .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -255,56 +286,68 @@
       font-weight: 500;
     }
 
-    .blurred-wrap { position: relative; border-radius: 12px; overflow: hidden; }
     .blurred-content {
       filter: blur(5px);
-      opacity: 0.65;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 35%,
+        black 50%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 35%,
+        black 50%
+      );
       user-select: none;
       pointer-events: none;
-      position: relative;
     }
-    .blur-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-      background: rgba(10, 20, 40, 0.4);
-      border-radius: 12px;
-      z-index: 10;
-      cursor: pointer;
-    }
-    .blur-overlay.cta-box { cursor: default; }
-    .blur-overlay p { color: #c8d8ee; font-size: 14px; max-width: 320px; margin-top: 8px; }
 
-    .step-full-blur-inner {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      min-height: 100px;
+    .step-blur-stack {
+      display: grid;
+      min-width: 0;
     }
-    .step-full-blur-content.blurred-content {
-      filter: blur(5px);
-      opacity: 0.65;
-      user-select: none;
-      pointer-events: none;
+    .step-blur-stack > .step-blur-sharp,
+    .step-blur-stack > .step-blur-fog {
+      grid-area: 1 / 1;
+      min-width: 0;
     }
-    .blur-overlay--fullstep {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    .step-blur-sharp {
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 35%,
+        transparent 50%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 35%,
+        transparent 50%
+      );
+    }
+
+    .step-letter-paywall {
       text-align: center;
-      padding: 24px;
-      background: rgba(10, 20, 40, 0.45);
+      padding: 28px 24px;
+      margin-top: 20px;
+      background: #ffffff;
+      color: #1a2332;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      z-index: 10;
     }
+    .step-letter-paywall .step-letter-paywall-lead {
+      margin: 0;
+      color: #1a2332;
+      font-size: 16px;
+      font-weight: 700;
+      max-width: 340px;
+      line-height: 1.35;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .step-letter-paywall .err { text-align: center; }
 
     .loading-block { text-align: center; padding: 40px 20px; }
     .spinner {
@@ -319,20 +362,22 @@
     .loading-status { color: #8a9ab5; font-size: 14px; }
 
     .hard-stop {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: #ffffff;
+      color: #1a2332;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 20px;
       margin: 20px 0;
     }
-    .hard-stop h3 { color: #fbbf24; font-size: 17px; margin-bottom: 8px; }
-    .hard-stop p { color: #c8d8ee; font-size: 14px; }
+    .hard-stop h3 { color: #b45309; font-size: 17px; margin-bottom: 8px; }
+    .hard-stop p { color: #1a2332; font-size: 14px; }
     .hard-stop a { color: #4a9eff; font-weight: 600; }
 
     .api-error {
-      background: rgba(255, 100, 60, 0.08);
-      border: 1px solid rgba(255, 100, 60, 0.25);
-      border-radius: 10px;
+      background: #ffffff;
+      color: #1a2332;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       padding: 16px;
       margin-top: 16px;
     }
@@ -342,7 +387,7 @@
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: #8a9ab5;
+      color: #64748b;
       font-size: 14px;
     }
     .currency-field input { padding-left: 28px; }
@@ -705,22 +750,22 @@ function lockIconSvg() {
   return `<svg width="36" height="36" style="margin-bottom:8px" fill="none" stroke="#4a9eff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`;
 }
 
-function fullStepBlurOverlay() {
+function letterPaywallCta() {
   return `
-    <div class="blur-overlay blur-overlay--fullstep cta-box">
+    <div class="step-letter-paywall">
       ${lockIconSvg()}
-      <p style="margin:0;color:#fff;font-size:16px;font-weight:700;max-width:340px;line-height:1.35">Unlock your full analysis and letter — $29</p>
+      <p class="step-letter-paywall-lead">Unlock your full analysis and letter — $29</p>
       <button type="button" id="stepBlurCheckout" class="btn-primary" style="margin-top:14px" onclick="startCheckout(event)">Get Your Letter — $29</button>
       <p class="err" id="checkoutErrStep" style="margin-top:10px"></p>
     </div>`;
 }
 
-function wrapStep345(stepInnerHtml) {
-  if (!shouldBlur()) return stepInnerHtml;
+function stepBlurStack(innerHtml) {
+  if (!shouldBlur()) return innerHtml;
   return `
-    <div class="step-full-blur-inner">
-      <div class="step-full-blur-content blurred-content">${stepInnerHtml}</div>
-      ${fullStepBlurOverlay()}
+    <div class="step-blur-stack">
+      <div class="step-blur-sharp">${innerHtml}</div>
+      <div class="step-blur-fog blurred-content">${innerHtml}</div>
     </div>`;
 }
 
@@ -952,7 +997,7 @@ function render() {
         ${notSure ? '<p class="helper">No problem — we\'ll detect it automatically</p>' : ''}
         <div class="err">${state.fieldErrors.noticeType || ''}</div>
       </div>
-      <div class="btn-row">
+      <div class="btn-row btn-row--nav">
         <button type="button" class="btn-primary" onclick="step1Next()">Next — Add Your Details</button>
       </div>`;
   }
@@ -1013,8 +1058,8 @@ function render() {
         <label class="lbl">In your own words, what’s going on? <span style="font-weight:400;color:#6a7a95">(optional)</span></label>
         <textarea data-bind="situationDescription" placeholder="Any context that would help us draft a stronger letter…">${escapeHtml(state.situationDescription)}</textarea>
       </div>
-      <div class="btn-row">
-        <button type="button" class="btn-secondary" onclick="__wizGoStep(1)">Back</button>
+      <div class="btn-row btn-row--nav">
+        <button type="button" class="btn-back" onclick="__wizGoStep(1)">Back</button>
         <button type="button" class="btn-primary" onclick="__wizAnalyze()" ${state.loading ? 'disabled' : ''}>Analyze My Notice →</button>
       </div>
       ${state.loading ? `<div class="loading-block"><div class="spinner"></div><p class="loading-status">${ANALYSIS_LOADING_MSGS[state.loadingMsgIndex % ANALYSIS_LOADING_MSGS.length]}</p></div>` : ''}
@@ -1025,13 +1070,13 @@ function render() {
     const a = state.analysis_json || {};
     const badges = citationsList(a);
     const inner = `
-      <p style="color:#8a9ab5;font-size:13px;margin-bottom:12px"><strong style="color:#4a9eff">Detected type</strong> ${escapeHtml(String(a.notice_type || '—'))}</p>
+      <p style="color:#64748b;font-size:13px;margin-bottom:12px"><strong style="color:#4a9eff">Detected type</strong> ${escapeHtml(String(a.notice_type || '—'))}</p>
       <p style="margin-bottom:8px"><strong>Primary issue</strong><br>${escapeHtml(String(a.primary_issue || '—'))}</p>
       <p style="margin-bottom:8px"><strong>Tax year</strong><br>${escapeHtml(String(a.tax_year || state.taxYear || '—'))}</p>
       ${a.irs_amount !== '' && a.irs_amount != null ? `<p style="margin-bottom:8px"><strong>IRS claimed amount</strong><br>${escapeHtml(String(a.irs_amount))}</p>` : ''}
       <p style="margin-bottom:8px"><strong>Summary</strong><br>${escapeHtml(String(a.summary || a.analysis_summary || '—'))}</p>
       ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge">${escapeHtml(b)}</span>`).join('')}</div>` : ''}`;
-    const step3Inner = `
+    const step3BlurBody = `
       <h2 class="step-heading">Analysis</h2>
       <p class="step-sub">Here’s what we found in your notice.</p>
       ${state.hard_stop ? `
@@ -1040,12 +1085,13 @@ function render() {
           <p>This notice may involve issues requiring a licensed tax attorney or CPA. We recommend consulting a professional before responding.</p>
           <p style="margin-top:12px"><a href="https://www.irs.gov/taxpayer-advocate" target="_blank" rel="noopener">Find a Tax Professional →</a></p>
         </div>` : ''}
-      <div class="nested-card">${inner}</div>
-      <div class="btn-row">
-        <button type="button" class="btn-secondary" onclick="__wizGoStep(2)">Back</button>
+      <div class="nested-card">${inner}</div>`;
+    html = `
+      ${stepBlurStack(step3BlurBody)}
+      <div class="btn-row btn-row--nav">
+        <button type="button" class="btn-back" onclick="__wizGoStep(2)">Back</button>
         <button type="button" class="btn-primary" onclick="__wizGoStep(4)" ${state.hard_stop ? 'disabled' : ''}>Next — Choose Strategy</button>
       </div>`;
-    html = wrapStep345(step3Inner);
   }
 
   if (state.step === 4) {
@@ -1092,31 +1138,32 @@ function render() {
         </div>
       </div>`;
     const strategyPreview = `
-      <p style="margin:0 0 8px;color:#b0c4de;font-size:14px"><strong style="color:#e8edf5">Recommended angles</strong> tailored to your ${escapeHtml(String(state.analysis_json?.notice_type || 'notice'))}:</p>
-      <ul style="margin:0;padding-left:1.25rem;color:#c8d8ee;font-size:14px;line-height:1.7">
+      <p style="margin:0 0 8px;color:#64748b;font-size:14px"><strong style="color:#1a2332">Recommended angles</strong> tailored to your ${escapeHtml(String(state.analysis_json?.notice_type || 'notice'))}:</p>
+      <ul style="margin:0;padding-left:1.25rem;color:#475569;font-size:14px;line-height:1.7">
         <li>Align your position with the facts in your letter and supporting documents.</li>
         <li>Cite applicable IRS procedures and deadlines where they strengthen your case.</li>
         <li>Request the specific resolution you described in your details step.</li>
       </ul>`;
-    const step4Inner = `
+    const step4BlurTail = `
+      <p class="helper" style="margin:20px 0 8px">Personalized strategy summary</p>
+      <div class="nested-card">${strategyPreview}</div>`;
+    html = `
       <h2 class="step-heading">Strategy</h2>
       <p class="step-sub">Choose how you want to approach your response.</p>
       ${formHtml}
-      <p class="helper" style="margin:20px 0 8px">Personalized strategy summary</p>
-      <div class="nested-card">${strategyPreview}</div>
-      <div class="btn-row">
-        <button type="button" class="btn-secondary" onclick="__wizGoStep(3)">Back</button>
+      ${stepBlurStack(step4BlurTail)}
+      <div class="btn-row btn-row--nav">
+        <button type="button" class="btn-back" onclick="__wizGoStep(3)">Back</button>
         <button type="button" class="btn-primary" onclick="__wizGenerateLetter()" ${state.loading ? 'disabled' : ''}>Generate My Letter →</button>
       </div>
       ${state.loading ? `<div class="loading-block"><div class="spinner"></div><p class="loading-status">${LETTER_LOADING_MSGS[state.loadingMsgIndex % LETTER_LOADING_MSGS.length]}</p></div>` : ''}
       ${state.apiError ? `<div class="api-error">${escapeHtml(state.apiError)}<br><button type="button" class="btn-primary" style="margin-top:12px" onclick="__wizGenerateLetter()">Try Again</button></div>` : ''}`;
-    html = wrapStep345(step4Inner);
   }
 
   if (state.step === 5) {
     const displayText = state.letter_full || state.preview_text || '';
     const letterText = escapeHtml(displayText);
-    const letterBlock = `<div style="white-space:pre-wrap;font-family:Georgia,serif;font-size:14px;line-height:1.75;color:#c8d8ee">${letterText}</div>`;
+    const letterBlock = `<div class="letter-preview-body">${letterText}</div>`;
     const paidExtras = !shouldBlur() ? `
         <div class="btn-row" style="margin-top:20px">
           ${state.letter_full ? `
@@ -1126,15 +1173,17 @@ function render() {
         ${state.letter_full ? '' : '<p class="helper">Unlock this letter from the preview step after payment, or open your paid document from the dashboard.</p>'}
         ${state.redirect_url ? `<p class="helper" style="margin-top:16px">Open your letter: <a href="${escapeHtml(state.redirect_url)}" style="color:#4a9eff">Continue</a></p>` : ''}` : '';
 
-    const step5Inner = `
+    const letterCard = `<div class="nested-card">${letterBlock}</div>`;
+    const letterBlockHtml = shouldBlur()
+      ? `${stepBlurStack(letterCard)}${letterPaywallCta()}`
+      : `${letterCard}${paidExtras}`;
+    html = `
       <h2 class="step-heading">Your Letter</h2>
       <p class="step-sub">Review your draft, then unlock the full letter.</p>
-      <div class="nested-card">${letterBlock}</div>
-      ${paidExtras}
-      <div class="btn-row">
-        <button type="button" class="btn-secondary" onclick="__wizGoStep(4)">Back</button>
+      ${letterBlockHtml}
+      <div class="btn-row btn-row--nav">
+        <button type="button" class="btn-back" onclick="__wizGoStep(4)">Back</button>
       </div>`;
-    html = wrapStep345(step5Inner);
   }
 
   root.innerHTML = html;
